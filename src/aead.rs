@@ -4,7 +4,7 @@ use aead::{AeadInPlace, KeyInit, KeySizeUser};
 use alloc::{boxed::Box, vec::Vec};
 use rustls::{
     crypto::cipher::{self, MessageEncrypter},
-    internal::cipher::MessageDecrypter,
+    internal::{cipher::MessageDecrypter, msgs::base::Payload},
     ContentType, ProtocolVersion,
 };
 type NonceSize = [u8; 12];
@@ -92,7 +92,7 @@ where
         mut m: cipher::OpaqueMessage,
         seq: u64,
     ) -> Result<cipher::PlainMessage, rustls::Error> {
-        let payload = m.payload_mut();
+        let payload = &mut m.payload.0;
         let nonce = cipher::Nonce::new(&self.1, seq).0;
         let aad = cipher::make_tls13_aad(payload.len());
 
@@ -129,11 +129,11 @@ where
             .encrypt_in_place(&nonce.into(), &aad, &mut payload)
             .map_err(|_| rustls::Error::EncryptError)
             .and_then(|_| {
-                Ok(cipher::OpaqueMessage::new(
-                    ContentType::ApplicationData,
-                    ProtocolVersion::TLSv1_2,
-                    payload,
-                ))
+                Ok(cipher::OpaqueMessage {
+                    typ: ContentType::ApplicationData,
+                    version: ProtocolVersion::TLSv1_2,
+                    payload: Payload::new(payload),
+                })
             })
     }
 }
@@ -162,7 +162,13 @@ where
         self.0
             .encrypt_in_place(&nonce.into(), &aad, &mut payload)
             .map_err(|_| rustls::Error::EncryptError)
-            .and_then(|_| Ok(cipher::OpaqueMessage::new(m.typ, m.version, payload)))
+            .and_then(|_| {
+                Ok(cipher::OpaqueMessage {
+                    typ: m.typ,
+                    version: m.version,
+                    payload: Payload::new(payload),
+                })
+            })
     }
 }
 
@@ -177,7 +183,7 @@ where
         mut m: cipher::OpaqueMessage,
         seq: u64,
     ) -> Result<cipher::PlainMessage, rustls::Error> {
-        let payload = m.payload();
+        let payload = &mut m.payload.0;
         let nonce = cipher::Nonce::new(&self.1, seq).0;
         let aad = cipher::make_tls12_aad(
             seq,
@@ -186,7 +192,6 @@ where
             payload.len() - <Self as AeadMetaTls12>::OVERHEAD,
         );
 
-        let payload = m.payload_mut();
         self.0
             .decrypt_in_place(&nonce.into(), &aad, payload)
             .map_err(|_| rustls::Error::DecryptError)?;
@@ -221,12 +226,12 @@ impl AeadMetaTls13 for AeadCipherTls13<aes_gcm::Aes256Gcm> {
 
 // TODO
 // impl AeadMetaTls12 for AeadCipherTls12<aes_gcm::Aes256Gcm> {
-//     const OVERHEAD: usize = 16;
+//     const OVERHEAD: usize = 24;
 
 //     fn key_block_shape() -> cipher::KeyBlockShape {
 //         cipher::KeyBlockShape {
 //             enc_key_len: aes_gcm::Aes256Gcm::key_size(),
-//             fixed_iv_len: 12,
+//             fixed_iv_len: 4,
 //             explicit_nonce_len: 8,
 //         }
 //     }
