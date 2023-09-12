@@ -13,6 +13,7 @@ trait AeadMetaTls13 {
     const OVERHEAD: usize;
 }
 
+#[cfg(feature = "tls12")]
 trait AeadMetaTls12 {
     const OVERHEAD: usize;
 
@@ -50,6 +51,7 @@ where
     }
 }
 
+#[cfg(feature = "tls12")]
 impl<T> cipher::Tls12AeadAlgorithm for Aead<T>
 where
     T: Send + Sync + KeyInit + KeySizeUser + aead::AeadInPlace + 'static,
@@ -138,8 +140,10 @@ where
     }
 }
 
+#[cfg(feature = "tls12")]
 struct AeadCipherTls12<T>(T, cipher::Iv);
 
+#[cfg(feature = "tls12")]
 impl<T> cipher::MessageEncrypter for AeadCipherTls12<T>
 where
     T: Send + Sync + AeadInPlace,
@@ -166,6 +170,7 @@ where
     }
 }
 
+#[cfg(feature = "tls12")]
 impl<T> cipher::MessageDecrypter for AeadCipherTls12<T>
 where
     T: Send + Sync + AeadInPlace,
@@ -199,6 +204,7 @@ impl AeadMetaTls13 for AeadCipherTls13<chacha20poly1305::ChaCha20Poly1305> {
     const OVERHEAD: usize = 16;
 }
 
+#[cfg(feature = "tls12")]
 impl AeadMetaTls12 for AeadCipherTls12<chacha20poly1305::ChaCha20Poly1305> {
     const OVERHEAD: usize = 16;
 
@@ -220,8 +226,8 @@ impl AeadMetaTls13 for AeadCipherTls13<aes_gcm::Aes256Gcm> {
 }
 
 // TODO
-// impl AeadMetaTls12 for AeadCipherTls12<aes_gcm::Aes256Gcm> {
-//     const OVERHEAD: usize = 16;
+// #[cfg(feature = "tls12")] impl AeadMetaTls12 for AeadCipherTls12<aes_gcm::Aes256Gcm> {
+//     const OVERHEAD: usize = 24;
 
 //     fn key_block_shape() -> cipher::KeyBlockShape {
 //         cipher::KeyBlockShape {

@@ -38,11 +38,13 @@ static ALL_CIPHER_SUITES: &[rustls::SupportedCipherSuite] = &[
     TLS13_AES_128_GCM_SHA256,
     TLS13_AES_256_GCM_SHA384,
     TLS13_AES_128_CCM_SHA256,
+    #[cfg(feature = "tls12")]
     TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+    #[cfg(feature = "tls12")]
     TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
     // Warning: the following cipher suites are buggy at the moment
-    // TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-    // TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+    // #[cfg(feature = "tls12")] TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+    // #[cfg(feature = "tls12")] TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 ];
 
 pub static TLS13_CHACHA20_POLY1305_SHA256: rustls::SupportedCipherSuite =
@@ -85,6 +87,7 @@ pub static TLS13_AES_256_GCM_SHA384: rustls::SupportedCipherSuite =
         aead_alg: &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
     });
 
+#[cfg(feature = "tls12")]
 pub static TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: rustls::SupportedCipherSuite =
     rustls::SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: rustls::cipher_suite::CipherSuiteCommon {
@@ -100,7 +103,7 @@ pub static TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: rustls::SupportedCiphe
         hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
         aead_alg: &aead::Aead::<chacha20poly1305::ChaCha20Poly1305>::DEFAULT,
     });
-
+#[cfg(feature = "tls12")]
 pub static TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: rustls::SupportedCipherSuite =
     rustls::SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: rustls::cipher_suite::CipherSuiteCommon {
@@ -117,7 +120,7 @@ pub static TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: rustls::SupportedCipherS
     });
 
 // TODO
-// pub static TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: rustls::SupportedCipherSuite =
+// #[cfg(feature = "tls12")] pub static TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: rustls::SupportedCipherSuite =
 //     rustls::SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
 //         common: rustls::cipher_suite::CipherSuiteCommon {
 //             suite: rustls::CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
@@ -132,7 +135,7 @@ pub static TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: rustls::SupportedCipherS
 //         aead_alg: &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
 //     });
 
-// pub static TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: rustls::SupportedCipherSuite =
+// #[cfg(feature = "tls12")] pub static TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: rustls::SupportedCipherSuite =
 //     rustls::SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
 //         common: rustls::cipher_suite::CipherSuiteCommon {
 //             suite: rustls::CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
