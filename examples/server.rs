@@ -1,15 +1,19 @@
+use hyper::{
+    server::conn::AddrIncoming,
+    service::{make_service_fn, service_fn},
+    Body, Method, Request, Response, Server, StatusCode,
+};
+use hyper_rustls::TlsAcceptor;
 use pki_types::{CertificateDer, PrivateKeyDer};
-use rustls::crypto::CryptoProvider;
-use rustls::server::{ClientHello, ResolvesServerCert};
-use rustls::{sign, ServerConfig};
-use rustls_provider_rustcrypto::sign::ecdsa::EcdsaSigningKey;
-use rustls_provider_rustcrypto::Provider;
+use rustls::{
+    crypto::CryptoProvider,
+    server::{ClientHello, ResolvesServerCert},
+    sign, ServerConfig,
+};
+use rustls_provider_rustcrypto::{sign::ecdsa::EcdsaSigningKey, Provider};
 use std::io::{self};
 use std::net::ToSocketAddrs;
 use std::sync::Arc;
-use tokio::io::{copy, sink, AsyncWriteExt};
-use tokio::net::TcpListener;
-use tokio_rustls::TlsAcceptor;
 
 struct TestResolvesServerCert(Arc<sign::CertifiedKey>);
 
@@ -90,38 +94,37 @@ async fn main() -> eyre::Result<()> {
         .to_socket_addrs()?
         .next()
         .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))?;
-    let acceptor = TlsAcceptor::from(server_config);
+    let incoming = AddrIncoming::bind(&addr)?;
+    let acceptor = TlsAcceptor::builder()
+        .with_tls_config(server_config.as_ref().clone())
+        .with_all_versions_alpn()
+        .with_incoming(incoming);
+    let service = make_service_fn(|_| async { Ok::<_, io::Error>(service_fn(echo)) });
+    let server = Server::builder(acceptor).serve(service);
 
-    let listener = TcpListener::bind(&addr).await?;
+    // Run the future, keep going until an error occurs.
+    println!("Starting to serve on https://{}.", addr);
+    server.await?;
+    Ok(())
+}
 
-    loop {
-        let (stream, peer_addr) = listener.accept().await?;
-        let acceptor = acceptor.clone();
-
-        let fut = async move {
-            let mut stream = acceptor.accept(stream).await?;
-
-            let mut output = sink();
-            stream
-                .write_all(
-                    &b"HTTP/1.0 200 ok\r\n\
-                Connection: close\r\n\
-                Content-length: 12\r\n\
-                \r\n\
-                Hello world!"[..],
-                )
-                .await?;
-            stream.shutdown().await?;
-            copy(&mut stream, &mut output).await?;
-            println!("Hello: {}", peer_addr);
-
-            Ok(()) as io::Result<()>
-        };
-
-        tokio::spawn(async move {
-            if let Err(err) = fut.await {
-                eprintln!("{:?}", err);
-            }
-        });
-    }
+// Custom echo service, handling two different routes and a
+// catch-all 404 responder.
+async fn echo(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
+    let mut response = Response::new(Body::empty());
+    match (req.method(), req.uri().path()) {
+        // Help route.
+        (&Method::GET, "/") => {
+            *response.body_mut() = Body::from("Try POST /echo\n");
+        }
+        // Echo service route.
+        (&Method::POST, "/echo") => {
+            *response.body_mut() = req.into_body();
+        }
+        // Catch-all 404.
+        _ => {
+            *response.status_mut() = StatusCode::NOT_FOUND;
+        }
+    };
+    Ok(response)
 }
