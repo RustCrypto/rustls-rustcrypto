@@ -5,12 +5,13 @@ extern crate alloc;
 
 use alloc::sync::Arc;
 
+#[cfg(feature = "tls12")]
+use rustls::SignatureScheme;
 use rustls::{
     cipher_suite::CipherSuiteCommon,
     client::{ServerCertVerifier, WebPkiServerVerifier},
     crypto::{CryptoProvider, GetRandomFailed},
-    CipherSuite, RootCertStore, SignatureScheme, SupportedCipherSuite, SupportedKxGroup,
-    Tls13CipherSuite,
+    CipherSuite, RootCertStore, SupportedCipherSuite, SupportedKxGroup, Tls13CipherSuite,
 };
 use sha2::{Sha256, Sha384};
 #[derive(Debug)]
@@ -158,6 +159,9 @@ const TLS12_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     TLS_ECDHE_ECDSA_SUITES,
     TLS_ECDHE_RSA_SUITES
 );
+
+#[cfg(not(feature = "tls12"))]
+const TLS12_SUITES: &[SupportedCipherSuite] = &[];
 
 pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {

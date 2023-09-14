@@ -1,17 +1,19 @@
 use alloc::{boxed::Box, vec::Vec};
 use core::marker::PhantomData;
 
-use aead::{AeadCore, AeadInPlace};
-use aes_gcm::AesGcm;
-use chacha20poly1305::ChaChaPoly1305;
+use aead::AeadInPlace;
 use crypto_common::{KeyInit, KeySizeUser};
-use generic_array::ArrayLength;
 use rustls::{
     crypto::cipher::{
-        self, AeadKey, BorrowedPlainMessage, KeyBlockShape, MessageDecrypter, MessageEncrypter,
-        OpaqueMessage, PlainMessage, Tls12AeadAlgorithm, Tls13AeadAlgorithm,
+        self, AeadKey, BorrowedPlainMessage, MessageDecrypter, MessageEncrypter, OpaqueMessage,
+        PlainMessage, Tls13AeadAlgorithm,
     },
     ContentType, ProtocolVersion,
+};
+#[cfg(feature = "tls12")]
+use {
+    aead::AeadCore, aes_gcm::AesGcm, chacha20poly1305::ChaChaPoly1305, generic_array::ArrayLength,
+    rustls::crypto::cipher::KeyBlockShape, rustls::crypto::cipher::Tls12AeadAlgorithm,
 };
 
 type NonceType = [u8; 12];
@@ -109,23 +111,17 @@ where
     AeadCipherTls12<ChaChaPoly1305<C, N>>: AeadMetaTls12,
     aead::Nonce<ChaChaPoly1305<C, N>>: From<NonceType>,
 {
-    fn encrypter(&self, key: AeadKey, _iv: &[u8], _extra: &[u8]) -> Box<dyn MessageEncrypter> {
+    fn encrypter(&self, key: AeadKey, iv: &[u8], _extra: &[u8]) -> Box<dyn MessageEncrypter> {
         Box::new(AeadCipherTls12(
             ChaChaPoly1305::<C, N>::new_from_slice(key.as_ref()).unwrap(),
-            {
-                let mut nonce = NonceType::default();
-                nonce.copy_from_slice(key.as_ref());
-                nonce
-            },
+            iv.try_into().unwrap(),
         ))
     }
 
-    fn decrypter(&self, key: AeadKey, _iv: &[u8]) -> Box<dyn MessageDecrypter> {
-        let mut nonce = NonceType::default();
-        nonce.copy_from_slice(key.as_ref());
+    fn decrypter(&self, key: AeadKey, iv: &[u8]) -> Box<dyn MessageDecrypter> {
         Box::new(AeadCipherTls12(
             ChaChaPoly1305::<C, N>::new_from_slice(key.as_ref()).unwrap(),
-            nonce,
+            iv.try_into().unwrap(),
         ))
     }
 
