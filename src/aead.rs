@@ -317,6 +317,10 @@ where
             .map_err(|_| rustls::Error::DecryptError)?;
             tag_pos
         };
+
+        // We defer the truncation to here, because we may inadverntly shifted the original data if the decryption failed.
+        // Another way to avoid this is to clone the payload slice starting after the explicit nonce, 
+        // but this will cause an additional cloning and copying
         payload.rotate_left(8);
         payload.truncate(tag_pos);
         Ok(m.into_plain_message())
