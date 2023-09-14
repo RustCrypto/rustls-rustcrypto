@@ -28,8 +28,8 @@ macro_rules! const_concat_slices {
         __CONCATENATED
     }};
     ($ty:ty, $a:expr, $b:expr, $($c:expr), + $(,)* ) => {{
-        const con: &[$ty] = const_concat_slices!($ty, $a, $b);
-        const_concat_slices!($ty, con, $($c), +)
+        const CON: &[$ty] = const_concat_slices!($ty, $a, $b);
+        const_concat_slices!($ty, CON, $($c), +)
     }}
 }
 
