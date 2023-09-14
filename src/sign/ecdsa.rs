@@ -21,8 +21,6 @@ impl TryFrom<PrivateKeyDer<'_>> for EcdsaSigningKey<p256::ecdsa::SigningKey> {
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
-            PrivateKeyDer::Pkcs1(_) => todo!(),
-            PrivateKeyDer::Sec1(_) => todo!(),
             PrivateKeyDer::Pkcs8(der) => {
                 p256::ecdsa::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| Self {
                     key: Arc::new(kp),
@@ -39,8 +37,6 @@ impl TryFrom<PrivateKeyDer<'_>> for EcdsaSigningKey<p384::ecdsa::SigningKey> {
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
-            PrivateKeyDer::Pkcs1(_) => todo!(),
-            PrivateKeyDer::Sec1(_) => todo!(),
             PrivateKeyDer::Pkcs8(der) => {
                 p384::ecdsa::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| Self {
                     key: Arc::new(kp),

@@ -83,8 +83,6 @@ impl TryFrom<PrivateKeyDer<'_>> for RsaSigningKey {
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
-            PrivateKeyDer::Pkcs1(_) => todo!(),
-            PrivateKeyDer::Sec1(_) => todo!(),
             PrivateKeyDer::Pkcs8(der) => {
                 RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der()).map(Self)
             }

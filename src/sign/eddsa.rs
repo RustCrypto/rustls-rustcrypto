@@ -16,11 +16,8 @@ impl TryFrom<PrivateKeyDer<'_>> for EddsaSigningKey<ed25519_dalek::SigningKey> {
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
-            PrivateKeyDer::Pkcs1(_) => todo!(),
-            PrivateKeyDer::Sec1(_) => todo!(),
             PrivateKeyDer::Pkcs8(der) => {
-                let pkcs8 = ed25519_dalek::SigningKey::from_pkcs8_der(der.secret_pkcs8_der());
-                pkcs8.map(|kp| Self {
+                ed25519_dalek::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| Self {
                     key: Arc::new(kp),
                     scheme: SignatureScheme::ED25519,
                 })

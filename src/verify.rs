@@ -15,31 +15,31 @@ use rsa::BigUint;
 use rsa::RsaPublicKey;
 use rsa::{pkcs1v15, pss};
 
+static RSA_PKCS1_SHA256: &dyn SignatureVerificationAlgorithm = &RsaPkcs1Verify::<Sha256>::DEFAULT;
+static RSA_PKCS1_SHA384: &dyn SignatureVerificationAlgorithm = &RsaPkcs1Verify::<Sha384>::DEFAULT;
+static RSA_PKCS1_SHA512: &dyn SignatureVerificationAlgorithm = &RsaPkcs1Verify::<Sha512>::DEFAULT;
+static RSA_PSS_SHA256: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha256>::DEFAULT;
+static RSA_PSS_SHA384: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha384>::DEFAULT;
+static RSA_PSS_SHA512: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha512>::DEFAULT;
+
 pub static ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
     all: &[
-        RSA_PSS_SHA512,
-        RSA_PSS_SHA384,
-        RSA_PSS_SHA256,
-        RSA_PKCS1_SHA512,
-        RSA_PKCS1_SHA384,
         RSA_PKCS1_SHA256,
+        RSA_PKCS1_SHA384,
+        RSA_PKCS1_SHA512,
+        RSA_PSS_SHA256,
+        RSA_PSS_SHA384,
+        RSA_PSS_SHA512,
     ],
     mapping: &[
-        (SignatureScheme::RSA_PSS_SHA512, &[RSA_PSS_SHA512]),
-        (SignatureScheme::RSA_PSS_SHA384, &[RSA_PSS_SHA384]),
-        (SignatureScheme::RSA_PSS_SHA256, &[RSA_PSS_SHA256]),
-        (SignatureScheme::RSA_PKCS1_SHA512, &[RSA_PKCS1_SHA512]),
-        (SignatureScheme::RSA_PKCS1_SHA384, &[RSA_PKCS1_SHA384]),
         (SignatureScheme::RSA_PKCS1_SHA256, &[RSA_PKCS1_SHA256]),
+        (SignatureScheme::RSA_PKCS1_SHA384, &[RSA_PKCS1_SHA384]),
+        (SignatureScheme::RSA_PKCS1_SHA512, &[RSA_PKCS1_SHA512]),
+        (SignatureScheme::RSA_PSS_SHA256, &[RSA_PSS_SHA256]),
+        (SignatureScheme::RSA_PSS_SHA384, &[RSA_PSS_SHA384]),
+        (SignatureScheme::RSA_PSS_SHA512, &[RSA_PSS_SHA512]),
     ],
 };
-
-static RSA_PSS_SHA512: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha512>::DEFAULT;
-static RSA_PSS_SHA384: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha384>::DEFAULT;
-static RSA_PSS_SHA256: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha256>::DEFAULT;
-static RSA_PKCS1_SHA512: &dyn SignatureVerificationAlgorithm = &RsaPkcs1Verify::<Sha512>::DEFAULT;
-static RSA_PKCS1_SHA384: &dyn SignatureVerificationAlgorithm = &RsaPkcs1Verify::<Sha384>::DEFAULT;
-static RSA_PKCS1_SHA256: &dyn SignatureVerificationAlgorithm = &RsaPkcs1Verify::<Sha256>::DEFAULT;
 
 trait SignatureAlgId {
     const SIG_ALGO_ID: AlgorithmIdentifier;
