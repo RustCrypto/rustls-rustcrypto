@@ -861,7 +861,7 @@ dependencies = [
 [[package]]
 name = "rustls"
 version = "0.22.0-alpha.2"
-source = "git+https://github.com/rustls/rustls?branch=jbp-generalise-crypto-usage-pt3#18737c79751296588585d653eaa7f8d9109de424"
+source = "git+https://github.com/stevefan1999-personal/rustls?branch=patch-1#9201852ce0c3c8e366f5e24655c874ab78e388e6"
 dependencies = [
  "log",
  "rustls-pki-types",
@@ -871,9 +871,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-pki-types"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebb6672f8a855dae20b13c4ff1602fbb63a889573c5cf8db4b6f2b9ddf7fcdd5"
+checksum = "a47003264dea418db67060fa420ad16d0d2f8f0a0360d825c00e177ac52cb5d8"
 
 [[package]]
 name = "rustls-provider-rustcrypto"
@@ -906,9 +906,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.102.0-alpha.2"
+version = "0.102.0-alpha.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de08e10de06e4629486244c0218a85df07d2791b9c37e76a22ac53b0413d551f"
+checksum = "77fecb40b15f8d5d22e08f89e0a0bfa2c17ddd5fc385700f96920bba2b99b680"
 dependencies = [
  "ring",
  "rustls-pki-types",
