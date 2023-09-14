@@ -44,4 +44,3 @@ hyper = "0.14.27"
 hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls", branch = "part-4", features = ["http2"] }
 rcgen = "0.11.1"
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
-tokio-rustls = { git = "https://github.com/stevefan1999-personal/tokio-rustls", branch = "part-4-patch" }
