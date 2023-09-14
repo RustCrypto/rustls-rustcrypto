@@ -62,6 +62,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.75"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1212,6 +1218,7 @@ version = "0.0.2"
 dependencies = [
  "aead",
  "aes-gcm",
+ "anyhow",
  "block-buffer",
  "ccm",
  "chacha20poly1305",
@@ -1661,9 +1668,12 @@ dependencies = [
 
 [[package]]
 name = "webpki-roots"
-version = "0.25.2"
+version = "0.26.0-alpha.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14247bb57be4f377dfb94c72830b8ce8fc6beac03cf4bf7b9732eadd414123fc"
+checksum = "42157929d7ca9c353222a4d1763c52ef86d25d0fd2eca66076df5975fd4e25ed"
+dependencies = [
+ "rustls-pki-types",
+]
 
 [[package]]
 name = "winapi"

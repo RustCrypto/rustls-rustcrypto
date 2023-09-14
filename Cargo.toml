@@ -40,7 +40,7 @@ webpki-roots = "0.26.0-alpha.1"
 x25519-dalek = "2"
 
 [features]
-default = ["logging", "dangerous_configuration", "std", "tls12"]
+default = ["logging", "dangerous_configuration", "tls12"]
 logging = ["rustls/logging"]
 dangerous_configuration = ["rustls/dangerous_configuration"]
 tls12 = ["rustls/tls12"]
@@ -56,4 +56,3 @@ hyper = "0.14.27"
 hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls", branch = "part-4", features = ["http2"] }
 rcgen = "0.11.1"
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
-

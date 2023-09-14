@@ -76,7 +76,6 @@ where
     ) -> Result<(), InvalidSignature> {
         let signature =
             ecdsa::Signature::<Curve>::from_der(signature).map_err(|_| InvalidSignature)?;
-
         ecdsa::VerifyingKey::<Curve>::from_sec1_bytes(public_key)
             .map_err(|_| InvalidSignature)?
             .verify(message, &signature)
