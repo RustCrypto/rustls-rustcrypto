@@ -157,16 +157,6 @@ const TLS12_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     TLS_ECDHE_RSA_SUITES
 );
 
-pub const TLS13_AES_128_CCM_SHA256: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_128_CCM_SHA256,
-            hash_provider: &hash::Hash::<Sha256>::DEFAULT,
-        },
-        hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
-        aead_alg: &aead::Aead::<aes_gcm::Aes128Gcm>::DEFAULT,
-    });
-
 pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -188,7 +178,6 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
     });
 
 const TLS13_AES_SUITES: &[SupportedCipherSuite] = &[
-    TLS13_AES_128_CCM_SHA256,
     TLS13_AES_128_GCM_SHA256,
     TLS13_AES_256_GCM_SHA384,
 ];
