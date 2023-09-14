@@ -15,3 +15,15 @@ This package is still in its very early phase, so until the grand part 3 PR is d
 ```
 rustls-provider-rustcrypto = { git = "https://github.com/stevefan1999/rustls-provider-rustcrypto", version = "0.0.2" }
 ```
+
+## Supported Cipher Suites
+
+- TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+- TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+- TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+- TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+- TLS13_AES_128_GCM_SHA256
+- TLS13_AES_256_GCM_SHA384
+- TLS13_CHACHA20_POLY1305_SHA256
