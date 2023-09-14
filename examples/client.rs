@@ -20,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
     let https = hyper_rustls::HttpsConnectorBuilder::new()
         .with_tls_config(config)
         .https_or_http()
-        .enable_http1()
+        .enable_all_versions()
         .build();
 
     // Build the hyper client from the HTTPS connector.
@@ -31,7 +31,7 @@ async fn main() -> anyhow::Result<()> {
     // stdout.
     let fut = async move {
         let res = client
-            .get(Uri::from_str("https://youtube.com")?)
+            .get(Uri::from_str("https://sha256.badssl.com/")?)
             .await
             .map_err(|e| anyhow!("Could not get: {:?}", e))?;
         println!("Status:\n{}", res.status());

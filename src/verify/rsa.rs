@@ -77,9 +77,7 @@ where
         signature: &[u8],
     ) -> Result<(), InvalidSignature> {
         let public_key = decode_spki_spk(public_key)?;
-
         let signature = pkcs1v15::Signature::try_from(signature).map_err(|_| InvalidSignature)?;
-
         pkcs1v15::VerifyingKey::<D>::new(public_key)
             .verify(message, &signature)
             .map_err(|_| InvalidSignature)
@@ -107,9 +105,7 @@ where
         signature: &[u8],
     ) -> Result<(), InvalidSignature> {
         let public_key = decode_spki_spk(public_key)?;
-
         let signature = pss::Signature::try_from(signature).map_err(|_| InvalidSignature)?;
-
         pss::VerifyingKey::<D>::new(public_key)
             .verify(message, &signature)
             .map_err(|_| InvalidSignature)
