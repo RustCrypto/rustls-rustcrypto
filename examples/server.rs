@@ -88,7 +88,7 @@ impl TestPki {
 }
 
 #[tokio::main]
-async fn main() -> eyre::Result<()> {
+async fn main() -> anyhow::Result<()> {
     env_logger::init();
 
     let pki = TestPki::new();

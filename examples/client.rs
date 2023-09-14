@@ -1,12 +1,11 @@
-use std::{
-    io::{stdout, Read, Write},
-    net::TcpStream,
-    sync::Arc,
-};
+use std::str::FromStr;
 
+use anyhow::anyhow;
+use hyper::{body::to_bytes, client, Body, Uri};
 use rustls_provider_rustcrypto::Provider;
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     env_logger::init();
 
     let mut root_store = rustls::RootCertStore::empty();
@@ -17,29 +16,35 @@ fn main() -> anyhow::Result<()> {
         .with_custom_certificate_verifier(Provider::certificate_verifier(root_store))
         .with_no_client_auth();
 
-    let server_name = "scotthelme.co.uk".try_into()?;
-    let mut conn = rustls::ClientConnection::new(Arc::new(config), server_name)?;
-    let mut sock = TcpStream::connect("scotthelme.co.uk:443")?;
-    let mut tls = rustls::Stream::new(&mut conn, &mut sock);
-    tls.write_all(
-        concat!(
-            "GET / HTTP/1.1\r\n",
-            "Host: scotthelme.co.uk\r\n",
-            "Connection: close\r\n",
-            "Accept-Encoding: identity\r\n",
-            "\r\n"
-        )
-        .as_bytes(),
-    )?;
-    let ciphersuite = tls.conn.negotiated_cipher_suite().unwrap();
-    writeln!(
-        &mut std::io::stderr(),
-        "Current ciphersuite: {:#?} {:#?}",
-        ciphersuite.suite(),
-        ciphersuite.version()
-    )?;
-    let mut plaintext = Vec::new();
-    tls.read_to_end(&mut plaintext)?;
-    // stdout().write_all(&plaintext)?;
-    Ok(())
+    // Prepare the HTTPS connector
+    let https = hyper_rustls::HttpsConnectorBuilder::new()
+        .with_tls_config(config)
+        .https_or_http()
+        .enable_http1()
+        .build();
+
+    // Build the hyper client from the HTTPS connector.
+    let client: client::Client<_, hyper::Body> = client::Client::builder().build(https);
+
+    // Prepare a chain of futures which sends a GET request, inspects
+    // the returned headers, collects the whole body and prints it to
+    // stdout.
+    let fut = async move {
+        let res = client
+            .get(Uri::from_str("https://youtube.com")?)
+            .await
+            .map_err(|e| anyhow!("Could not get: {:?}", e))?;
+        println!("Status:\n{}", res.status());
+        println!("Headers:\n{:#?}", res.headers());
+
+        let body: Body = res.into_body();
+        let body = to_bytes(body)
+            .await
+            .map_err(|e| anyhow!("Could not get body: {:?}", e))?;
+        println!("Body:\n{}", String::from_utf8_lossy(&body));
+
+        Ok(())
+    };
+
+    fut.await
 }
