@@ -18,7 +18,6 @@ digest = "0.10.7"
 ecdsa = "0.16.8"
 ed25519-dalek = { version = "2.0.0", features = ["pkcs8"] }
 elliptic-curve = "0.13.5"
-env_logger = "0.10"
 generic-array = "0.14.7"
 hmac = "0.12.0"
 p256 = { version = "0.13.2", features = ["ecdh"] }
@@ -41,7 +40,7 @@ webpki-roots = "0.26.0-alpha.1"
 x25519-dalek = "2"
 
 [features]
-default = ["logging", "dangerous_configuration", "std"]
+default = ["dangerous_configuration", "std"]
 logging = ["rustls/logging"]
 dangerous_configuration = ["rustls/dangerous_configuration"]
 tls12 = ["rustls/tls12"]
@@ -52,7 +51,16 @@ alloc = ["webpki/alloc", "pki-types/alloc"]
 
 [dev-dependencies]
 anyhow = "1.0.75"
+env_logger = "0.10"
 hyper = "0.14.27"
-hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls", branch = "part-4", features = ["http2"] }
+hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls", branch = "part-4", features = [
+    "http2",
+] }
 rcgen = "0.11.1"
-tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
+tokio = { version = "1.32.0", features = [
+    "rt-multi-thread",
+    "macros",
+    "io-std",
+    "io-util",
+    "net",
+] }
