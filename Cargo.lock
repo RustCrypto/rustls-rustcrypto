@@ -649,7 +649,7 @@ dependencies = [
 [[package]]
 name = "hyper-rustls"
 version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/hyper-rustls?branch=part-4#671d9d16281f70fc8a66b830dc9d606cccbb8964"
+source = "git+https://github.com/stevefan1999-personal/hyper-rustls?branch=part-4#aad1c2bfa3aab995f05972c3aa3865076f59da4a"
 dependencies = [
  "futures-util",
  "http",
@@ -725,9 +725,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.147"
+version = "0.2.148"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4668fb0ea861c1df094127ac5f1da3409a82116a4ba74fca2e58ef927159bb3"
+checksum = "9cdc71e17332e86d2e1d38c1f99edcb6288ee11b815fb1a4b049eaa2114d369b"
 
 [[package]]
 name = "libm"
@@ -1000,9 +1000,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.66"
+version = "1.0.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18fb31db3f9bddb2ea821cde30a9f70117e3f119938b5ee630b7403aa6e2ead9"
+checksum = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328"
 dependencies = [
  "unicode-ident",
 ]
@@ -1165,7 +1165,7 @@ dependencies = [
 [[package]]
 name = "rustls"
 version = "0.22.0-alpha.2"
-source = "git+https://github.com/rustls/rustls?branch=jbp-generalise-crypto-usage-pt4#941b1324962bce3a994055af2a5161864783c03f"
+source = "git+https://github.com/stevefan1999-personal/rustls?branch=jbp-generalise-crypto-usage-pt4#be005ea0dff1d9cd08f66833bea985e7617364cc"
 dependencies = [
  "log",
  "rustls-pki-types",
@@ -1236,9 +1236,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.102.0-alpha.2"
+version = "0.102.0-alpha.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de08e10de06e4629486244c0218a85df07d2791b9c37e76a22ac53b0413d551f"
+checksum = "77fecb40b15f8d5d22e08f89e0a0bfa2c17ddd5fc385700f96920bba2b99b680"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -1331,9 +1331,9 @@ dependencies = [
 
 [[package]]
 name = "sha2-asm"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf27176fb5d15398e3a479c652c20459d9dac830dedd1fa55b42a77dbcdbfcea"
+checksum = "f27ba7066011e3fb30d808b51affff34f0a66d3a03a58edd787c6e420e40e44e"
 dependencies = [
  "cc",
 ]
@@ -1407,9 +1407,9 @@ checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
 
 [[package]]
 name = "syn"
-version = "2.0.32"
+version = "2.0.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "239814284fd6f1a4ffe4ca893952cdd93c224b6a1571c9a9eadd670295c0c9e2"
+checksum = "9caece70c63bfba29ec2fed841a09851b14a235c60010fa4de58089b6c025668"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1473,7 +1473,7 @@ dependencies = [
 [[package]]
 name = "tokio-rustls"
 version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/tokio-rustls?branch=part-4-patch#4f89108ec4840f791fb518b82c523635017768e6"
+source = "git+https://github.com/stevefan1999-personal/tokio-rustls?branch=part-4-patch#3a05b26068ad6ad969a4b98c27f33b7c84fba1c0"
 dependencies = [
  "rustls",
  "tokio",
@@ -1533,9 +1533,9 @@ checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.11"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "301abaae475aa91687eb82514b328ab47a211a533026cb25fc3e519b86adfc3c"
+checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 
 [[package]]
 name = "universal-hash"
