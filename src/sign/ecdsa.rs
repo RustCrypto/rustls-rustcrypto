@@ -2,15 +2,15 @@ use alloc::{boxed::Box, sync::Arc};
 use core::ops::Add;
 
 use ecdsa::{
-    elliptic_curve::{
-        generic_array::ArrayLength, ops::Invert, pkcs8, pkcs8::DecodePrivateKey, subtle::CtOption,
-        CurveArithmetic, FieldBytesSize, Scalar,
-    },
     hazmat::{DigestPrimitive, SignPrimitive},
-    PrimeCurve, SignatureSize,
+    SignatureSize,
 };
+use elliptic_curve::{ops::Invert, CurveArithmetic, FieldBytesSize, PrimeCurve, Scalar};
+use generic_array::ArrayLength;
+use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rustls::{sign::SigningKey, SignatureAlgorithm, SignatureScheme};
+use subtle::CtOption;
 
 pub struct EcdsaSigningKey<C> {
     key:    Arc<C>,

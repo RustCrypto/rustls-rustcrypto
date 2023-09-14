@@ -1,15 +1,13 @@
 use alloc::{boxed::Box, sync::Arc};
 
+use pkcs8::{self, DecodePrivateKey};
 use pki_types::PrivateKeyDer;
-use rsa::{
-    pkcs8::{self, DecodePrivateKey},
-    sha2::{Sha256, Sha384, Sha512},
-    RsaPrivateKey,
-};
+use rsa::RsaPrivateKey;
 use rustls::{
     sign::{Signer, SigningKey},
     SignatureAlgorithm, SignatureScheme,
 };
+use sha2::{Sha256, Sha384, Sha512};
 
 const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
     SignatureScheme::RSA_PSS_SHA512,

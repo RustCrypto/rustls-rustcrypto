@@ -1,17 +1,15 @@
 use alloc::boxed::Box;
 use core::marker::PhantomData;
 
-use hmac::{
-    digest::{
-        block_buffer::Eager,
-        core_api::{BufferKindUser, CoreProxy, FixedOutputCore, UpdateCore},
-        crypto_common::BlockSizeUser,
-        typenum::{IsLess, Le, NonZero, U256},
-        HashMarker, OutputSizeUser,
-    },
-    Mac,
+use block_buffer::Eager;
+use crypto_common::{BlockSizeUser, OutputSizeUser};
+use digest::{
+    core_api::{BufferKindUser, CoreProxy, FixedOutputCore, UpdateCore},
+    HashMarker,
 };
+use hmac::Mac;
 use rustls::crypto;
+use typenum::{IsLess, Le, NonZero, U256};
 
 pub struct Hmac<D>(PhantomData<D>);
 

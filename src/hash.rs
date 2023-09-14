@@ -1,9 +1,9 @@
 use alloc::boxed::Box;
 use core::marker::PhantomData;
 
-use hmac::digest::OutputSizeUser;
+use digest::{Digest, OutputSizeUser};
 use rustls::crypto::hash;
-use sha2::{Digest, Sha224, Sha256, Sha384, Sha512};
+use sha2::{Sha224, Sha256, Sha384, Sha512};
 
 trait Algorithm {
     const ALGORITHM: hash::HashAlgorithm;

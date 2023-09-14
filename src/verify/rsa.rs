@@ -3,75 +3,71 @@ use core::marker::PhantomData;
 use der::Reader;
 use pkcs8::AssociatedOid;
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
-use rsa::{pkcs1v15, pss, signature::Verifier, BigUint, RsaPublicKey};
+use rsa::{pkcs1v15, pss, BigUint, RsaPublicKey};
 use sha2::{Digest, Sha256, Sha384, Sha512};
+use signature::Verifier;
 use webpki::alg_id;
 
-use super::SignatureAlgId;
+use super::{PublicKeyAlgId, SignatureAlgId};
 
-pub static RSA_PKCS1_SHA256: &dyn SignatureVerificationAlgorithm =
-    &RsaPkcs1Verify::<Sha256>::DEFAULT;
-pub static RSA_PKCS1_SHA384: &dyn SignatureVerificationAlgorithm =
-    &RsaPkcs1Verify::<Sha384>::DEFAULT;
-pub static RSA_PKCS1_SHA512: &dyn SignatureVerificationAlgorithm =
-    &RsaPkcs1Verify::<Sha512>::DEFAULT;
-pub static RSA_PSS_SHA256: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha256>::DEFAULT;
-pub static RSA_PSS_SHA384: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha384>::DEFAULT;
-pub static RSA_PSS_SHA512: &dyn SignatureVerificationAlgorithm = &RsaPssVerify::<Sha512>::DEFAULT;
+pub const RSA_PKCS1_SHA256: &dyn SignatureVerificationAlgorithm =
+    &RsaVerify::<pkcs1v15::Signature, pkcs1v15::VerifyingKey<Sha256>>::DEFAULT;
+pub const RSA_PKCS1_SHA384: &dyn SignatureVerificationAlgorithm =
+    &RsaVerify::<pkcs1v15::Signature, pkcs1v15::VerifyingKey<Sha384>>::DEFAULT;
+pub const RSA_PKCS1_SHA512: &dyn SignatureVerificationAlgorithm =
+    &RsaVerify::<pkcs1v15::Signature, pkcs1v15::VerifyingKey<Sha512>>::DEFAULT;
+pub const RSA_PSS_SHA256: &dyn SignatureVerificationAlgorithm =
+    &RsaVerify::<pss::Signature, pss::VerifyingKey<Sha256>>::DEFAULT;
+pub const RSA_PSS_SHA384: &dyn SignatureVerificationAlgorithm =
+    &RsaVerify::<pss::Signature, pss::VerifyingKey<Sha384>>::DEFAULT;
+pub const RSA_PSS_SHA512: &dyn SignatureVerificationAlgorithm =
+    &RsaVerify::<pss::Signature, pss::VerifyingKey<Sha512>>::DEFAULT;
 
-struct RsaPssVerify<D>(PhantomData<D>);
+struct RsaVerify<Signature, VerifyingKey>(PhantomData<Signature>, PhantomData<VerifyingKey>);
 
-impl<D> RsaPssVerify<D> {
-    pub const DEFAULT: Self = Self(PhantomData);
+impl<Signature, VerifyingKey> RsaVerify<Signature, VerifyingKey> {
+    pub const DEFAULT: Self = Self(PhantomData, PhantomData);
 }
 
-impl<D> SignatureVerificationAlgorithm for RsaPssVerify<D>
+impl<Signature, VerifiyingKey> PublicKeyAlgId for RsaVerify<Signature, VerifiyingKey> {
+    const PUBLIC_KEY_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_ENCRYPTION;
+}
+
+impl<Signature> SignatureAlgId for RsaVerify<Signature, pkcs1v15::VerifyingKey<Sha256>> {
+    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA256;
+}
+
+impl<Signature> SignatureAlgId for RsaVerify<Signature, pkcs1v15::VerifyingKey<Sha384>> {
+    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA384;
+}
+
+impl<Signature> SignatureAlgId for RsaVerify<Signature, pkcs1v15::VerifyingKey<Sha512>> {
+    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA512;
+}
+
+impl<Signature> SignatureAlgId for RsaVerify<Signature, pss::VerifyingKey<Sha256>> {
+    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA256;
+}
+
+impl<Signature> SignatureAlgId for RsaVerify<Signature, pss::VerifyingKey<Sha384>> {
+    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA384;
+}
+
+impl<Signature> SignatureAlgId for RsaVerify<Signature, pss::VerifyingKey<Sha512>> {
+    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA512;
+}
+
+impl<D> SignatureVerificationAlgorithm for RsaVerify<pkcs1v15::Signature, pkcs1v15::VerifyingKey<D>>
 where
     D: Digest + AssociatedOid + Send + Sync,
-    RsaPssVerify<D>: SignatureAlgId,
-    rsa::pss::VerifyingKey<D>: Verifier<rsa::pss::Signature>,
+    RsaVerify<pkcs1v15::Signature, pkcs1v15::VerifyingKey<D>>: SignatureAlgId + PublicKeyAlgId,
 {
     fn public_key_alg_id(&self) -> AlgorithmIdentifier {
-        alg_id::RSA_ENCRYPTION
+        Self::PUBLIC_KEY_ALGO_ID
     }
 
     fn signature_alg_id(&self) -> AlgorithmIdentifier {
-        <Self as SignatureAlgId>::SIG_ALGO_ID
-    }
-
-    fn verify_signature(
-        &self,
-        public_key: &[u8],
-        message: &[u8],
-        signature: &[u8],
-    ) -> Result<(), InvalidSignature> {
-        let public_key = decode_spki_spk(public_key)?;
-
-        let signature = pss::Signature::try_from(signature).map_err(|_| InvalidSignature)?;
-
-        pss::VerifyingKey::<D>::new(public_key)
-            .verify(message, &signature)
-            .map_err(|_| InvalidSignature)
-    }
-}
-
-struct RsaPkcs1Verify<D>(PhantomData<D>);
-
-impl<D> RsaPkcs1Verify<D> {
-    pub const DEFAULT: Self = Self(PhantomData);
-}
-
-impl<D> SignatureVerificationAlgorithm for RsaPkcs1Verify<D>
-where
-    D: Digest + AssociatedOid + Send + Sync,
-    RsaPkcs1Verify<D>: SignatureAlgId,
-{
-    fn public_key_alg_id(&self) -> AlgorithmIdentifier {
-        alg_id::RSA_ENCRYPTION
-    }
-
-    fn signature_alg_id(&self) -> AlgorithmIdentifier {
-        <Self as SignatureAlgId>::SIG_ALGO_ID
+        Self::SIG_ALGO_ID
     }
 
     fn verify_signature(
@@ -90,28 +86,34 @@ where
     }
 }
 
-impl SignatureAlgId for RsaPkcs1Verify<Sha512> {
-    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA512;
-}
+impl<D> SignatureVerificationAlgorithm for RsaVerify<rsa::pss::Signature, pss::VerifyingKey<D>>
+where
+    D: Digest + AssociatedOid + Send + Sync,
+    RsaVerify<rsa::pss::Signature, pss::VerifyingKey<D>>: SignatureAlgId + PublicKeyAlgId,
+    rsa::pss::VerifyingKey<D>: Verifier<rsa::pss::Signature>,
+{
+    fn public_key_alg_id(&self) -> AlgorithmIdentifier {
+        Self::PUBLIC_KEY_ALGO_ID
+    }
 
-impl SignatureAlgId for RsaPkcs1Verify<Sha384> {
-    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA384;
-}
+    fn signature_alg_id(&self) -> AlgorithmIdentifier {
+        Self::SIG_ALGO_ID
+    }
 
-impl SignatureAlgId for RsaPkcs1Verify<Sha256> {
-    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA256;
-}
+    fn verify_signature(
+        &self,
+        public_key: &[u8],
+        message: &[u8],
+        signature: &[u8],
+    ) -> Result<(), InvalidSignature> {
+        let public_key = decode_spki_spk(public_key)?;
 
-impl SignatureAlgId for RsaPssVerify<Sha512> {
-    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA512;
-}
+        let signature = pss::Signature::try_from(signature).map_err(|_| InvalidSignature)?;
 
-impl SignatureAlgId for RsaPssVerify<Sha384> {
-    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA384;
-}
-
-impl SignatureAlgId for RsaPssVerify<Sha256> {
-    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA256;
+        pss::VerifyingKey::<D>::new(public_key)
+            .verify(message, &signature)
+            .map_err(|_| InvalidSignature)
+    }
 }
 
 fn decode_spki_spk(spki_spk: &[u8]) -> Result<RsaPublicKey, InvalidSignature> {

@@ -1,9 +1,11 @@
 use alloc::{boxed::Box, vec::Vec};
 use core::marker::PhantomData;
 
-use aead::{generic_array::ArrayLength, AeadCore, AeadInPlace, KeyInit, KeySizeUser};
+use aead::{AeadCore, AeadInPlace};
 use aes_gcm::AesGcm;
 use chacha20poly1305::ChaChaPoly1305;
+use crypto_common::{KeyInit, KeySizeUser};
+use generic_array::ArrayLength;
 use rustls::{
     crypto::cipher::{
         self, AeadKey, BorrowedPlainMessage, KeyBlockShape, MessageDecrypter, MessageEncrypter,

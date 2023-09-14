@@ -1,6 +1,6 @@
 use alloc::{boxed::Box, sync::Arc};
 
-use ed25519_dalek::{pkcs8, pkcs8::DecodePrivateKey};
+use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rustls::{
     sign::{Signer, SigningKey},
