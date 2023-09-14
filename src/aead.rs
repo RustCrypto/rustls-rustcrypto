@@ -305,21 +305,18 @@ where
             let tag_pos = payload.len() - TagSize::to_usize();
             let (msg, tag) = payload.split_at_mut(tag_pos);
 
-            self.0
-            .decrypt_in_place_detached(
-                &nonce,
-                &aad,
-                msg,
+            let tag =
                 aes_gcm::Tag::<<AesGcm<Aes, NonceSize, TagSize> as AeadCore>::TagSize>::from_slice(
                     tag,
-                ),
-            )
-            .map_err(|_| rustls::Error::DecryptError)?;
+                );
+            self.0
+                .decrypt_in_place_detached(&nonce, &aad, msg, tag)
+                .map_err(|_| rustls::Error::DecryptError)?;
             tag_pos
         };
 
         // We defer the truncation to here, because we may inadvertently shifted the original data if the decryption failed.
-        // Another way to avoid this is to clone the payload slice starting after the explicit nonce, 
+        // Another way to avoid this is to clone the payload slice starting after the explicit nonce,
         // but this will cause an additional cloning and copying
         payload.rotate_left(8);
         payload.truncate(tag_pos);
