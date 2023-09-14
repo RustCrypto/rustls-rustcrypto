@@ -1,8 +1,8 @@
+use alloc::{boxed::Box, vec::Vec};
 use core::marker::PhantomData;
 
 use aead::{generic_array::ArrayLength, AeadCore, AeadInPlace, KeyInit, KeySizeUser};
 use aes_gcm::AesGcm;
-use alloc::{boxed::Box, vec::Vec};
 use chacha20poly1305::ChaChaPoly1305;
 use rustls::{
     crypto::cipher::{
@@ -315,8 +315,9 @@ where
             tag_pos
         };
 
-        // We defer the truncation to here, because we may inadvertently shifted the original data if the decryption failed.
-        // Another way to avoid this is to clone the payload slice starting after the explicit nonce,
+        // We defer the truncation to here, because we may inadvertently shifted the
+        // original data if the decryption failed. Another way to avoid this is
+        // to clone the payload slice starting after the explicit nonce,
         // but this will cause an additional cloning and copying
         payload.rotate_left(8);
         payload.truncate(tag_pos);
@@ -334,8 +335,8 @@ impl AeadMetaTls12 for AeadCipherTls12<chacha20poly1305::ChaCha20Poly1305> {
 
     fn key_block_shape() -> KeyBlockShape {
         KeyBlockShape {
-            enc_key_len: 32,
-            fixed_iv_len: 12,
+            enc_key_len:        32,
+            fixed_iv_len:       12,
             explicit_nonce_len: 0,
         }
     }
@@ -355,8 +356,8 @@ impl AeadMetaTls12 for AeadCipherTls12<aes_gcm::Aes128Gcm> {
 
     fn key_block_shape() -> KeyBlockShape {
         KeyBlockShape {
-            enc_key_len: aes_gcm::Aes128Gcm::key_size(),
-            fixed_iv_len: 4,
+            enc_key_len:        aes_gcm::Aes128Gcm::key_size(),
+            fixed_iv_len:       4,
             explicit_nonce_len: 8,
         }
     }
@@ -368,8 +369,8 @@ impl AeadMetaTls12 for AeadCipherTls12<aes_gcm::Aes256Gcm> {
 
     fn key_block_shape() -> KeyBlockShape {
         KeyBlockShape {
-            enc_key_len: aes_gcm::Aes256Gcm::key_size(),
-            fixed_iv_len: 4,
+            enc_key_len:        aes_gcm::Aes256Gcm::key_size(),
+            fixed_iv_len:       4,
             explicit_nonce_len: 8,
         }
     }

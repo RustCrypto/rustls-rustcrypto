@@ -1,3 +1,9 @@
+use std::{
+    io::{self},
+    net::ToSocketAddrs,
+    sync::Arc,
+};
+
 use hyper::{
     server::conn::AddrIncoming,
     service::{make_service_fn, service_fn},
@@ -11,9 +17,6 @@ use rustls::{
     sign, ServerConfig,
 };
 use rustls_provider_rustcrypto::{sign::ecdsa::EcdsaSigningKey, Provider};
-use std::io::{self};
-use std::net::ToSocketAddrs;
-use std::sync::Arc;
 
 struct TestResolvesServerCert(Arc<sign::CertifiedKey>);
 
@@ -33,7 +36,7 @@ impl ResolvesServerCert for TestResolvesServerCert {
 
 struct TestPki {
     server_cert_der: Vec<u8>,
-    server_key_der: Vec<u8>,
+    server_key_der:  Vec<u8>,
 }
 
 impl TestPki {

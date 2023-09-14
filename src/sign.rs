@@ -1,6 +1,6 @@
+use alloc::{sync::Arc, vec::Vec};
 use core::marker::PhantomData;
 
-use alloc::{sync::Arc, vec::Vec};
 use rustls::{sign::Signer, Error, SignatureScheme};
 use signature::{RandomizedSigner, SignatureEncoding};
 
@@ -10,8 +10,8 @@ where
     T: RandomizedSigner<S>,
 {
     _marker: PhantomData<S>,
-    key: Arc<T>,
-    scheme: SignatureScheme,
+    key:     Arc<T>,
+    scheme:  SignatureScheme,
 }
 
 impl<T, S> Signer for GenericRandomizedSigner<S, T>
@@ -37,8 +37,8 @@ where
     T: signature::Signer<S>,
 {
     _marker: PhantomData<S>,
-    key: Arc<T>,
-    scheme: SignatureScheme,
+    key:     Arc<T>,
+    scheme:  SignatureScheme,
 }
 
 impl<S, T> Signer for GenericSigner<S, T>

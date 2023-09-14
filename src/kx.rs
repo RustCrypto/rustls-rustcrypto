@@ -1,10 +1,11 @@
 use alloc::boxed::Box;
+
 use crypto::SupportedKxGroup;
 use rustls::crypto;
 
 pub struct KeyExchange {
     priv_key: x25519_dalek::EphemeralSecret,
-    pub_key: x25519_dalek::PublicKey,
+    pub_key:  x25519_dalek::PublicKey,
 }
 
 impl crypto::ActiveKeyExchange for KeyExchange {

@@ -1,6 +1,6 @@
+use alloc::boxed::Box;
 use core::marker::PhantomData;
 
-use alloc::boxed::Box;
 use hmac::digest::OutputSizeUser;
 use rustls::crypto::hash;
 use sha2::{Digest, Sha224, Sha256, Sha384, Sha512};

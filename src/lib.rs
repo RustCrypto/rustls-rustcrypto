@@ -3,6 +3,7 @@
 extern crate alloc;
 
 use alloc::sync::Arc;
+
 use rustls::{
     cipher_suite::CipherSuiteCommon,
     client::{ServerCertVerifier, WebPkiServerVerifier},
@@ -61,40 +62,40 @@ const TLS12_RSA_SCHEMES: [SignatureScheme; 6] = [
 #[cfg(feature = "tls12")]
 pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
             hash_provider: &hash::Hash::<Sha256>::DEFAULT,
         },
-        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_ECDSA_SCHEMES,
-        aead_alg: &aead::Aead::<aes_gcm::Aes128Gcm>::DEFAULT,
+        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:          &TLS12_ECDSA_SCHEMES,
+        aead_alg:      &aead::Aead::<aes_gcm::Aes128Gcm>::DEFAULT,
         hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
     });
 
 #[cfg(feature = "tls12")]
 pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
             hash_provider: &hash::Hash::<Sha384>::DEFAULT,
         },
-        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_ECDSA_SCHEMES,
+        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:          &TLS12_ECDSA_SCHEMES,
         hmac_provider: &hmac::Hmac::<Sha384>::DEFAULT,
-        aead_alg: &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
+        aead_alg:      &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
     });
 
 #[cfg(feature = "tls12")]
 pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
             hash_provider: &hash::Hash::<Sha256>::DEFAULT,
         },
         hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
-        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_ECDSA_SCHEMES,
-        aead_alg: &aead::Aead::<chacha20poly1305::ChaCha20Poly1305>::DEFAULT,
+        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:          &TLS12_ECDSA_SCHEMES,
+        aead_alg:      &aead::Aead::<chacha20poly1305::ChaCha20Poly1305>::DEFAULT,
     });
 
 #[cfg(feature = "tls12")]
@@ -107,40 +108,40 @@ const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
 #[cfg(feature = "tls12")]
 pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
             hash_provider: &hash::Hash::<Sha256>::DEFAULT,
         },
-        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_RSA_SCHEMES,
-        aead_alg: &aead::Aead::<aes_gcm::Aes128Gcm>::DEFAULT,
+        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:          &TLS12_RSA_SCHEMES,
+        aead_alg:      &aead::Aead::<aes_gcm::Aes128Gcm>::DEFAULT,
         hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
     });
 
 #[cfg(feature = "tls12")]
 pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
             hash_provider: &hash::Hash::<Sha384>::DEFAULT,
         },
-        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_RSA_SCHEMES,
+        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:          &TLS12_RSA_SCHEMES,
         hmac_provider: &hmac::Hmac::<Sha384>::DEFAULT,
-        aead_alg: &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
+        aead_alg:      &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
     });
 
 #[cfg(feature = "tls12")]
 pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
             hash_provider: &hash::Hash::<Sha256>::DEFAULT,
         },
-        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_RSA_SCHEMES,
+        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:          &TLS12_RSA_SCHEMES,
         hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
-        aead_alg: &aead::Aead::<chacha20poly1305::ChaCha20Poly1305>::DEFAULT,
+        aead_alg:      &aead::Aead::<chacha20poly1305::ChaCha20Poly1305>::DEFAULT,
     });
 
 #[cfg(feature = "tls12")]
@@ -159,22 +160,22 @@ const TLS12_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
 
 pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_128_GCM_SHA256,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS13_AES_128_GCM_SHA256,
             hash_provider: &hash::Hash::<Sha256>::DEFAULT,
         },
         hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
-        aead_alg: &aead::Aead::<aes_gcm::Aes128Gcm>::DEFAULT,
+        aead_alg:      &aead::Aead::<aes_gcm::Aes128Gcm>::DEFAULT,
     });
 
 pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_256_GCM_SHA384,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS13_AES_256_GCM_SHA384,
             hash_provider: &hash::Hash::<Sha384>::DEFAULT,
         },
         hmac_provider: &hmac::Hmac::<Sha384>::DEFAULT,
-        aead_alg: &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
+        aead_alg:      &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
     });
 
 const TLS13_AES_SUITES: &[SupportedCipherSuite] =
@@ -182,12 +183,12 @@ const TLS13_AES_SUITES: &[SupportedCipherSuite] =
 
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
+        common:        CipherSuiteCommon {
+            suite:         CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
             hash_provider: &hash::Hash::<Sha256>::DEFAULT,
         },
         hmac_provider: &hmac::Hmac::<Sha256>::DEFAULT,
-        aead_alg: &aead::Aead::<chacha20poly1305::ChaCha20Poly1305>::DEFAULT,
+        aead_alg:      &aead::Aead::<chacha20poly1305::ChaCha20Poly1305>::DEFAULT,
     });
 
 const TLS13_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(

@@ -1,6 +1,6 @@
+use alloc::boxed::Box;
 use core::marker::PhantomData;
 
-use alloc::boxed::Box;
 use hmac::{
     digest::{
         block_buffer::Eager,

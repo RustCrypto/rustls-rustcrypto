@@ -1,4 +1,5 @@
 use alloc::{boxed::Box, sync::Arc};
+
 use pki_types::PrivateKeyDer;
 use rsa::{
     pkcs8::{self, DecodePrivateKey},
@@ -43,21 +44,27 @@ impl SigningKey for RsaSigningKey {
             let scheme = *scheme;
             let pkey = self.0.clone();
             match scheme {
-                SignatureScheme::RSA_PSS_SHA512 => Some(Box::new(super::GenericRandomizedSigner {
-                    _marker: Default::default(),
-                    key: Arc::new(rsa::pss::SigningKey::<Sha512>::new(pkey)),
-                    scheme,
-                })),
-                SignatureScheme::RSA_PSS_SHA384 => Some(Box::new(super::GenericRandomizedSigner {
-                    _marker: Default::default(),
-                    key: Arc::new(rsa::pss::SigningKey::<Sha384>::new(pkey)),
-                    scheme,
-                })),
-                SignatureScheme::RSA_PSS_SHA256 => Some(Box::new(super::GenericRandomizedSigner {
-                    _marker: Default::default(),
-                    key: Arc::new(rsa::pss::SigningKey::<Sha256>::new(pkey)),
-                    scheme,
-                })),
+                SignatureScheme::RSA_PSS_SHA512 => {
+                    Some(Box::new(super::GenericRandomizedSigner {
+                        _marker: Default::default(),
+                        key: Arc::new(rsa::pss::SigningKey::<Sha512>::new(pkey)),
+                        scheme,
+                    }))
+                }
+                SignatureScheme::RSA_PSS_SHA384 => {
+                    Some(Box::new(super::GenericRandomizedSigner {
+                        _marker: Default::default(),
+                        key: Arc::new(rsa::pss::SigningKey::<Sha384>::new(pkey)),
+                        scheme,
+                    }))
+                }
+                SignatureScheme::RSA_PSS_SHA256 => {
+                    Some(Box::new(super::GenericRandomizedSigner {
+                        _marker: Default::default(),
+                        key: Arc::new(rsa::pss::SigningKey::<Sha256>::new(pkey)),
+                        scheme,
+                    }))
+                }
                 SignatureScheme::RSA_PKCS1_SHA512 => {
                     Some(Box::new(super::GenericRandomizedSigner {
                         _marker: Default::default(),
