@@ -177,10 +177,8 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
         aead_alg: &aead::Aead::<aes_gcm::Aes256Gcm>::DEFAULT,
     });
 
-const TLS13_AES_SUITES: &[SupportedCipherSuite] = &[
-    TLS13_AES_128_GCM_SHA256,
-    TLS13_AES_256_GCM_SHA384,
-];
+const TLS13_AES_SUITES: &[SupportedCipherSuite] =
+    &[TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384];
 
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
