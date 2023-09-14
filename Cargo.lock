@@ -1208,7 +1208,7 @@ checksum = "a47003264dea418db67060fa420ad16d0d2f8f0a0360d825c00e177ac52cb5d8"
 
 [[package]]
 name = "rustls-provider-rustcrypto"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "aead",
  "aes-gcm",
