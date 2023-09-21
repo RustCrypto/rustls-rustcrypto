@@ -13,6 +13,7 @@ rcgen = "0.11.1"
 rustls = {version = "0.22.0-alpha.2", default-features = false }
 rustls-provider-rustcrypto = { path = "../" }
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
+vc-ltl = "5.0.8"
 webpki = { package = "rustls-webpki", version = "0.102.0-alpha.3", default-features = false }
 webpki-roots = "0.26.0-alpha.1"
 
