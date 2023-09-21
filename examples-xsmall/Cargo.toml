@@ -6,14 +6,14 @@ edition = "2021"
 [dev-dependencies]
 anyhow = "1.0.75"
 hyper = "0.14.27"
-hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls", branch = "part-4", features = ["http2"] }
+hyper-rustls = { version = "0.24.1", features = ["http2"] }
 p256 = "0.13.2"
 pki-types = { package = "rustls-pki-types", version = "0.2.1", default-features = false }
 rcgen = "0.11.1"
-rustls = { git = "https://github.com/stevefan1999-personal/rustls", branch = "jbp-generalise-crypto-usage-pt4", version = "0.22.0-alpha.2", default-features = false }
+rustls = {version = "0.22.0-alpha.2", default-features = false }
 rustls-provider-rustcrypto = { path = "../" }
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
-webpki = { package = "rustls-webpki", version = "0.102.0-alpha.2", default-features = false }
+webpki = { package = "rustls-webpki", version = "0.102.0-alpha.3", default-features = false }
 webpki-roots = "0.26.0-alpha.1"
 
 [features]
@@ -24,3 +24,8 @@ strip = true
 opt-level = "s"
 lto = true
 codegen-units = 1
+
+[patch.crates-io]
+rustls = { git = 'https://github.com/rustls/rustls' }
+tokio-rustls = { git = 'https://github.com/stevefan1999-personal/tokio-rustls' }
+hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls" }

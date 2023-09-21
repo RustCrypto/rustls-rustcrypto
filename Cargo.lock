@@ -651,16 +651,15 @@ dependencies = [
 [[package]]
 name = "hyper-rustls"
 version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/hyper-rustls?branch=part-4#aad1c2bfa3aab995f05972c3aa3865076f59da4a"
+source = "git+https://github.com/stevefan1999-personal/hyper-rustls#488b28ca7b9a45470bf88e0562836f6a432f2005"
 dependencies = [
  "futures-util",
  "http",
  "hyper",
  "log",
- "rustls 0.22.0-alpha.2 (git+https://github.com/stevefan1999-personal/rustls?branch=jbp-generalise-crypto-usage-pt4)",
+ "rustls",
  "rustls-native-certs",
  "rustls-pki-types",
- "rustls-webpki",
  "tokio",
  "tokio-rustls",
 ]
@@ -1161,20 +1160,10 @@ dependencies = [
 [[package]]
 name = "rustls"
 version = "0.22.0-alpha.2"
-source = "git+https://github.com/stevefan1999-personal/rustls?branch=jbp-generalise-crypto-usage-pt4#be005ea0dff1d9cd08f66833bea985e7617364cc"
+source = "git+https://github.com/rustls/rustls#86aa146d59f83e9fbf890b05f823799c0e8d3023"
 dependencies = [
  "log",
- "rustls-pki-types",
- "rustls-webpki",
- "subtle",
-]
-
-[[package]]
-name = "rustls"
-version = "0.22.0-alpha.2"
-source = "git+https://github.com/rustls/rustls?branch=main#86aa146d59f83e9fbf890b05f823799c0e8d3023"
-dependencies = [
- "log",
+ "ring",
  "rustls-pki-types",
  "rustls-webpki",
  "subtle",
@@ -1236,7 +1225,7 @@ dependencies = [
  "rand_core",
  "rcgen",
  "rsa",
- "rustls 0.22.0-alpha.2 (git+https://github.com/rustls/rustls?branch=main)",
+ "rustls",
  "rustls-pki-types",
  "rustls-webpki",
  "sec1",
@@ -1490,9 +1479,9 @@ dependencies = [
 [[package]]
 name = "tokio-rustls"
 version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/tokio-rustls?branch=part-4-patch#3a05b26068ad6ad969a4b98c27f33b7c84fba1c0"
+source = "git+https://github.com/stevefan1999-personal/tokio-rustls#2cff7bd7c9735b1f4a37de5e932f5863c93ac49c"
 dependencies = [
- "rustls 0.22.0-alpha.2 (git+https://github.com/stevefan1999-personal/rustls?branch=jbp-generalise-crypto-usage-pt4)",
+ "rustls",
  "tokio",
 ]
 

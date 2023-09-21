@@ -27,12 +27,12 @@ pkcs8 = { version = "0.10.2", features = ["pem", "pkcs5"] }
 pki-types = { package = "rustls-pki-types", version = "0.2.1", default-features = false }
 rand_core = "0.6.0"
 rsa = { version = "0.9.0", features = ["sha2"] }
-rustls = { git = "https://github.com/rustls/rustls", branch = "main", version = "0.22.0-alpha.2", default-features = false }
+rustls = { version = "0.22.0-alpha.2", default-features = false }
 sec1 = "0.7.3"
 sha2 = "0.10.0"
 signature = "2.1.0"
 subtle = "2.5.0"
-tokio-rustls = { git = "https://github.com/stevefan1999-personal/tokio-rustls", branch = "part-4-patch", version = "0.24.1" }
+tokio-rustls = "0.24.1"
 typenum = "1.16.0"
 vc-ltl = "5.0.8"
 webpki = { package = "rustls-webpki", version = "0.102.0-alpha.2", default-features = false }
@@ -52,9 +52,7 @@ alloc = ["webpki/alloc", "pki-types/alloc"]
 anyhow = "1.0.75"
 env_logger = "0.10"
 hyper = "0.14.27"
-hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls", branch = "part-4", features = [
-    "http2",
-] }
+hyper-rustls = { version = "0.24.1", features = ["http2"] }
 rcgen = "0.11.1"
 tokio = { version = "1.32.0", features = [
     "rt-multi-thread",
@@ -63,3 +61,8 @@ tokio = { version = "1.32.0", features = [
     "io-util",
     "net",
 ] }
+
+[patch.crates-io]
+rustls = { git = 'https://github.com/rustls/rustls' }
+tokio-rustls = { git = 'https://github.com/stevefan1999-personal/tokio-rustls' }
+hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls" }
