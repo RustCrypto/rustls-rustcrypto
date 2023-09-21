@@ -49,10 +49,12 @@ alloc = ["webpki/alloc", "pki-types/alloc"]
 
 [dev-dependencies]
 anyhow = "1.0.75"
+claim = "0.5.0"
 env_logger = "0.10"
 hyper = "0.14.27"
 hyper-rustls = { version = "0.24.1", features = ["http2"] }
 rcgen = "0.11.1"
+test-case = "3.2.1"
 tokio = { version = "1.32.0", features = [
     "rt-multi-thread",
     "macros",
