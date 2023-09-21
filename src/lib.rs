@@ -9,9 +9,9 @@ use alloc::sync::Arc;
 use rustls::SignatureScheme;
 use rustls::{
     cipher_suite::CipherSuiteCommon,
-    client::{ServerCertVerifier, WebPkiServerVerifier},
-    crypto::{CryptoProvider, GetRandomFailed},
-    CipherSuite, RootCertStore, SupportedCipherSuite, SupportedKxGroup, Tls13CipherSuite,
+    client::{danger::ServerCertVerifier, WebPkiServerVerifier},
+    crypto::{CryptoProvider, GetRandomFailed, SupportedKxGroup},
+    CipherSuite, RootCertStore, SupportedCipherSuite, Tls13CipherSuite,
 };
 use sha2::{Sha256, Sha384};
 #[derive(Debug)]

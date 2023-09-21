@@ -1,6 +1,7 @@
 use alloc::boxed::Box;
+use core::ops::Deref;
 
-use crypto::SupportedKxGroup;
+use crypto::{SharedSecret, SupportedKxGroup};
 use rustls::crypto;
 
 #[derive(Debug)]
@@ -24,18 +25,12 @@ pub struct X25519KeyExchange {
 }
 
 impl crypto::ActiveKeyExchange for X25519KeyExchange {
-    fn complete(
-        self: Box<X25519KeyExchange>,
-        peer: &[u8],
-        sink: &mut dyn crypto::SharedSecretSink,
-    ) -> Result<(), rustls::Error> {
+    fn complete(self: Box<X25519KeyExchange>, peer: &[u8]) -> Result<SharedSecret, rustls::Error> {
         let peer_array: [u8; 32] = peer
             .try_into()
             .map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
         let their_pub = x25519_dalek::PublicKey::from(peer_array);
-        let shared_secret = self.priv_key.diffie_hellman(&their_pub);
-        sink.process_shared_secret(shared_secret.as_bytes());
-        Ok(())
+        Ok(self.priv_key.diffie_hellman(&their_pub).as_ref().into())
     }
 
     fn pub_key(&self) -> &[u8] {
@@ -74,13 +69,15 @@ impl crypto::ActiveKeyExchange for SecP256R1KeyExchange {
     fn complete(
         self: Box<SecP256R1KeyExchange>,
         peer: &[u8],
-        sink: &mut dyn crypto::SharedSecretSink,
-    ) -> Result<(), rustls::Error> {
+    ) -> Result<SharedSecret, rustls::Error> {
         let their_pub = p256::PublicKey::from_sec1_bytes(peer)
             .map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
-        let shared_secret = self.priv_key.diffie_hellman(&their_pub);
-        sink.process_shared_secret(shared_secret.raw_secret_bytes());
-        Ok(())
+        Ok(self
+            .priv_key
+            .diffie_hellman(&their_pub)
+            .raw_secret_bytes()
+            .deref()
+            .into())
     }
 
     fn pub_key(&self) -> &[u8] {
@@ -119,13 +116,15 @@ impl crypto::ActiveKeyExchange for SecP384R1KeyExchange {
     fn complete(
         self: Box<SecP384R1KeyExchange>,
         peer: &[u8],
-        sink: &mut dyn crypto::SharedSecretSink,
-    ) -> Result<(), rustls::Error> {
+    ) -> Result<SharedSecret, rustls::Error> {
         let their_pub = p384::PublicKey::from_sec1_bytes(peer)
             .map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
-        let shared_secret = self.priv_key.diffie_hellman(&their_pub);
-        sink.process_shared_secret(shared_secret.raw_secret_bytes());
-        Ok(())
+        Ok(self
+            .priv_key
+            .diffie_hellman(&their_pub)
+            .raw_secret_bytes()
+            .deref()
+            .into())
     }
 
     fn pub_key(&self) -> &[u8] {

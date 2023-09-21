@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use hyper::{body::to_bytes, client, Body, Uri};
 use pki_types::CertificateDer;
 use rustls::{
-    client::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+    client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
     DigitallySignedStruct, ServerName, SignatureScheme,
 };
 use rustls_provider_rustcrypto::Provider;
@@ -69,6 +69,7 @@ async fn main() -> anyhow::Result<()> {
 
     let config = rustls::ClientConfig::builder_with_provider(&Provider)
         .with_safe_defaults()
+        .dangerous()
         .with_custom_certificate_verifier(Provider::certificate_verifier(root_store))
         .with_no_client_auth();
 
