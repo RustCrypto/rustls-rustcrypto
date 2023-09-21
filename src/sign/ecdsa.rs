@@ -1,18 +1,19 @@
 use alloc::{boxed::Box, sync::Arc};
 use core::ops::Add;
+
 use ecdsa::{
-    elliptic_curve::{
-        generic_array::ArrayLength, ops::Invert, pkcs8, pkcs8::DecodePrivateKey, subtle::CtOption,
-        CurveArithmetic, FieldBytesSize, Scalar,
-    },
     hazmat::{DigestPrimitive, SignPrimitive},
-    PrimeCurve, SignatureSize,
+    SignatureSize,
 };
+use elliptic_curve::{ops::Invert, CurveArithmetic, FieldBytesSize, PrimeCurve, Scalar};
+use generic_array::ArrayLength;
+use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rustls::{sign::SigningKey, SignatureAlgorithm, SignatureScheme};
+use subtle::CtOption;
 
 pub struct EcdsaSigningKey<C> {
-    key: Arc<C>,
+    key:    Arc<C>,
     scheme: SignatureScheme,
 }
 
@@ -21,12 +22,12 @@ impl TryFrom<PrivateKeyDer<'_>> for EcdsaSigningKey<p256::ecdsa::SigningKey> {
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
-            PrivateKeyDer::Pkcs1(_) => todo!(),
-            PrivateKeyDer::Sec1(_) => todo!(),
             PrivateKeyDer::Pkcs8(der) => {
-                p256::ecdsa::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| Self {
-                    key: Arc::new(kp),
-                    scheme: SignatureScheme::ECDSA_NISTP256_SHA256,
+                p256::ecdsa::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| {
+                    Self {
+                        key:    Arc::new(kp),
+                        scheme: SignatureScheme::ECDSA_NISTP256_SHA256,
+                    }
                 })
             }
             _ => todo!(),
@@ -39,12 +40,12 @@ impl TryFrom<PrivateKeyDer<'_>> for EcdsaSigningKey<p384::ecdsa::SigningKey> {
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
-            PrivateKeyDer::Pkcs1(_) => todo!(),
-            PrivateKeyDer::Sec1(_) => todo!(),
             PrivateKeyDer::Pkcs8(der) => {
-                p384::ecdsa::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| Self {
-                    key: Arc::new(kp),
-                    scheme: SignatureScheme::ECDSA_NISTP384_SHA384,
+                p384::ecdsa::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| {
+                    Self {
+                        key:    Arc::new(kp),
+                        scheme: SignatureScheme::ECDSA_NISTP384_SHA384,
+                    }
                 })
             }
             _ => todo!(),
@@ -52,19 +53,18 @@ impl TryFrom<PrivateKeyDer<'_>> for EcdsaSigningKey<p384::ecdsa::SigningKey> {
     }
 }
 
-/* TODO: Curve Arithmetic in WIP for p521
-impl TryFrom<PrivateKey> for EcdsaSigningKey<p521::ecdsa::SigningKey> {
-    type Error = pkcs8::Error;
-
-    fn try_from(value: PrivateKey) -> Result<Self, Self::Error> {
-        p521::ecdsa::SigningKey::from_pkcs8_der(&value.0)
-            .map(|kp| Self {
-                key: Arc::new(kp),
-                scheme: SignatureScheme::ECDSA_NISTP521_SHA512,
-            })
-    }
-}
-*/
+// TODO: Curve Arithmetic in WIP for p521
+// impl TryFrom<PrivateKey> for EcdsaSigningKey<p521::ecdsa::SigningKey> {
+// type Error = pkcs8::Error;
+//
+// fn try_from(value: PrivateKey) -> Result<Self, Self::Error> {
+// p521::ecdsa::SigningKey::from_pkcs8_der(&value.0)
+// .map(|kp| Self {
+// key: Arc::new(kp),
+// scheme: SignatureScheme::ECDSA_NISTP521_SHA512,
+// })
+// }
+// }
 
 impl<C> SigningKey for EcdsaSigningKey<ecdsa::SigningKey<C>>
 where
@@ -81,8 +81,8 @@ where
                 _,
             > {
                 _marker: Default::default(),
-                key: self.key.clone(),
-                scheme: self.scheme,
+                key:     self.key.clone(),
+                scheme:  self.scheme,
             }))
         } else {
             None
