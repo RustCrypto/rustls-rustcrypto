@@ -19,12 +19,8 @@ webpki-roots = "0.26.0-alpha.1"
 [features]
 tls12 = ["rustls-provider-rustcrypto/tls12"]
 
-[profile.dev]
-panic = "abort"
-
 [profile.release]
 strip = true
 opt-level = "s"
 lto = true
 codegen-units = 1
-panic = "abort"
