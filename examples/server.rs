@@ -16,13 +16,13 @@ use rustls::{
     server::{ClientHello, ResolvesServerCert},
     sign, ServerConfig,
 };
-use rustls_provider_rustcrypto::{sign::ecdsa::EcdsaSigningKey, Provider};
+use rustls_provider_rustcrypto::{sign::ecdsa::EcdsaSigningKeyP256, Provider};
 
 struct TestResolvesServerCert(Arc<sign::CertifiedKey>);
 
 impl TestResolvesServerCert {
     pub fn new(cert_chain: Vec<CertificateDer<'static>>, key_der: PrivateKeyDer<'_>) -> Self {
-        let key: EcdsaSigningKey<p256::ecdsa::SigningKey> = key_der.try_into().unwrap();
+        let key: EcdsaSigningKeyP256 = key_der.try_into().unwrap();
 
         Self(Arc::new(sign::CertifiedKey::new(cert_chain, Arc::new(key))))
     }

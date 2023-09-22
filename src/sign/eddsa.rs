@@ -7,12 +7,12 @@ use rustls::{
     SignatureAlgorithm, SignatureScheme,
 };
 
-pub struct EddsaSigningKey<C> {
-    key:    Arc<C>,
+pub struct Ed25519SigningKey {
+    key:    Arc<ed25519_dalek::SigningKey>,
     scheme: SignatureScheme,
 }
 
-impl TryFrom<PrivateKeyDer<'_>> for EddsaSigningKey<ed25519_dalek::SigningKey> {
+impl TryFrom<PrivateKeyDer<'_>> for Ed25519SigningKey {
     type Error = pkcs8::Error;
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
@@ -30,7 +30,7 @@ impl TryFrom<PrivateKeyDer<'_>> for EddsaSigningKey<ed25519_dalek::SigningKey> {
     }
 }
 
-impl SigningKey for EddsaSigningKey<ed25519_dalek::SigningKey> {
+impl SigningKey for Ed25519SigningKey {
     fn choose_scheme(&self, offered: &[SignatureScheme]) -> Option<Box<dyn Signer>> {
         if offered.contains(&self.scheme) {
             Some(Box::new(super::GenericSigner {

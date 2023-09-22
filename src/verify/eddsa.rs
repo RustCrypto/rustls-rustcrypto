@@ -1,35 +1,16 @@
-use core::marker::PhantomData;
-
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
 use signature::Verifier;
 use webpki::alg_id;
 
-use super::{PublicKeyAlgId, SignatureAlgId};
+struct Ed25519Verify;
 
-pub const ED25519: &dyn SignatureVerificationAlgorithm =
-    &EddsaVerify::<ed25519_dalek::Signature>::DEFAULT;
-
-struct EddsaVerify<Signature>(PhantomData<Signature>);
-
-impl<Signature> EddsaVerify<Signature> {
-    pub const DEFAULT: Self = Self(PhantomData);
-}
-
-impl PublicKeyAlgId for EddsaVerify<ed25519_dalek::Signature> {
-    const PUBLIC_KEY_ALGO_ID: AlgorithmIdentifier = alg_id::ED25519;
-}
-
-impl SignatureAlgId for EddsaVerify<ed25519_dalek::Signature> {
-    const SIG_ALGO_ID: AlgorithmIdentifier = alg_id::ED25519;
-}
-
-impl SignatureVerificationAlgorithm for EddsaVerify<ed25519_dalek::Signature> {
+impl SignatureVerificationAlgorithm for Ed25519Verify {
     fn public_key_alg_id(&self) -> AlgorithmIdentifier {
-        Self::PUBLIC_KEY_ALGO_ID
+        alg_id::ED25519
     }
 
     fn signature_alg_id(&self) -> AlgorithmIdentifier {
-        Self::SIG_ALGO_ID
+        alg_id::ED25519
     }
 
     fn verify_signature(
@@ -47,3 +28,5 @@ impl SignatureVerificationAlgorithm for EddsaVerify<ed25519_dalek::Signature> {
             .map_err(|_| InvalidSignature)
     }
 }
+
+pub const ED25519: &dyn SignatureVerificationAlgorithm = &Ed25519Verify;

@@ -35,59 +35,41 @@ impl TryFrom<PrivateKeyDer<'_>> for RsaSigningKey {
 
 impl SigningKey for RsaSigningKey {
     fn choose_scheme(&self, offered: &[SignatureScheme]) -> Option<Box<dyn Signer>> {
-        if let Some(scheme) = ALL_RSA_SCHEMES
+        let find = ALL_RSA_SCHEMES
             .iter()
-            .find(|scheme| offered.contains(scheme))
-        {
-            let scheme = *scheme;
-            let pkey = self.0.clone();
-            match scheme {
-                SignatureScheme::RSA_PSS_SHA512 => {
-                    Some(Box::new(super::GenericRandomizedSigner {
-                        _marker: Default::default(),
-                        key: Arc::new(rsa::pss::SigningKey::<Sha512>::new(pkey)),
-                        scheme,
-                    }))
+            .find(|scheme| offered.contains(scheme));
+
+        match find {
+            Some(scheme) => {
+                let pkey = self.0.clone();
+
+                macro_rules! signer {
+                    ($key:ty) => {
+                        Some(Box::new(super::GenericRandomizedSigner {
+                            _marker: Default::default(),
+                            key:     Arc::new(<$key>::new(pkey)),
+                            scheme:  *scheme,
+                        }))
+                    };
                 }
-                SignatureScheme::RSA_PSS_SHA384 => {
-                    Some(Box::new(super::GenericRandomizedSigner {
-                        _marker: Default::default(),
-                        key: Arc::new(rsa::pss::SigningKey::<Sha384>::new(pkey)),
-                        scheme,
-                    }))
+
+                match scheme {
+                    SignatureScheme::RSA_PSS_SHA512 => signer! {rsa::pss::SigningKey::<Sha512>},
+                    SignatureScheme::RSA_PSS_SHA384 => signer! {rsa::pss::SigningKey::<Sha384>},
+                    SignatureScheme::RSA_PSS_SHA256 => signer! {rsa::pss::SigningKey::<Sha256>},
+                    SignatureScheme::RSA_PKCS1_SHA512 => {
+                        signer! {rsa::pkcs1v15::SigningKey::<Sha512>}
+                    }
+                    SignatureScheme::RSA_PKCS1_SHA384 => {
+                        signer! {rsa::pkcs1v15::SigningKey::<Sha384>}
+                    }
+                    SignatureScheme::RSA_PKCS1_SHA256 => {
+                        signer! {rsa::pkcs1v15::SigningKey::<Sha256>}
+                    }
+                    _ => None,
                 }
-                SignatureScheme::RSA_PSS_SHA256 => {
-                    Some(Box::new(super::GenericRandomizedSigner {
-                        _marker: Default::default(),
-                        key: Arc::new(rsa::pss::SigningKey::<Sha256>::new(pkey)),
-                        scheme,
-                    }))
-                }
-                SignatureScheme::RSA_PKCS1_SHA512 => {
-                    Some(Box::new(super::GenericRandomizedSigner {
-                        _marker: Default::default(),
-                        key: Arc::new(rsa::pkcs1v15::SigningKey::<Sha512>::new(pkey)),
-                        scheme,
-                    }))
-                }
-                SignatureScheme::RSA_PKCS1_SHA384 => {
-                    Some(Box::new(super::GenericRandomizedSigner {
-                        _marker: Default::default(),
-                        key: Arc::new(rsa::pkcs1v15::SigningKey::<Sha384>::new(pkey)),
-                        scheme,
-                    }))
-                }
-                SignatureScheme::RSA_PKCS1_SHA256 => {
-                    Some(Box::new(super::GenericRandomizedSigner {
-                        _marker: Default::default(),
-                        key: Arc::new(rsa::pkcs1v15::SigningKey::<Sha256>::new(pkey)),
-                        scheme,
-                    }))
-                }
-                _ => None,
             }
-        } else {
-            None
+            None => None,
         }
     }
 
