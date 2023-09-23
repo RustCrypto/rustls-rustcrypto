@@ -69,7 +69,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
         },
         kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:          &TLS12_ECDSA_SCHEMES,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes128Gcm>::DEFAULT,
+        aead_alg:      &aead::gcm::Tls12Aes128Gcm,
         hmac_provider: hmac::SHA256,
     });
 
@@ -83,7 +83,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
         kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:          &TLS12_ECDSA_SCHEMES,
         hmac_provider: hmac::SHA384,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes256Gcm>::DEFAULT,
+        aead_alg:      &aead::gcm::Tls12Aes256Gcm,
     });
 
 #[cfg(feature = "tls12")]
@@ -115,7 +115,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
         },
         kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:          &TLS12_RSA_SCHEMES,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes128Gcm>::DEFAULT,
+        aead_alg:      &aead::gcm::Tls12Aes128Gcm,
         hmac_provider: hmac::SHA256,
     });
 
@@ -129,7 +129,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
         kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:          &TLS12_RSA_SCHEMES,
         hmac_provider: hmac::SHA384,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes256Gcm>::DEFAULT,
+        aead_alg:      &aead::gcm::Tls12Aes256Gcm,
     });
 
 #[cfg(feature = "tls12")]
@@ -169,7 +169,7 @@ pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
             hash_provider: hash::SHA256,
         },
         hmac_provider: hmac::SHA256,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes128Gcm>::DEFAULT,
+        aead_alg:      &aead::gcm::Tls13Aes128Gcm,
     });
 
 pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
@@ -179,7 +179,7 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
             hash_provider: hash::SHA384,
         },
         hmac_provider: hmac::SHA384,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes256Gcm>::DEFAULT,
+        aead_alg:      &aead::gcm::Tls13Aes256Gcm,
     });
 
 const TLS13_AES_SUITES: &[SupportedCipherSuite] =
