@@ -21,10 +21,10 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
 
 pub struct RsaSigningKey(RsaPrivateKey);
 
-impl TryFrom<PrivateKeyDer<'_>> for RsaSigningKey {
+impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
     type Error = rustls::Error;
 
-    fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
+    fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         let pkey = match value {
             PrivateKeyDer::Pkcs8(der) => {
                 RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())

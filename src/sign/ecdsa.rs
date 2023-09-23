@@ -15,10 +15,10 @@ macro_rules! impl_ecdsa {
                 scheme: SignatureScheme,
             }
 
-            impl TryFrom<PrivateKeyDer<'_>> for [<EcdsaSigningKey $name>] {
+            impl TryFrom<&PrivateKeyDer<'_>> for [<EcdsaSigningKey $name>] {
                 type Error = rustls::Error;
 
-                fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
+                fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
                     let pkey = match value {
                         PrivateKeyDer::Pkcs8(der) => {
                             $signing_key::from_pkcs8_der(der.secret_pkcs8_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
