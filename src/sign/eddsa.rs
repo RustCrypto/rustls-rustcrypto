@@ -27,6 +27,7 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                 ed25519_dalek::SigningKey::from_sec1_der(sec1.secret_sec1_der())
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
+            PrivateKeyDer::Pkcs1(_) => Err(format!("ED25519 does not support PKCS#1 key")),
             _ => todo!(),
         };
         pkey.map(|kp| {

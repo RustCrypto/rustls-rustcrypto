@@ -26,6 +26,7 @@ macro_rules! impl_ecdsa {
                         PrivateKeyDer::Sec1(sec1) => {
                             $signing_key::from_sec1_der(sec1.secret_sec1_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
                         },
+                        PrivateKeyDer::Pkcs1(_) => Err(format!("ECDSA does not support PKCS#1 key")),
                         _ => todo!(),
                     };
                     pkey.map(|kp| {
