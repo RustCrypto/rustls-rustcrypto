@@ -2,7 +2,7 @@ use alloc::{boxed::Box, sync::Arc};
 
 use pkcs8::{self, DecodePrivateKey};
 use pki_types::PrivateKeyDer;
-use rsa::RsaPrivateKey;
+use rsa::{pkcs1::DecodeRsaPrivateKey, RsaPrivateKey};
 use rustls::{
     sign::{Signer, SigningKey},
     SignatureAlgorithm, SignatureScheme,
@@ -21,15 +21,22 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
 pub struct RsaSigningKey(RsaPrivateKey);
 
 impl TryFrom<PrivateKeyDer<'_>> for RsaSigningKey {
-    type Error = pkcs8::Error;
+    type Error = rustls::Error;
 
     fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
-        match value {
+        let pkey = match value {
             PrivateKeyDer::Pkcs8(der) => {
-                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der()).map(Self)
+                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
+                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+            }
+            PrivateKeyDer::Pkcs1(der) => {
+                RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
+                    .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
             _ => todo!(),
-        }
+        };
+
+        pkey.map(Self).map_err(rustls::Error::General)
     }
 }
 

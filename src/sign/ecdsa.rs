@@ -1,4 +1,4 @@
-use alloc::{boxed::Box, sync::Arc};
+use alloc::{boxed::Box, format, sync::Arc};
 
 use paste::paste;
 use pkcs8::DecodePrivateKey;
@@ -7,6 +7,7 @@ use rustls::{
     sign::{Signer, SigningKey},
     SignatureAlgorithm, SignatureScheme,
 };
+use sec1::DecodeEcPrivateKey;
 use signature::{RandomizedSigner, SignatureEncoding};
 
 macro_rules! impl_ecdsa {
@@ -18,20 +19,24 @@ macro_rules! impl_ecdsa {
             }
 
             impl TryFrom<PrivateKeyDer<'_>> for [<EcdsaSigningKey $name>] {
-                type Error = pkcs8::Error;
+                type Error = rustls::Error;
 
                 fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
-                    match value {
+                    let pkey = match value {
                         PrivateKeyDer::Pkcs8(der) => {
-                            $signing_key::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| {
-                                Self {
-                                    key:    Arc::new(kp),
-                                    scheme: $scheme,
-                                }
-                            })
-                        }
+                            $signing_key::from_pkcs8_der(der.secret_pkcs8_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
+                        },
+                        PrivateKeyDer::Sec1(sec1) => {
+                            $signing_key::from_sec1_der(sec1.secret_sec1_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
+                        },
                         _ => todo!(),
-                    }
+                    };
+                    pkey.map(|kp| {
+                        Self {
+                            key:    Arc::new(kp),
+                            scheme: $scheme,
+                        }
+                    }).map_err(rustls::Error::General)
                 }
             }
 
