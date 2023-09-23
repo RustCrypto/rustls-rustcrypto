@@ -1,4 +1,3 @@
-use pki_types::AlgorithmIdentifier;
 use rustls::{SignatureScheme, WebPkiSupportedAlgorithms};
 
 use self::{
@@ -9,14 +8,6 @@ use self::{
         RSA_PSS_SHA512,
     },
 };
-
-trait PublicKeyAlgId {
-    const PUBLIC_KEY_ALGO_ID: AlgorithmIdentifier;
-}
-
-trait SignatureAlgId {
-    const SIG_ALGO_ID: AlgorithmIdentifier;
-}
 
 pub static ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
     all:     &[
