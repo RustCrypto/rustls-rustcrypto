@@ -40,9 +40,9 @@ dependencies = [
 
 [[package]]
 name = "aes-gcm"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "209b47e8954a928e1d72e86eca7000ebb6655fe1436d33eefc2201cad027e237"
+checksum = "831010a0f742e1209b3bcea8fab6a8e149051ba6099432c8cb2cc117dec3ead1"
 dependencies = [
  "aead",
  "aes",
@@ -660,7 +660,7 @@ dependencies = [
 [[package]]
 name = "hyper-rustls"
 version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/hyper-rustls#488b28ca7b9a45470bf88e0562836f6a432f2005"
+source = "git+https://github.com/stevefan1999-personal/hyper-rustls#a735de09e6d16c251429c2c3e80444a5f79fe7e6"
 dependencies = [
  "futures-util",
  "http",
@@ -903,9 +903,9 @@ checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
 
 [[package]]
 name = "pem"
-version = "2.0.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b13fe415cdf3c8e44518e18a7c95a13431d9bdf6d15367d82b23c377fdd441a"
+checksum = "3163d2912b7c3b52d651a055f2c7eec9ba5cd22d26ef75b8dd3a59980b185923"
 dependencies = [
  "base64",
  "serde",
@@ -1081,9 +1081,9 @@ dependencies = [
 
 [[package]]
 name = "rcgen"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4954fbc00dcd4d8282c987710e50ba513d351400dbdd00e803a05172a90d8976"
+checksum = "4426f9f4d65c83b570885bee479ba4c5e78d7a5286c8a58e3d2570462121b447"
 dependencies = [
  "pem",
  "ring",
@@ -1198,8 +1198,8 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.22.0-alpha.2"
-source = "git+https://github.com/rustls/rustls#86aa146d59f83e9fbf890b05f823799c0e8d3023"
+version = "0.22.0-alpha.3"
+source = "git+https://github.com/rustls/rustls#1988d70a9c7c050a41ad7b3a8301722ecc8622f3"
 dependencies = [
  "log",
  "ring",
@@ -1236,7 +1236,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a47003264dea418db67060fa420ad16d0d2f8f0a0360d825c00e177ac52cb5d8"
 
 [[package]]
-name = "rustls-provider-rustcrypto"
+name = "rustls-rustcrypto"
 version = "0.0.2"
 dependencies = [
  "aead",
@@ -1340,9 +1340,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.18"
+version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0293b4b29daaf487284529cc2f5675b8e57c61f70167ba415a463651fd6a918"
+checksum = "ad977052201c6de01a8ef2aa3378c4bd23217a056337d1d6da40468d267a4fb0"
 
 [[package]]
 name = "serde"
@@ -1565,7 +1565,7 @@ dependencies = [
 [[package]]
 name = "tokio-rustls"
 version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/tokio-rustls#2cff7bd7c9735b1f4a37de5e932f5863c93ac49c"
+source = "git+https://github.com/stevefan1999-personal/tokio-rustls#cddec327d2e8253718994eb905c38a5ac887b9f2"
 dependencies = [
  "rustls",
  "tokio",

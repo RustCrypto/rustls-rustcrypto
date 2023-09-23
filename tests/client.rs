@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use hyper::{body::to_bytes, client, client::HttpConnector, Body, Uri};
 use hyper_rustls::HttpsConnector;
-use rustls_provider_rustcrypto::Provider;
+use rustls_rustcrypto::Provider;
 
 pub fn build_hyper_client() -> client::Client<HttpsConnector<HttpConnector>, hyper::Body> {
     let mut root_store = rustls::RootCertStore::empty();

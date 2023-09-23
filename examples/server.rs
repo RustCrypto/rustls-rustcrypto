@@ -16,7 +16,7 @@ use rustls::{
     server::{ClientHello, ResolvesServerCert},
     sign, ServerConfig,
 };
-use rustls_provider_rustcrypto::{sign::ecdsa::EcdsaSigningKeyP256, Provider};
+use rustls_rustcrypto::{sign::ecdsa::EcdsaSigningKeyP256, Provider};
 
 struct TestResolvesServerCert(Arc<sign::CertifiedKey>);
 

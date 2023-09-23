@@ -13,7 +13,7 @@ The upstream PR is also constantly force pushed, and I do not guarantee I can ca
 This package is still in its very early phase, so until the grand part 3 PR is done, this won't be published to crates.io. Meanwhile you can try it out using git crate installation:
 
 ```
-rustls-provider-rustcrypto = { git = "https://github.com/stevefan1999/rustls-provider-rustcrypto", version = "0.0.2" }
+rustls-rustcrypto = { git = "https://github.com/RustCrypto/rustls-rustcrypto", version = "0.0.2" }
 ```
 
 ## Supported Cipher Suites
