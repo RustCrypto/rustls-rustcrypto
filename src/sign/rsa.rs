@@ -1,4 +1,5 @@
 use alloc::{boxed::Box, sync::Arc};
+use core::marker::PhantomData;
 
 use pkcs8::{self, DecodePrivateKey};
 use pki_types::PrivateKeyDer;
@@ -53,7 +54,7 @@ impl SigningKey for RsaSigningKey {
                 macro_rules! signer {
                     ($key:ty) => {
                         Some(Box::new(super::GenericRandomizedSigner {
-                            _marker: Default::default(),
+                            _marker: PhantomData,
                             key:     Arc::new(<$key>::new(pkey)),
                             scheme:  *scheme,
                         }))
