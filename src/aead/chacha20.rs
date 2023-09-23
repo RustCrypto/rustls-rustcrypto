@@ -74,7 +74,7 @@ impl cipher::MessageEncrypter for Tls13Cipher {
         self.0
             .encrypt_in_place(&nonce, &aad, &mut payload)
             .map_err(|_| rustls::Error::EncryptError)
-            .map(|_| {
+            .map(|()| {
                 cipher::OpaqueMessage::new(
                     ContentType::ApplicationData,
                     ProtocolVersion::TLSv1_2,

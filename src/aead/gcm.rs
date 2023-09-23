@@ -58,7 +58,7 @@ macro_rules! impl_gcm_tls13 {
                     self.0
                         .encrypt_in_place(&nonce.into(), &aad, &mut payload)
                         .map_err(|_| rustls::Error::EncryptError)
-                        .and_then(|_| {
+                        .and_then(|()| {
                             Ok(OpaqueMessage::new(
                                 ContentType::ApplicationData,
                                 ProtocolVersion::TLSv1_2,

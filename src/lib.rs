@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![deny(clippy::all, clippy::pedantic)]
 
 extern crate alloc;
 
@@ -17,6 +18,7 @@ use rustls::{
 pub struct Provider;
 
 impl Provider {
+    #[must_use]
     pub fn certificate_verifier(roots: RootCertStore) -> Arc<dyn ServerCertVerifier> {
         Arc::new(WebPkiServerVerifier::new_with_algorithms(
             roots,
@@ -34,11 +36,11 @@ impl CryptoProvider for Provider {
     }
 
     fn default_cipher_suites(&self) -> &'static [SupportedCipherSuite] {
-        &ALL_CIPHER_SUITES
+        ALL_CIPHER_SUITES
     }
 
     fn default_kx_groups(&self) -> &'static [&'static dyn SupportedKxGroup] {
-        &kx::ALL_KX_GROUPS
+        kx::ALL_KX_GROUPS
     }
 }
 

@@ -1,4 +1,5 @@
 use alloc::{boxed::Box, sync::Arc};
+use core::marker::PhantomData;
 
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
@@ -42,7 +43,7 @@ impl SigningKey for Ed25519SigningKey {
     fn choose_scheme(&self, offered: &[SignatureScheme]) -> Option<Box<dyn Signer>> {
         if offered.contains(&self.scheme) {
             Some(Box::new(super::GenericSigner {
-                _marker: Default::default(),
+                _marker: PhantomData,
                 key:     self.key.clone(),
                 scheme:  self.scheme,
             }))

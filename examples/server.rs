@@ -12,7 +12,6 @@ use hyper::{
 use hyper_rustls::TlsAcceptor;
 use pki_types::{CertificateDer, PrivateKeyDer};
 use rustls::{
-    crypto::CryptoProvider,
     server::{ClientHello, ResolvesServerCert},
     sign, ServerConfig,
 };
@@ -72,7 +71,7 @@ impl TestPki {
         }
     }
 
-    fn server_config<C: CryptoProvider>(&self) -> Arc<ServerConfig> {
+    fn server_config(&self) -> Arc<ServerConfig> {
         let mut server_config: ServerConfig = ServerConfig::builder_with_provider(&Provider)
             .with_safe_defaults()
             .with_no_client_auth()
@@ -92,7 +91,7 @@ async fn main() -> anyhow::Result<()> {
     env_logger::init();
 
     let pki = TestPki::new();
-    let server_config = pki.server_config::<Provider>();
+    let server_config = pki.server_config();
     let addr = "0.0.0.0:4443"
         .to_socket_addrs()?
         .next()
