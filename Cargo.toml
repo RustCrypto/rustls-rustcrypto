@@ -39,7 +39,6 @@ default = ["std"]
 logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
 quic = ["rustls/quic"]
-asm = ["sha2/asm"]
 std = ["webpki/std", "pki-types/std"]
 alloc = ["webpki/alloc", "pki-types/alloc"]
 
