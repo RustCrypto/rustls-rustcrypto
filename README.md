@@ -8,12 +8,11 @@ Some code comes directly from one of main rustls contributor, [@ctz](https://git
 
 Not only that this is incomplete (only few selected TLS suites implemented), but the elephant in the room is that neither did rustls nor RustCrypto packages were formally verified and certified with FIPS compliance.
 
-The upstream PR is also constantly force pushed, and I do not guarantee I can catch up with the changes rapidly. [We also have a part 4 of this saga](https://github.com/rustls/rustls/pull/1448), so the work done here may also need to refresh.
+This package is still in its very early phase, so until we think the code is okay for general public use, this won't be published to crates.io anytime soon. 
 
-This package is still in its very early phase, so until the grand part 3 PR is done, this won't be published to crates.io. Meanwhile you can try it out using git crate installation:
-
+Meanwhile you can try it out using git crate installation:
 ```
-rustls-rustcrypto = { git = "https://github.com/RustCrypto/rustls-rustcrypto", version = "0.0.2" }
+rustls-rustcrypto = { git = "https://github.com/RustCrypto/rustls-rustcrypto", version = "0.1.0" }
 ```
 
 ## Supported Cipher Suites
