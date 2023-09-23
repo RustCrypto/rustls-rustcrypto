@@ -1526,7 +1526,7 @@ dependencies = [
 [[package]]
 name = "tokio-rustls"
 version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/tokio-rustls#cddec327d2e8253718994eb905c38a5ac887b9f2"
+source = "git+https://github.com/rustls/tokio-rustls#e49f673b2d24470a6c6e368ab09de2614891c947"
 dependencies = [
  "rustls",
  "tokio",

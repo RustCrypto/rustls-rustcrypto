@@ -57,5 +57,5 @@ webpki-roots = "0.26.0-alpha.1"
 
 [patch.crates-io]
 rustls = { git = 'https://github.com/rustls/rustls' }
-tokio-rustls = { git = 'https://github.com/stevefan1999-personal/tokio-rustls' }
+tokio-rustls = { git = 'https://github.com/rustls/tokio-rustls' }
 hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls" }
