@@ -39,7 +39,6 @@ x25519-dalek = "2"
 default = ["std"]
 logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
-quic = ["rustls/quic"]
 std = ["webpki/std", "pki-types/std"]
 alloc = ["webpki/alloc", "pki-types/alloc"]
 
