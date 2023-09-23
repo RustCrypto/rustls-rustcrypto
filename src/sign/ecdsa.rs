@@ -1,14 +1,11 @@
 use alloc::{boxed::Box, format, sync::Arc};
+use core::marker::PhantomData;
 
 use paste::paste;
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
-use rustls::{
-    sign::{Signer, SigningKey},
-    SignatureAlgorithm, SignatureScheme,
-};
+use rustls::{sign::SigningKey, SignatureAlgorithm, SignatureScheme};
 use sec1::DecodeEcPrivateKey;
-use signature::{RandomizedSigner, SignatureEncoding};
 
 macro_rules! impl_ecdsa {
     ($name: ident, $scheme: expr, $signing_key: ty, $signature: ty) => {
@@ -43,7 +40,8 @@ macro_rules! impl_ecdsa {
             impl SigningKey for [<EcdsaSigningKey $name>] {
                 fn choose_scheme(&self, offered: &[SignatureScheme]) -> Option<Box<dyn rustls::sign::Signer>> {
                     if offered.contains(&self.scheme) {
-                        Some(Box::new([<EcdsaSigner $name>] {
+                        Some(Box::new(super::GenericRandomizedSigner::<$signature, _> {
+                            _marker: PhantomData,
                             key:     self.key.clone(),
                             scheme:  self.scheme,
                         }))
@@ -54,24 +52,6 @@ macro_rules! impl_ecdsa {
 
                 fn algorithm(&self) -> SignatureAlgorithm {
                     SignatureAlgorithm::ECDSA
-                }
-            }
-
-            pub struct [<EcdsaSigner $name>] {
-                key:     Arc<$signing_key>,
-                scheme:  SignatureScheme,
-            }
-
-            impl Signer for [<EcdsaSigner $name>] {
-                fn sign(&self, message: &[u8]) -> Result<Vec<u8>, rustls::Error> {
-                    self.key
-                        .try_sign_with_rng(&mut rand_core::OsRng, message)
-                        .map_err(|_| rustls::Error::General("signing failed".into()))
-                        .map(|sig: $signature| sig.to_vec())
-                }
-
-                fn scheme(&self) -> SignatureScheme {
-                    self.scheme
                 }
             }
         }
