@@ -1232,6 +1232,7 @@ dependencies = [
  "p256",
  "p384",
  "paste",
+ "pkcs1",
  "pkcs8",
  "rand_core",
  "rcgen",
