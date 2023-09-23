@@ -50,13 +50,7 @@ hyper = "0.14.27"
 hyper-rustls = { version = "0.24.1", features = ["http2"] }
 rcgen = "0.11.1"
 test-case = "3.2.1"
-tokio = { version = "1.32.0", features = [
-    "rt-multi-thread",
-    "macros",
-    "io-std",
-    "io-util",
-    "net",
-] }
+tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
 tokio-rustls = "0.24.1"
 webpki-roots = "0.26.0-alpha.1"
 
