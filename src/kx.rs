@@ -1,5 +1,4 @@
 use alloc::boxed::Box;
-use core::ops::Deref;
 
 use crypto::{SharedSecret, SupportedKxGroup};
 use paste::paste;
@@ -88,7 +87,7 @@ macro_rules! impl_kx {
                         .priv_key
                         .diffie_hellman(&their_pub)
                         .raw_secret_bytes()
-                        .deref()
+                        .as_slice()
                         .into())
                 }
 
