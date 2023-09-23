@@ -23,14 +23,14 @@ macro_rules! impl_gcm_tls13 {
 
             impl Tls13AeadAlgorithm for [<Tls13 $name>] {
                 fn encrypter(&self, key: AeadKey, iv: cipher::Iv) -> Box<dyn MessageEncrypter> {
-                    Box::new([<AeadCipherTls13 $name>](
+                    Box::new([<Tls13Cipher $name>](
                         $aead::new_from_slice(key.as_ref()).unwrap(),
                         iv,
                     ))
                 }
 
                 fn decrypter(&self, key: AeadKey, iv: cipher::Iv) -> Box<dyn MessageDecrypter> {
-                    Box::new([<AeadCipherTls13 $name>](
+                    Box::new([<Tls13Cipher $name>](
                         $aead::new_from_slice(key.as_ref()).unwrap(),
                         iv,
                     ))
@@ -41,23 +41,9 @@ macro_rules! impl_gcm_tls13 {
                 }
             }
 
-            struct [<AeadCipherTls13 $name>]($aead, cipher::Iv);
+            struct [<Tls13Cipher $name>]($aead, cipher::Iv);
 
-            impl MessageDecrypter for [<AeadCipherTls13 $name>] {
-                fn decrypt(&self, mut m: OpaqueMessage, seq: u64) -> Result<PlainMessage, rustls::Error> {
-                    let payload = m.payload_mut();
-                    let nonce = cipher::Nonce::new(&self.1, seq).0;
-                    let aad = cipher::make_tls13_aad(payload.len());
-
-                    self.0
-                        .decrypt_in_place(&nonce.into(), &aad, payload)
-                        .map_err(|_| rustls::Error::DecryptError)?;
-
-                    m.into_tls13_unpadded_message()
-                }
-            }
-
-            impl MessageEncrypter for [<AeadCipherTls13 $name>] {
+            impl MessageEncrypter for [<Tls13Cipher $name>] {
                 fn encrypt(&self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
                     let total_len = m.payload.len() + 1 + $overhead;
 
@@ -81,10 +67,26 @@ macro_rules! impl_gcm_tls13 {
                         })
                 }
             }
+
+            impl MessageDecrypter for [<Tls13Cipher $name>] {
+                fn decrypt(&self, mut m: OpaqueMessage, seq: u64) -> Result<PlainMessage, rustls::Error> {
+                    let payload = m.payload_mut();
+                    let nonce = cipher::Nonce::new(&self.1, seq).0;
+                    let aad = cipher::make_tls13_aad(payload.len());
+
+                    self.0
+                        .decrypt_in_place(&nonce.into(), &aad, payload)
+                        .map_err(|_| rustls::Error::DecryptError)?;
+
+                    m.into_tls13_unpadded_message()
+                }
+            }
+
         }
     };
 }
 
+#[cfg(feature = "tls12")]
 macro_rules! impl_gcm_tls12 {
     ($name: ident, $aead: ty, $overhead: expr) => {
         paste! {
@@ -94,7 +96,7 @@ macro_rules! impl_gcm_tls12 {
             #[cfg(feature = "tls12")]
             impl Tls12AeadAlgorithm for [<Tls12 $name>] {
                 fn encrypter(&self, key: AeadKey, write_iv: &[u8], explicit: &[u8]) -> Box<dyn MessageEncrypter> {
-                    Box::new([<AeadCipherTls12 $name Encrypter>](
+                    Box::new([<Tls12Cipher $name Encrypter>](
                         $aead::new_from_slice(key.as_ref()).unwrap(),
                         {
                             let mut iv: [u8; 12] = [0; 12];
@@ -106,7 +108,7 @@ macro_rules! impl_gcm_tls12 {
                 }
 
                 fn decrypter(&self, dec_key: AeadKey, dec_iv: &[u8]) -> Box<dyn MessageDecrypter> {
-                    Box::new([<AeadCipherTls12 $name Decrypter>](
+                    Box::new([<Tls12Cipher $name Decrypter>](
                         $aead::new_from_slice(dec_key.as_ref()).unwrap(),
                         dec_iv.try_into().unwrap(),
                     ))
@@ -122,10 +124,10 @@ macro_rules! impl_gcm_tls12 {
             }
 
             #[cfg(feature = "tls12")]
-            struct [<AeadCipherTls12 $name Encrypter>]($aead, [u8; 12]);
+            struct [<Tls12Cipher $name Encrypter>]($aead, [u8; 12]);
 
             #[cfg(feature = "tls12")]
-            impl MessageEncrypter for [<AeadCipherTls12 $name Encrypter>] {
+            impl MessageEncrypter for [<Tls12Cipher $name Encrypter>] {
                 fn encrypt(&self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
                     let nonce = cipher::Nonce::new(&self.1.into(), seq).0;
                     let aad = cipher::make_tls12_aad(seq, m.typ, m.version, m.payload.len());
@@ -145,10 +147,10 @@ macro_rules! impl_gcm_tls12 {
             }
 
             #[cfg(feature = "tls12")]
-            struct [<AeadCipherTls12 $name Decrypter>]($aead, [u8; 4]);
+            struct [<Tls12Cipher $name Decrypter>]($aead, [u8; 4]);
 
             #[cfg(feature = "tls12")]
-            impl MessageDecrypter for [<AeadCipherTls12 $name Decrypter>] {
+            impl MessageDecrypter for [<Tls12Cipher $name Decrypter>] {
                 fn decrypt(&self, mut m: OpaqueMessage, seq: u64) -> Result<PlainMessage, rustls::Error> {
                     type TagSize = <$aead as AeadCore>::TagSize;
 
