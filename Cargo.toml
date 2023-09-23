@@ -9,9 +9,7 @@ edition = "2021"
 aead = "0.5.2"
 aes-gcm = "0.10.2"
 block-buffer = "0.10.4"
-ccm = "0.5.0"
 chacha20poly1305 = "0.10.0"
-constcat = "0.3.0"
 crypto-common = "0.1.6"
 der = "0.7.0"
 digest = "0.10.7"
@@ -22,7 +20,6 @@ generic-array = "0.14.7"
 hmac = "0.12.0"
 p256 = { version = "0.13.2", features = ["ecdh"] }
 p384 = { version = "0.13.0", features = ["ecdh"] }
-p521 = "0.13.0"
 paste = "1.0.14"
 pkcs8 = { version = "0.10.2", features = ["pem", "pkcs5"] }
 pki-types = { package = "rustls-pki-types", version = "0.2.1", default-features = false }
@@ -33,10 +30,8 @@ sec1 = "0.7.3"
 sha2 = "0.10.0"
 signature = "2.1.0"
 subtle = "2.5.0"
-tokio-rustls = "0.24.1"
 typenum = "1.16.0"
 webpki = { package = "rustls-webpki", version = "0.102.0-alpha.3", default-features = false }
-webpki-roots = "0.26.0-alpha.1"
 x25519-dalek = "2"
 
 [features]
@@ -63,6 +58,8 @@ tokio = { version = "1.32.0", features = [
     "io-util",
     "net",
 ] }
+tokio-rustls = "0.24.1"
+webpki-roots = "0.26.0-alpha.1"
 
 [patch.crates-io]
 rustls = { git = 'https://github.com/rustls/rustls' }

@@ -155,18 +155,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ccm"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ae3c82e4355234767756212c570e29833699ab63e6ffd161887314cc5b43847"
-dependencies = [
- "aead",
- "cipher",
- "ctr",
- "subtle",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -221,12 +209,6 @@ name = "const-oid"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28c122c3980598d243d63d9a704629a2d748d101f278052ff068be5a4423ab6f"
-
-[[package]]
-name = "constcat"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f272d0c4cf831b4fa80ee529c7707f76585986e910e1fbce1d7921970bc1a241"
 
 [[package]]
 name = "core-foundation"
@@ -887,15 +869,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "p521"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f2808cdb09072e3b966f5da8280cd29b252988afb898f688074d8dd1d26c0db"
-dependencies = [
- "elliptic-curve",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1243,10 +1216,8 @@ dependencies = [
  "aes-gcm",
  "anyhow",
  "block-buffer",
- "ccm",
  "chacha20poly1305",
  "claim",
- "constcat",
  "crypto-common",
  "der",
  "digest",
@@ -1260,7 +1231,6 @@ dependencies = [
  "hyper-rustls",
  "p256",
  "p384",
- "p521",
  "paste",
  "pkcs8",
  "rand_core",
