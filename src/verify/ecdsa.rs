@@ -1,9 +1,9 @@
 use der::Decode;
+use digest::Digest;
 use paste::paste;
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
-use webpki::alg_id;
-use digest::Digest;
 use signature::hazmat::PrehashVerifier;
+use webpki::alg_id;
 
 macro_rules! impl_generic_ecdsa_verifer {
     (
