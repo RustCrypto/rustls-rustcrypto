@@ -1,23 +1,10 @@
-use der::Reader;
+
 use paste::paste;
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
-use rsa::{pkcs1v15, pss, BigUint, RsaPublicKey};
+use rsa::{pkcs1::DecodeRsaPublicKey, pkcs1v15, pss, RsaPublicKey};
 use sha2::{Sha256, Sha384, Sha512};
 use signature::Verifier;
 use webpki::alg_id;
-
-fn decode_spki_spk(spki_spk: &[u8]) -> Result<RsaPublicKey, InvalidSignature> {
-    // public_key: unfortunately this is not a whole SPKI, but just the key
-    // material. decode the two integers manually.
-    let mut reader = der::SliceReader::new(spki_spk).map_err(|_| InvalidSignature)?;
-    let ne: [der::asn1::UintRef; 2] = reader.decode().map_err(|_| InvalidSignature)?;
-
-    RsaPublicKey::new(
-        BigUint::from_bytes_be(ne[0].as_bytes()),
-        BigUint::from_bytes_be(ne[1].as_bytes()),
-    )
-    .map_err(|_| InvalidSignature)
-}
 
 macro_rules! impl_generic_rsa_verifer {
     (
@@ -46,7 +33,7 @@ macro_rules! impl_generic_rsa_verifer {
                     message: &[u8],
                     signature: &[u8],
                 ) -> Result<(), InvalidSignature> {
-                        let public_key = decode_spki_spk(public_key)?;
+                        let public_key = RsaPublicKey::from_pkcs1_der(public_key).map_err(|_| InvalidSignature)?;
                         let signature = <$signature>::try_from(signature).map_err(|_| InvalidSignature)?;
                         <$verifying_key>::new(public_key)
                             .verify(message, &signature)
