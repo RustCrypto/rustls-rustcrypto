@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 
 use hyper::{body::to_bytes, client, client::HttpConnector, Body, Uri};
 use hyper_rustls::HttpsConnector;
@@ -11,7 +11,7 @@ pub fn build_hyper_client() -> client::Client<HttpsConnector<HttpConnector>, hyp
     let config = rustls::ClientConfig::builder_with_provider(&Provider)
         .with_safe_defaults()
         .dangerous()
-        .with_custom_certificate_verifier(Provider::certificate_verifier(root_store))
+        .with_custom_certificate_verifier(Provider::certificate_verifier(Arc::new(root_store)))
         .with_no_client_auth();
 
     let https = hyper_rustls::HttpsConnectorBuilder::new()

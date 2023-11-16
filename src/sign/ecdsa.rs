@@ -12,6 +12,7 @@ use signature::{RandomizedSigner, SignatureEncoding};
 macro_rules! impl_ecdsa {
     ($name: ident, $scheme: expr, $signing_key: ty, $signature: ty) => {
         paste! {
+            #[derive(Debug)]
             pub struct [<EcdsaSigningKey $name>] {
                 key:    Arc<$signing_key>,
                 scheme: SignatureScheme,
@@ -52,6 +53,7 @@ macro_rules! impl_ecdsa {
                 }
             }
 
+            #[derive(Debug)]
             pub struct [<EcdsaSigner $name>] {
                 key:     Arc<$signing_key>,
                 scheme:  SignatureScheme,

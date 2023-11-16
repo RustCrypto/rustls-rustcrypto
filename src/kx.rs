@@ -13,7 +13,7 @@ impl crypto::SupportedKxGroup for X25519 {
         rustls::NamedGroup::X25519
     }
 
-    fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::crypto::GetRandomFailed> {
+    fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::Error> {
         let priv_key = x25519_dalek::EphemeralSecret::random_from_rng(rand_core::OsRng);
         let pub_key = (&priv_key).into();
         Ok(Box::new(X25519KeyExchange { priv_key, pub_key }))
@@ -44,12 +44,7 @@ impl crypto::ActiveKeyExchange for X25519KeyExchange {
 }
 
 macro_rules! impl_kx {
-    (
-        $name: ident,
-        $kx_name: ty,
-        $secret:ty,
-        $public_key:ty
-    ) => {
+    ($name:ident, $kx_name:ty, $secret:ty, $public_key:ty) => {
         paste! {
 
             #[derive(Debug)]
@@ -61,7 +56,7 @@ macro_rules! impl_kx {
                     $kx_name
                 }
 
-                fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::crypto::GetRandomFailed> {
+                fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::Error> {
                     let priv_key = $secret::random(&mut rand_core::OsRng);
                     let pub_key: $public_key = (&priv_key).into();
                     Ok(Box::new([<$name KeyExchange>] {

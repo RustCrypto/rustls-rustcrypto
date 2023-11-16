@@ -8,11 +8,11 @@ use rustls::{
         self, AeadKey, BorrowedPlainMessage, MessageDecrypter, MessageEncrypter, OpaqueMessage,
         PlainMessage, Tls13AeadAlgorithm,
     },
-    ContentType, ProtocolVersion,
+    ConnectionTrafficSecrets, ContentType, ProtocolVersion,
 };
 #[cfg(feature = "tls12")]
 use {
-    aead::AeadCore, aes_gcm::AesGcm, generic_array::ArrayLength,
+    aead::AeadCore, aes_gcm::AesGcm, generic_array::ArrayLength, rustls::crypto::cipher::Iv,
     rustls::crypto::cipher::KeyBlockShape, rustls::crypto::cipher::Tls12AeadAlgorithm,
 };
 
@@ -35,40 +35,64 @@ impl<T> Gcm<T> {
     pub const DEFAULT: Self = Self(PhantomData);
 }
 
-impl<T> Tls13AeadAlgorithm for Gcm<T>
-where
-    T: Send + Sync + KeyInit + KeySizeUser + AeadInPlace + 'static,
-    aead::Nonce<T>: From<NonceType>,
-    AeadCipherTls13<T>: AeadMetaTls13,
-{
+impl Tls13AeadAlgorithm for Gcm<aes_gcm::Aes128Gcm> {
     fn encrypter(&self, key: AeadKey, iv: cipher::Iv) -> Box<dyn MessageEncrypter> {
         Box::new(AeadCipherTls13(
-            T::new_from_slice(key.as_ref()).unwrap(),
+            aes_gcm::Aes128Gcm::new_from_slice(key.as_ref()).unwrap(),
             iv,
         ))
     }
 
     fn decrypter(&self, key: AeadKey, iv: cipher::Iv) -> Box<dyn MessageDecrypter> {
         Box::new(AeadCipherTls13(
-            T::new_from_slice(key.as_ref()).unwrap(),
+            aes_gcm::Aes128Gcm::new_from_slice(key.as_ref()).unwrap(),
             iv,
         ))
     }
 
     fn key_len(&self) -> usize {
-        T::key_size()
+        aes_gcm::Aes128Gcm::key_size()
+    }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: cipher::Iv,
+    ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
+        Ok(ConnectionTrafficSecrets::Aes128Gcm { key, iv })
+    }
+}
+
+impl Tls13AeadAlgorithm for Gcm<aes_gcm::Aes256Gcm> {
+    fn encrypter(&self, key: AeadKey, iv: cipher::Iv) -> Box<dyn MessageEncrypter> {
+        Box::new(AeadCipherTls13(
+            aes_gcm::Aes256Gcm::new_from_slice(key.as_ref()).unwrap(),
+            iv,
+        ))
+    }
+
+    fn decrypter(&self, key: AeadKey, iv: cipher::Iv) -> Box<dyn MessageDecrypter> {
+        Box::new(AeadCipherTls13(
+            aes_gcm::Aes256Gcm::new_from_slice(key.as_ref()).unwrap(),
+            iv,
+        ))
+    }
+
+    fn key_len(&self) -> usize {
+        aes_gcm::Aes256Gcm::key_size()
+    }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: cipher::Iv,
+    ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
+        Ok(ConnectionTrafficSecrets::Aes256Gcm { key, iv })
     }
 }
 
 #[cfg(feature = "tls12")]
-impl<Aes, NonceSize> Tls12AeadAlgorithm for Gcm<AesGcm<Aes, NonceSize>>
-where
-    Aes: Send + Sync + 'static,
-    NonceSize: Send + Sync + ArrayLength<u8>,
-    AesGcm<Aes, NonceSize>: AeadInPlace + KeyInit,
-    AeadCipherTls12<AesGcm<Aes, NonceSize>>: AeadMetaTls12,
-    aead::Nonce<AesGcm<Aes, NonceSize>>: From<NonceType>,
-{
+impl Tls12AeadAlgorithm for Gcm<aes_gcm::Aes128Gcm> {
     fn encrypter(
         &self,
         key: AeadKey,
@@ -76,7 +100,7 @@ where
         explicit: &[u8],
     ) -> Box<dyn MessageEncrypter> {
         Box::new(AeadCipherTls12(
-            AesGcm::<Aes, NonceSize>::new_from_slice(key.as_ref()).unwrap(),
+            aes_gcm::Aes128Gcm::new_from_slice(key.as_ref()).unwrap(),
             {
                 let mut iv = NonceType::default();
                 iv[..4].copy_from_slice(write_iv);
@@ -88,7 +112,7 @@ where
 
     fn decrypter(&self, dec_key: AeadKey, dec_iv: &[u8]) -> Box<dyn MessageDecrypter> {
         Box::new(AeadCipherTls12(
-            AesGcm::<Aes, NonceSize>::new_from_slice(dec_key.as_ref()).unwrap(),
+            aes_gcm::Aes128Gcm::new_from_slice(dec_key.as_ref()).unwrap(),
             {
                 let mut dec_salt = NonceType::default();
                 dec_salt[..4].copy_from_slice(dec_iv);
@@ -98,7 +122,66 @@ where
     }
 
     fn key_block_shape(&self) -> KeyBlockShape {
-        AeadCipherTls12::<AesGcm<Aes, NonceSize>>::key_block_shape()
+        AeadCipherTls12::<aes_gcm::Aes128Gcm>::key_block_shape()
+    }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: &[u8],
+        _explicit: &[u8],
+    ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
+        Ok(ConnectionTrafficSecrets::Aes128Gcm {
+            key,
+            iv: Iv::new(iv[..].try_into().unwrap()),
+        })
+    }
+}
+
+#[cfg(feature = "tls12")]
+impl Tls12AeadAlgorithm for Gcm<aes_gcm::Aes256Gcm> {
+    fn encrypter(
+        &self,
+        key: AeadKey,
+        write_iv: &[u8],
+        explicit: &[u8],
+    ) -> Box<dyn MessageEncrypter> {
+        Box::new(AeadCipherTls12(
+            aes_gcm::Aes256Gcm::new_from_slice(key.as_ref()).unwrap(),
+            {
+                let mut iv = NonceType::default();
+                iv[..4].copy_from_slice(write_iv);
+                iv[4..].copy_from_slice(explicit);
+                iv
+            },
+        ))
+    }
+
+    fn decrypter(&self, dec_key: AeadKey, dec_iv: &[u8]) -> Box<dyn MessageDecrypter> {
+        Box::new(AeadCipherTls12(
+            aes_gcm::Aes256Gcm::new_from_slice(dec_key.as_ref()).unwrap(),
+            {
+                let mut dec_salt = NonceType::default();
+                dec_salt[..4].copy_from_slice(dec_iv);
+                dec_salt
+            },
+        ))
+    }
+
+    fn key_block_shape(&self) -> KeyBlockShape {
+        AeadCipherTls12::<aes_gcm::Aes256Gcm>::key_block_shape()
+    }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: &[u8],
+        _explicit: &[u8],
+    ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
+        Ok(ConnectionTrafficSecrets::Aes256Gcm {
+            key,
+            iv: Iv::new(iv[..].try_into().unwrap()),
+        })
     }
 }
 

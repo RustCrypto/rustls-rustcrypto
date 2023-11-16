@@ -4,6 +4,7 @@ use core::marker::PhantomData;
 use rustls::{sign::Signer, Error, SignatureScheme};
 use signature::{RandomizedSigner, SignatureEncoding};
 
+#[derive(Debug)]
 pub struct GenericRandomizedSigner<S, T>
 where
     S: SignatureEncoding,
@@ -16,8 +17,8 @@ where
 
 impl<T, S> Signer for GenericRandomizedSigner<S, T>
 where
-    S: SignatureEncoding + Send + Sync,
-    T: RandomizedSigner<S> + Send + Sync,
+    S: SignatureEncoding + Send + Sync + core::fmt::Debug,
+    T: RandomizedSigner<S> + Send + Sync + core::fmt::Debug,
 {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
         self.key
@@ -31,6 +32,7 @@ where
     }
 }
 
+#[derive(Debug)]
 pub struct GenericSigner<S, T>
 where
     S: SignatureEncoding,
@@ -43,8 +45,8 @@ where
 
 impl<S, T> Signer for GenericSigner<S, T>
 where
-    S: SignatureEncoding + Send + Sync,
-    T: signature::Signer<S> + Send + Sync,
+    S: SignatureEncoding + Send + Sync + core::fmt::Debug,
+    T: signature::Signer<S> + Send + Sync + core::fmt::Debug,
 {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
         self.key

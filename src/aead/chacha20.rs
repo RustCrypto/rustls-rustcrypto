@@ -1,6 +1,8 @@
 use chacha20poly1305::{AeadInPlace, KeyInit, KeySizeUser};
-use rustls::{crypto::cipher, ContentType, ProtocolVersion};
-
+use rustls::{
+    crypto::cipher::{self, AeadKey, Iv, UnsupportedOperationError, NONCE_LEN},
+    ConnectionTrafficSecrets, ContentType, ProtocolVersion,
+};
 pub struct Chacha20Poly1305;
 
 impl cipher::Tls13AeadAlgorithm for Chacha20Poly1305 {
@@ -20,6 +22,14 @@ impl cipher::Tls13AeadAlgorithm for Chacha20Poly1305 {
 
     fn key_len(&self) -> usize {
         chacha20poly1305::ChaCha20Poly1305::key_size()
+    }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: Iv,
+    ) -> Result<ConnectionTrafficSecrets, UnsupportedOperationError> {
+        Ok(ConnectionTrafficSecrets::Chacha20Poly1305 { key, iv })
     }
 }
 
@@ -50,6 +60,21 @@ impl cipher::Tls12AeadAlgorithm for Chacha20Poly1305 {
             fixed_iv_len:       12,
             explicit_nonce_len: 0,
         }
+    }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: &[u8],
+        _explicit: &[u8],
+    ) -> Result<ConnectionTrafficSecrets, UnsupportedOperationError> {
+        // This should always be true because KeyBlockShape and the Iv nonce len are in
+        // agreement.
+        debug_assert_eq!(NONCE_LEN, iv.len());
+        Ok(ConnectionTrafficSecrets::Chacha20Poly1305 {
+            key,
+            iv: Iv::new(iv[..].try_into().unwrap()),
+        })
     }
 }
 

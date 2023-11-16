@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 
 use anyhow::anyhow;
 use hyper::{body::to_bytes, client, Body, Uri};
@@ -9,6 +9,7 @@ use rustls::{
 };
 use rustls_provider_rustcrypto::Provider;
 
+#[derive(Debug)]
 struct NoopServerVerifier;
 
 impl ServerCertVerifier for NoopServerVerifier {
@@ -70,7 +71,7 @@ async fn main() -> anyhow::Result<()> {
     let config = rustls::ClientConfig::builder_with_provider(&Provider)
         .with_safe_defaults()
         .dangerous()
-        .with_custom_certificate_verifier(Provider::certificate_verifier(root_store))
+        .with_custom_certificate_verifier(Provider::certificate_verifier(Arc::new(root_store)))
         .with_no_client_auth();
 
     // Prepare the HTTPS connector

@@ -7,6 +7,7 @@ use rustls::{
     SignatureAlgorithm, SignatureScheme,
 };
 
+#[derive(Debug)]
 pub struct Ed25519SigningKey {
     key:    Arc<ed25519_dalek::SigningKey>,
     scheme: SignatureScheme,
