@@ -4,8 +4,12 @@ use core::marker::PhantomData;
 use paste::paste;
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
-use rustls::{sign::SigningKey, SignatureAlgorithm, SignatureScheme};
+use rustls::{
+    sign::{Signer, SigningKey},
+    SignatureAlgorithm, SignatureScheme,
+};
 use sec1::DecodeEcPrivateKey;
+use signature::{RandomizedSigner, SignatureEncoding};
 
 macro_rules! impl_ecdsa {
     ($name: ident, $scheme: expr, $signing_key: ty, $signature: ty) => {

@@ -45,22 +45,18 @@ impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
 
 impl SigningKey for RsaSigningKey {
     fn choose_scheme(&self, offered: &[SignatureScheme]) -> Option<Box<dyn Signer>> {
-        let find = ALL_RSA_SCHEMES
+        ALL_RSA_SCHEMES
             .iter()
-            .find(|scheme| offered.contains(scheme));
-
-        match find {
-            Some(scheme) => {
-                let pkey = self.0.clone();
-
+            .find(|scheme| offered.contains(scheme))
+            .and_then(|&scheme| {
                 macro_rules! signer {
-                    ($key:ty) => {
+                    ($key:ty) => {{
                         Some(Box::new(super::GenericRandomizedSigner {
-                            _marker: PhantomData,
-                            key:     Arc::new(<$key>::new(pkey)),
-                            scheme:  *scheme,
-                        }))
-                    };
+                            _marker: Default::default(),
+                            key: Arc::new(<$key>::new(self.0.clone())),
+                            scheme,
+                        }) as Box<_>)
+                    }};
                 }
 
                 match scheme {
@@ -78,9 +74,7 @@ impl SigningKey for RsaSigningKey {
                     }
                     _ => None,
                 }
-            }
-            None => None,
-        }
+            })
     }
 
     fn algorithm(&self) -> SignatureAlgorithm {
