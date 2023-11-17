@@ -10,7 +10,7 @@ use hyper::{
 };
 use hyper_rustls::TlsAcceptor;
 use pki_types::PrivateKeyDer;
-use rustls_provider_rustcrypto::Provider;
+use rustls_rustcrypto::Provider;
 
 struct TestPki {
     server_cert_der: Vec<u8>,

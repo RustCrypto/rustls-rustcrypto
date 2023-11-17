@@ -81,10 +81,10 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
             suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
             hash_provider: hash::SHA256,
         },
-        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign:          &TLS12_ECDSA_SCHEMES,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes128Gcm>::DEFAULT,
-        hmac_provider: hmac::SHA256,
+        kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:         &TLS12_ECDSA_SCHEMES,
+        aead_alg:     &aead::gcm::Tls12Aes128Gcm,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
     });
 
 #[cfg(feature = "tls12")]
@@ -94,10 +94,10 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
             suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
             hash_provider: hash::SHA384,
         },
-        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign:          &TLS12_ECDSA_SCHEMES,
-        hmac_provider: hmac::SHA384,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes256Gcm>::DEFAULT,
+        kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:         &TLS12_ECDSA_SCHEMES,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA384),
+        aead_alg:     &aead::gcm::Tls12Aes256Gcm,
     });
 
 #[cfg(feature = "tls12")]
@@ -127,10 +127,10 @@ pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
             suite:         CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
             hash_provider: hash::SHA256,
         },
-        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign:          &TLS12_RSA_SCHEMES,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes128Gcm>::DEFAULT,
-        hmac_provider: hmac::SHA256,
+        kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:         &TLS12_RSA_SCHEMES,
+        aead_alg:     &aead::gcm::Tls12Aes128Gcm,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
     });
 
 #[cfg(feature = "tls12")]
@@ -140,10 +140,10 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
             suite:         CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
             hash_provider: hash::SHA384,
         },
-        kx:            rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign:          &TLS12_RSA_SCHEMES,
-        hmac_provider: hmac::SHA384,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes256Gcm>::DEFAULT,
+        kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign:         &TLS12_RSA_SCHEMES,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA384),
+        aead_alg:     &aead::gcm::Tls12Aes256Gcm,
     });
 
 #[cfg(feature = "tls12")]

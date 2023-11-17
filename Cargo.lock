@@ -634,18 +634,19 @@ dependencies = [
 
 [[package]]
 name = "hyper-rustls"
-version = "0.24.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec3efd23720e2049821a693cbc7e65ea87c72f1c58ff2f9522ff332b1491e590"
+version = "0.25.0-alpha.1"
+source = "git+https://github.com/stevefan1999-personal/hyper-rustls#f0bb1651fc010d9e993687006d92b10dcdd99c2d"
 dependencies = [
  "futures-util",
  "http",
  "hyper",
  "log",
- "rustls 0.21.9",
+ "rustls",
  "rustls-native-certs",
+ "rustls-pki-types",
  "tokio",
  "tokio-rustls",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -1157,47 +1158,37 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.21.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "629648aced5775d558af50b2b4c7b02983a04b312126d45eeead26e7caa498b9"
-dependencies = [
- "log",
- "ring",
- "rustls-webpki 0.101.7",
- "sct",
-]
-
-[[package]]
-name = "rustls"
 version = "0.22.0-alpha.4"
 source = "git+https://github.com/rustls/rustls#b7a6091ab458467a554d62a57c4ff9cf48a552af"
 dependencies = [
  "log",
  "rustls-pki-types",
- "rustls-webpki 0.102.0-alpha.6",
+ "rustls-webpki",
  "subtle",
  "zeroize",
 ]
 
 [[package]]
 name = "rustls-native-certs"
-version = "0.6.3"
+version = "0.7.0-alpha.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9aace74cb666635c918e9c12bc0d348266037aa8eb599b5cba565709a8dff00"
+checksum = "26f84fefc2b087ffd1677ed5910ec4b2650b1eb45ed083d38630304f48496b69"
 dependencies = [
  "openssl-probe",
  "rustls-pemfile",
+ "rustls-pki-types",
  "schannel",
  "security-framework",
 ]
 
 [[package]]
 name = "rustls-pemfile"
-version = "1.0.4"
+version = "2.0.0-alpha.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c74cae0a4cf6ccbbf5f359f08efdf8ee7e1dc532573bf0db71968cb56b1448c"
+checksum = "4aaa4fe93b39faddb6a8f99568c3e5880680156da0d46818e884a071381f67fe"
 dependencies = [
  "base64",
+ "rustls-pki-types",
 ]
 
 [[package]]
@@ -1235,9 +1226,9 @@ dependencies = [
  "rand_core",
  "rcgen",
  "rsa",
- "rustls 0.22.0-alpha.4",
+ "rustls",
  "rustls-pki-types",
- "rustls-webpki 0.102.0-alpha.6",
+ "rustls-webpki",
  "sec1",
  "sha2",
  "signature",
@@ -1247,16 +1238,6 @@ dependencies = [
  "typenum",
  "webpki-roots",
  "x25519-dalek",
-]
-
-[[package]]
-name = "rustls-webpki"
-version = "0.101.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b6275d1ee7a1cd780b64aca7726599a1dbc893b1e64144529e55c3c2f745765"
-dependencies = [
- "ring",
- "untrusted",
 ]
 
 [[package]]
@@ -1277,16 +1258,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c3733bf4cf7ea0880754e19cb5a462007c4a8c1914bff372ccc95b464f1df88"
 dependencies = [
  "windows-sys",
-]
-
-[[package]]
-name = "sct"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da046153aa2352493d6cb7da4b6e5c0c057d8a1d0a9aa8560baffdd945acd414"
-dependencies = [
- "ring",
- "untrusted",
 ]
 
 [[package]]
@@ -1549,11 +1520,10 @@ dependencies = [
 
 [[package]]
 name = "tokio-rustls"
-version = "0.24.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c28327cf380ac148141087fbfb9de9d7bd4e84ab5d2c28fbc911d753de8a7081"
+version = "0.25.0-alpha.2"
+source = "git+https://github.com/rustls/tokio-rustls#82d32c410f2364332c5df656717193f278769e1c"
 dependencies = [
- "rustls 0.21.9",
+ "rustls",
  "tokio",
 ]
 
@@ -1797,13 +1767,3 @@ dependencies = [
  "quote",
  "syn 2.0.39",
 ]
-
-[[patch.unused]]
-name = "hyper-rustls"
-version = "0.25.0-alpha.1"
-source = "git+https://github.com/stevefan1999-personal/hyper-rustls#f0bb1651fc010d9e993687006d92b10dcdd99c2d"
-
-[[patch.unused]]
-name = "tokio-rustls"
-version = "0.25.0-alpha.2"
-source = "git+https://github.com/rustls/tokio-rustls#82d32c410f2364332c5df656717193f278769e1c"

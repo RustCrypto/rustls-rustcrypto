@@ -1,5 +1,4 @@
 use alloc::{boxed::Box, sync::Arc};
-use core::marker::PhantomData;
 
 use pkcs8::{self, DecodePrivateKey};
 use pki_types::PrivateKeyDer;

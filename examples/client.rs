@@ -7,7 +7,7 @@ use rustls::{
     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
     DigitallySignedStruct, ServerName, SignatureScheme,
 };
-use rustls_provider_rustcrypto::Provider;
+use rustls_rustcrypto::Provider;
 
 #[derive(Debug)]
 struct NoopServerVerifier;

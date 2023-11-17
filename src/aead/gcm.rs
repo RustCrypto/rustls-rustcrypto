@@ -12,9 +12,7 @@ use rustls::{
 };
 #[cfg(feature = "tls12")]
 use {
-    aead::AeadCore, crypto_common::typenum::Unsigned, rustls::crypto::cipher::KeyBlockShape,
-    rustls::crypto::cipher::Tls12AeadAlgorithm,
-    aead::AeadCore, aes_gcm::AesGcm, generic_array::ArrayLength, rustls::crypto::cipher::Iv,
+    aead::AeadCore, crypto_common::typenum::Unsigned, rustls::crypto::cipher::Iv,
     rustls::crypto::cipher::KeyBlockShape, rustls::crypto::cipher::Tls12AeadAlgorithm,
 };
 
@@ -40,6 +38,13 @@ macro_rules! impl_gcm_tls13 {
 
                 fn key_len(&self) -> usize {
                     $aead::key_size()
+                }
+                fn extract_keys(
+                    &self,
+                    key: AeadKey,
+                    iv: cipher::Iv,
+                ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
+                    Ok(ConnectionTrafficSecrets::Aes256Gcm { key, iv })
                 }
             }
 
@@ -127,6 +132,18 @@ macro_rules! impl_gcm_tls12 {
                         explicit_nonce_len: 8,
                     }
                 }
+
+                fn extract_keys(
+                    &self,
+                    key: AeadKey,
+                    iv: &[u8],
+                    _explicit: &[u8],
+                ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
+                    Ok(ConnectionTrafficSecrets::Aes128Gcm {
+                        key,
+                        iv: Iv::new(iv[..].try_into().unwrap()),
+                    })
+                }
             }
 
             #[cfg(feature = "tls12")]
@@ -151,7 +168,7 @@ macro_rules! impl_gcm_tls12 {
                         .and_then(|_| Ok(OpaqueMessage::new(m.typ, m.version, payload)))
                 }
                 fn encrypted_payload_len(&self, payload_len: usize) -> usize {
-                    payload_len + TagSize::USIZE
+                    payload_len + <$aead as AeadCore>::TagSize::USIZE
                 }
             }
 
