@@ -2,7 +2,7 @@ use alloc::{boxed::Box, sync::Arc};
 
 use pkcs8::{self, DecodePrivateKey};
 use pki_types::PrivateKeyDer;
-use rsa::RsaPrivateKey;
+use rsa::{pkcs1::DecodeRsaPrivateKey, RsaPrivateKey};
 use rustls::{
     sign::{Signer, SigningKey},
     SignatureAlgorithm, SignatureScheme,
@@ -21,37 +21,41 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
 #[derive(Debug)]
 pub struct RsaSigningKey(RsaPrivateKey);
 
-impl TryFrom<PrivateKeyDer<'_>> for RsaSigningKey {
-    type Error = pkcs8::Error;
+impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
+    type Error = rustls::Error;
 
-    fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
+    fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
             PrivateKeyDer::Pkcs8(der) => {
-                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der()).map(Self)
+                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
+                    .map(Self)
+                    .map_err(|_| ())
             }
-            _ => todo!(),
+            PrivateKeyDer::Pkcs1(der) => {
+                RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
+                    .map(Self)
+                    .map_err(|_| ())
+            }
+            _ => Err(()),
         }
+        .map_err(|_| rustls::Error::General("invalid private key".into()))
     }
 }
 
 impl SigningKey for RsaSigningKey {
     fn choose_scheme(&self, offered: &[SignatureScheme]) -> Option<Box<dyn Signer>> {
-        let find = ALL_RSA_SCHEMES
+        ALL_RSA_SCHEMES
             .iter()
-            .find(|scheme| offered.contains(scheme));
-
-        match find {
-            Some(scheme) => {
-                let pkey = self.0.clone();
-
+            .find(|scheme| offered.contains(scheme))
+            .and_then(|&scheme| {
                 macro_rules! signer {
-                    ($key:ty) => {
+                    ($key:ty) => {{
                         Some(Box::new(super::GenericRandomizedSigner {
                             _marker: Default::default(),
-                            key:     Arc::new(<$key>::new(pkey)),
-                            scheme:  *scheme,
-                        }))
-                    };
+                            key: Arc::new(<$key>::new(self.0.clone())),
+                            scheme,
+                        }) as Box<_>)
+                    }};
                 }
 
                 match scheme {
@@ -69,9 +73,7 @@ impl SigningKey for RsaSigningKey {
                     }
                     _ => None,
                 }
-            }
-            None => None,
-        }
+            })
     }
 
     fn algorithm(&self) -> SignatureAlgorithm {

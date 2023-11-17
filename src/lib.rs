@@ -8,21 +8,12 @@ use alloc::sync::Arc;
 #[cfg(feature = "tls12")]
 use rustls::SignatureScheme;
 use rustls::{
-    client::{danger::ServerCertVerifier, WebPkiServerVerifier},
     crypto::{CryptoProvider, GetRandomFailed, SupportedKxGroup},
-    CipherSuite, CipherSuiteCommon, RootCertStore, SupportedCipherSuite, Tls13CipherSuite,
+    CipherSuite, CipherSuiteCommon, SupportedCipherSuite, Tls13CipherSuite,
 };
 
 #[derive(Debug)]
 pub struct Provider;
-
-impl Provider {
-    pub fn certificate_verifier(roots: Arc<RootCertStore>) -> Arc<dyn ServerCertVerifier> {
-        WebPkiServerVerifier::builder_with_provider(roots, &Self as &dyn CryptoProvider)
-            .build()
-            .unwrap()
-    }
-}
 
 impl CryptoProvider for Provider {
     fn fill_random(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
@@ -42,9 +33,17 @@ impl CryptoProvider for Provider {
 
     fn load_private_key(
         &self,
-        _key_der: pki_types::PrivateKeyDer<'static>,
+        key_der: pki_types::PrivateKeyDer<'static>,
     ) -> Result<Arc<dyn rustls::sign::SigningKey>, rustls::Error> {
-        unimplemented!()
+        let p256 =
+            |_| sign::ecdsa::EcdsaSigningKeyP256::try_from(&key_der).map(|x| Arc::new(x) as _);
+        let p384 =
+            |_| sign::ecdsa::EcdsaSigningKeyP384::try_from(&key_der).map(|x| Arc::new(x) as _);
+        let ed25519 =
+            |_| sign::eddsa::Ed25519SigningKey::try_from(&key_der).map(|x| Arc::new(x) as _);
+        let rsa = |_| sign::rsa::RsaSigningKey::try_from(&key_der).map(|x| Arc::new(x) as _);
+
+        p256(()).or_else(p384).or_else(ed25519).or_else(rsa)
     }
 
     fn signature_verification_algorithms(&self) -> rustls::WebPkiSupportedAlgorithms {

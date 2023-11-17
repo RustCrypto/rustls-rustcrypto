@@ -4,11 +4,12 @@ use anyhow::anyhow;
 use hyper::{body::to_bytes, client, Body, Uri};
 use pki_types::CertificateDer;
 use rustls::{
-    client::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+    client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
     DigitallySignedStruct, ServerName, SignatureScheme,
 };
 use rustls_provider_rustcrypto::Provider;
 
+#[derive(Debug)]
 struct NoopServerVerifier;
 
 impl ServerCertVerifier for NoopServerVerifier {

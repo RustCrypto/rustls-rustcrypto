@@ -7,6 +7,7 @@ use rustls::{
     sign::{Signer, SigningKey},
     SignatureAlgorithm, SignatureScheme,
 };
+use sec1::DecodeEcPrivateKey;
 use signature::{RandomizedSigner, SignatureEncoding};
 
 macro_rules! impl_ecdsa {
@@ -18,10 +19,10 @@ macro_rules! impl_ecdsa {
                 scheme: SignatureScheme,
             }
 
-            impl TryFrom<PrivateKeyDer<'_>> for [<EcdsaSigningKey $name>] {
-                type Error = pkcs8::Error;
+            impl TryFrom<&PrivateKeyDer<'_>> for [<EcdsaSigningKey $name>] {
+                type Error = rustls::Error;
 
-                fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
+                fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
                     match value {
                         PrivateKeyDer::Pkcs8(der) => {
                             $signing_key::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| {
@@ -29,10 +30,18 @@ macro_rules! impl_ecdsa {
                                     key:    Arc::new(kp),
                                     scheme: $scheme,
                                 }
-                            })
+                            }).map_err(|_| ())
+                        },
+                        PrivateKeyDer::Sec1(der) => {
+                            $signing_key::from_sec1_der(der.secret_sec1_der()).map(|kp| {
+                                Self {
+                                    key:    Arc::new(kp),
+                                    scheme: $scheme,
+                                }
+                            }).map_err(|_| ())
                         }
-                        _ => todo!(),
-                    }
+                        _ => Err(()),
+                    }.map_err(|_| rustls::Error::General("invalid private key".into()))
                 }
             }
 

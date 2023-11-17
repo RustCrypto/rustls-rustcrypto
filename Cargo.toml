@@ -11,7 +11,6 @@ aes-gcm = "0.10.2"
 block-buffer = "0.10.4"
 ccm = "0.5.0"
 chacha20poly1305 = "0.10.0"
-constcat = "0.3.0"
 crypto-common = "0.1.6"
 der = "0.7.0"
 digest = "0.10.7"
@@ -66,3 +65,4 @@ tokio = { version = "1.32.0", features = [
 rustls = { git = 'https://github.com/rustls/rustls' }
 tokio-rustls = { git = 'https://github.com/rustls/tokio-rustls' }
 hyper-rustls = { git = "https://github.com/stevefan1999-personal/hyper-rustls" }
+rcgen = { git = "https://github.com/rustls/rcgen" }

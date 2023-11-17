@@ -1,7 +1,6 @@
 use std::{
     io::{self},
     net::ToSocketAddrs,
-    sync::Arc,
 };
 
 use hyper::{
@@ -10,30 +9,8 @@ use hyper::{
     Body, Method, Request, Response, Server, StatusCode,
 };
 use hyper_rustls::TlsAcceptor;
-use pki_types::{CertificateDer, PrivateKeyDer};
-use rustls::{
-    crypto::CryptoProvider,
-    server::{ClientHello, ResolvesServerCert},
-    sign, ServerConfig,
-};
-use rustls_provider_rustcrypto::{sign::ecdsa::EcdsaSigningKeyP256, Provider};
-
-#[derive(Debug)]
-struct TestResolvesServerCert(Arc<sign::CertifiedKey>);
-
-impl TestResolvesServerCert {
-    pub fn new(cert_chain: Vec<CertificateDer<'static>>, key_der: PrivateKeyDer<'_>) -> Self {
-        let key: EcdsaSigningKeyP256 = key_der.try_into().unwrap();
-
-        Self(Arc::new(sign::CertifiedKey::new(cert_chain, Arc::new(key))))
-    }
-}
-
-impl ResolvesServerCert for TestResolvesServerCert {
-    fn resolve(&self, _client_hello: ClientHello) -> Option<Arc<rustls::sign::CertifiedKey>> {
-        Some(self.0.clone())
-    }
-}
+use pki_types::PrivateKeyDer;
+use rustls_provider_rustcrypto::Provider;
 
 struct TestPki {
     server_cert_der: Vec<u8>,
@@ -42,7 +19,7 @@ struct TestPki {
 
 impl TestPki {
     fn new() -> Self {
-        let alg = &rcgen::PKCS_ECDSA_P256_SHA256;
+        let alg = &rcgen::PKCS_ED25519;
         let mut ca_params = rcgen::CertificateParams::new(Vec::new());
         ca_params
             .distinguished_name
@@ -72,20 +49,6 @@ impl TestPki {
             server_key_der,
         }
     }
-
-    fn server_config<C: CryptoProvider>(&self) -> Arc<ServerConfig> {
-        let mut server_config: ServerConfig = ServerConfig::builder_with_provider(&Provider)
-            .with_safe_defaults()
-            .with_no_client_auth()
-            .with_cert_resolver(Arc::new(TestResolvesServerCert::new(
-                vec![self.server_cert_der.clone().into()],
-                PrivateKeyDer::Pkcs8(self.server_key_der.clone().into()),
-            )));
-
-        server_config.key_log = Arc::new(rustls::KeyLogFile::new());
-
-        Arc::new(server_config)
-    }
 }
 
 #[tokio::main]
@@ -93,14 +56,17 @@ async fn main() -> anyhow::Result<()> {
     env_logger::init();
 
     let pki = TestPki::new();
-    let server_config = pki.server_config::<Provider>();
     let addr = "0.0.0.0:4443"
         .to_socket_addrs()?
         .next()
         .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))?;
     let incoming = AddrIncoming::bind(&addr)?;
     let acceptor = TlsAcceptor::builder()
-        .with_tls_config(server_config.as_ref().clone())
+        .with_provider_and_single_cert(
+            &Provider,
+            vec![pki.server_cert_der.clone().into()],
+            PrivateKeyDer::Pkcs8(pki.server_key_der.clone().into()),
+        )?
         .with_all_versions_alpn()
         .with_incoming(incoming);
     let service = make_service_fn(|_| async { Ok::<_, io::Error>(service_fn(echo)) });

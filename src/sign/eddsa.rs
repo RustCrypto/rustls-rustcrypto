@@ -6,6 +6,7 @@ use rustls::{
     sign::{Signer, SigningKey},
     SignatureAlgorithm, SignatureScheme,
 };
+use sec1::DecodeEcPrivateKey;
 
 #[derive(Debug)]
 pub struct Ed25519SigningKey {
@@ -13,21 +14,34 @@ pub struct Ed25519SigningKey {
     scheme: SignatureScheme,
 }
 
-impl TryFrom<PrivateKeyDer<'_>> for Ed25519SigningKey {
-    type Error = pkcs8::Error;
+impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
+    type Error = rustls::Error;
 
-    fn try_from(value: PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
+    fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         match value {
             PrivateKeyDer::Pkcs8(der) => {
-                ed25519_dalek::SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map(|kp| {
-                    Self {
-                        key:    Arc::new(kp),
-                        scheme: SignatureScheme::ED25519,
-                    }
-                })
+                ed25519_dalek::SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
+                    .map(|kp| {
+                        Self {
+                            key:    Arc::new(kp),
+                            scheme: SignatureScheme::ED25519,
+                        }
+                    })
+                    .map_err(|_| ())
             }
-            _ => todo!(),
+            PrivateKeyDer::Sec1(der) => {
+                ed25519_dalek::SigningKey::from_sec1_der(der.secret_sec1_der())
+                    .map(|kp| {
+                        Self {
+                            key:    Arc::new(kp),
+                            scheme: SignatureScheme::ED25519,
+                        }
+                    })
+                    .map_err(|_| ())
+            }
+            _ => Err(()),
         }
+        .map_err(|_| rustls::Error::General("invalid private key".into()))
     }
 }
 

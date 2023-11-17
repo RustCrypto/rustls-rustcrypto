@@ -113,12 +113,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bumpalo"
-version = "3.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1"
-
-[[package]]
 name = "byteorder"
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -383,14 +377,12 @@ dependencies = [
  "anyhow",
  "hyper",
  "hyper-rustls",
- "p256",
  "rcgen",
  "rustls",
  "rustls-pki-types",
  "rustls-provider-rustcrypto",
- "rustls-webpki",
  "tokio",
- "webpki-roots",
+ "vc-ltl",
 ]
 
 [[package]]
@@ -612,8 +604,8 @@ dependencies = [
 
 [[package]]
 name = "hyper-rustls"
-version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/hyper-rustls?branch=part-4#aad1c2bfa3aab995f05972c3aa3865076f59da4a"
+version = "0.25.0-alpha.1"
+source = "git+https://github.com/stevefan1999-personal/hyper-rustls#f0bb1651fc010d9e993687006d92b10dcdd99c2d"
 dependencies = [
  "futures-util",
  "http",
@@ -622,9 +614,9 @@ dependencies = [
  "rustls",
  "rustls-native-certs",
  "rustls-pki-types",
- "rustls-webpki",
  "tokio",
  "tokio-rustls",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -653,21 +645,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
 
 [[package]]
-name = "js-sys"
-version = "0.3.64"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5f195fe497f702db0f318b07fdd68edb16955aed830df8363d837542f8f935a"
-dependencies = [
- "wasm-bindgen",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 dependencies = [
- "spin",
+ "spin 0.5.2",
 ]
 
 [[package]]
@@ -833,10 +816,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "pem"
-version = "2.0.1"
+name = "paste"
+version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b13fe415cdf3c8e44518e18a7c95a13431d9bdf6d15367d82b23c377fdd441a"
+checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
+
+[[package]]
+name = "pem"
+version = "3.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3163d2912b7c3b52d651a055f2c7eec9ba5cd22d26ef75b8dd3a59980b185923"
 dependencies = [
  "base64",
  "serde",
@@ -988,9 +977,8 @@ dependencies = [
 
 [[package]]
 name = "rcgen"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4954fbc00dcd4d8282c987710e50ba513d351400dbdd00e803a05172a90d8976"
+version = "0.11.3"
+source = "git+https://github.com/rustls/rcgen#0318d2f0a4bb9e65c84d284acff8587bd418d837"
 dependencies = [
  "pem",
  "ring",
@@ -1010,17 +998,16 @@ dependencies = [
 
 [[package]]
 name = "ring"
-version = "0.16.20"
+version = "0.17.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3053cf52e236a3ed746dfc745aa9cacf1b791d846bdaf412f60a8d7d6e17c8fc"
+checksum = "fb0205304757e5d899b9c2e448b867ffd03ae7f988002e47cd24954391394d0b"
 dependencies = [
  "cc",
+ "getrandom",
  "libc",
- "once_cell",
- "spin",
+ "spin 0.9.8",
  "untrusted",
- "web-sys",
- "winapi",
+ "windows-sys",
 ]
 
 [[package]]
@@ -1063,34 +1050,37 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.22.0-alpha.2"
-source = "git+https://github.com/stevefan1999-personal/rustls?branch=jbp-generalise-crypto-usage-pt4#be005ea0dff1d9cd08f66833bea985e7617364cc"
+version = "0.22.0-alpha.4"
+source = "git+https://github.com/rustls/rustls#b7a6091ab458467a554d62a57c4ff9cf48a552af"
 dependencies = [
  "log",
  "rustls-pki-types",
  "rustls-webpki",
  "subtle",
+ "zeroize",
 ]
 
 [[package]]
 name = "rustls-native-certs"
-version = "0.6.3"
+version = "0.7.0-alpha.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9aace74cb666635c918e9c12bc0d348266037aa8eb599b5cba565709a8dff00"
+checksum = "26f84fefc2b087ffd1677ed5910ec4b2650b1eb45ed083d38630304f48496b69"
 dependencies = [
  "openssl-probe",
  "rustls-pemfile",
+ "rustls-pki-types",
  "schannel",
  "security-framework",
 ]
 
 [[package]]
 name = "rustls-pemfile"
-version = "1.0.3"
+version = "2.0.0-alpha.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d3987094b1d07b653b7dfdc3f70ce9a1da9c51ac18c1b06b662e4f9a0e9f4b2"
+checksum = "4aaa4fe93b39faddb6a8f99568c3e5880680156da0d46818e884a071381f67fe"
 dependencies = [
  "base64",
+ "rustls-pki-types",
 ]
 
 [[package]]
@@ -1120,6 +1110,7 @@ dependencies = [
  "p256",
  "p384",
  "p521",
+ "paste",
  "pkcs8",
  "rand_core",
  "rsa",
@@ -1130,18 +1121,15 @@ dependencies = [
  "sha2",
  "signature",
  "subtle",
- "tokio-rustls",
  "typenum",
- "vc-ltl",
- "webpki-roots",
  "x25519-dalek",
 ]
 
 [[package]]
 name = "rustls-webpki"
-version = "0.102.0-alpha.3"
+version = "0.102.0-alpha.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77fecb40b15f8d5d22e08f89e0a0bfa2c17ddd5fc385700f96920bba2b99b680"
+checksum = "34d9ed3a8267782ba32d257ff5b197b63eef19a467dbd1be011caaae35ee416e"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -1283,6 +1271,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
+name = "spin"
+version = "0.9.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
+
+[[package]]
 name = "spki"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1356,8 +1350,8 @@ dependencies = [
 
 [[package]]
 name = "tokio-rustls"
-version = "0.24.1"
-source = "git+https://github.com/stevefan1999-personal/tokio-rustls?branch=part-4-patch#3a05b26068ad6ad969a4b98c27f33b7c84fba1c0"
+version = "0.25.0-alpha.2"
+source = "git+https://github.com/rustls/tokio-rustls#82d32c410f2364332c5df656717193f278769e1c"
 dependencies = [
  "rustls",
  "tokio",
@@ -1433,9 +1427,9 @@ dependencies = [
 
 [[package]]
 name = "untrusted"
-version = "0.7.1"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
+checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
 name = "vc-ltl"
@@ -1463,70 +1457,6 @@ name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
-
-[[package]]
-name = "wasm-bindgen"
-version = "0.2.87"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7706a72ab36d8cb1f80ffbf0e071533974a60d0a308d01a5d0375bf60499a342"
-dependencies = [
- "cfg-if",
- "wasm-bindgen-macro",
-]
-
-[[package]]
-name = "wasm-bindgen-backend"
-version = "0.2.87"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ef2b6d3c510e9625e5fe6f509ab07d66a760f0885d858736483c32ed7809abd"
-dependencies = [
- "bumpalo",
- "log",
- "once_cell",
- "proc-macro2",
- "quote",
- "syn",
- "wasm-bindgen-shared",
-]
-
-[[package]]
-name = "wasm-bindgen-macro"
-version = "0.2.87"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dee495e55982a3bd48105a7b947fd2a9b4a8ae3010041b9e0faab3f9cd028f1d"
-dependencies = [
- "quote",
- "wasm-bindgen-macro-support",
-]
-
-[[package]]
-name = "wasm-bindgen-macro-support"
-version = "0.2.87"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
- "wasm-bindgen-backend",
- "wasm-bindgen-shared",
-]
-
-[[package]]
-name = "wasm-bindgen-shared"
-version = "0.2.87"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca6ad05a4870b2bf5fe995117d3728437bd27d7cd5f06f13c17443ef369775a1"
-
-[[package]]
-name = "web-sys"
-version = "0.3.64"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b85cbef8c220a6abc02aefd892dfc0fc23afb1c6a426316ec33253a3877249b"
-dependencies = [
- "js-sys",
- "wasm-bindgen",
-]
 
 [[package]]
 name = "webpki-roots"
