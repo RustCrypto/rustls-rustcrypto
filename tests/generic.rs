@@ -15,7 +15,7 @@ use test_case::test_case;
 #[test_case("https://www.instagram.com/", Ok(()))]
 #[test_case("https://www.reddit.com/", Ok(()))]
 #[test_case("https://www.youtube.com/", Ok(()))]
-#[cfg_attr(feature = "tls12", test_case("https://leetcode.org/", Ok(())))]
+#[cfg_attr(feature = "tls12", test_case("https://leetcode.com/", Ok(())))]
 #[cfg_attr(feature = "tls12", test_case("https://stackoverflow.com/", Ok(())))]
 #[cfg_attr(feature = "tls12", test_case("https://www.topcoder.com/", Ok(())))]
 #[tokio::test]
