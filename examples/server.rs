@@ -17,6 +17,7 @@ use rustls::{
 };
 use rustls_rustcrypto::Provider;
 
+#[derive(Debug)]
 struct TestResolvesServerCert(Arc<sign::CertifiedKey>);
 
 impl TestResolvesServerCert {

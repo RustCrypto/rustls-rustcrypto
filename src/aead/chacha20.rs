@@ -1,5 +1,10 @@
 use chacha20poly1305::{AeadInPlace, KeyInit, KeySizeUser};
-use rustls::{crypto::cipher, ContentType, ProtocolVersion};
+#[cfg(feature = "tls12")]
+use rustls::crypto::cipher::NONCE_LEN;
+use rustls::{
+    crypto::cipher::{self, AeadKey, Iv, UnsupportedOperationError},
+    ConnectionTrafficSecrets, ContentType, ProtocolVersion,
+};
 
 pub struct Chacha20Poly1305;
 
@@ -20,6 +25,14 @@ impl cipher::Tls13AeadAlgorithm for Chacha20Poly1305 {
 
     fn key_len(&self) -> usize {
         chacha20poly1305::ChaCha20Poly1305::key_size()
+    }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: Iv,
+    ) -> Result<ConnectionTrafficSecrets, UnsupportedOperationError> {
+        Ok(ConnectionTrafficSecrets::Chacha20Poly1305 { key, iv })
     }
 }
 
@@ -51,6 +64,21 @@ impl cipher::Tls12AeadAlgorithm for Chacha20Poly1305 {
             explicit_nonce_len: 0,
         }
     }
+
+    fn extract_keys(
+        &self,
+        key: AeadKey,
+        iv: &[u8],
+        _explicit: &[u8],
+    ) -> Result<ConnectionTrafficSecrets, UnsupportedOperationError> {
+        // This should always be true because KeyBlockShape and the Iv nonce len are in
+        // agreement.
+        debug_assert_eq!(NONCE_LEN, iv.len());
+        Ok(ConnectionTrafficSecrets::Chacha20Poly1305 {
+            key,
+            iv: Iv::new(iv[..].try_into().unwrap()),
+        })
+    }
 }
 
 struct Tls13Cipher(chacha20poly1305::ChaCha20Poly1305, cipher::Iv);
@@ -61,7 +89,7 @@ impl cipher::MessageEncrypter for Tls13Cipher {
         m: cipher::BorrowedPlainMessage,
         seq: u64,
     ) -> Result<cipher::OpaqueMessage, rustls::Error> {
-        let total_len = m.payload.len() + 1 + CHACHAPOLY1305_OVERHEAD;
+        let total_len = self.encrypted_payload_len(m.payload.len());
 
         // construct a TLSInnerPlaintext
         let mut payload = Vec::with_capacity(total_len);
@@ -81,6 +109,10 @@ impl cipher::MessageEncrypter for Tls13Cipher {
                     payload,
                 )
             })
+    }
+
+    fn encrypted_payload_len(&self, payload_len: usize) -> usize {
+        payload_len + 1 + CHACHAPOLY1305_OVERHEAD
     }
 }
 
@@ -112,7 +144,7 @@ impl cipher::MessageEncrypter for Tls12Cipher {
         m: cipher::BorrowedPlainMessage,
         seq: u64,
     ) -> Result<cipher::OpaqueMessage, rustls::Error> {
-        let total_len = m.payload.len() + CHACHAPOLY1305_OVERHEAD;
+        let total_len = self.encrypted_payload_len(m.payload.len());
 
         let mut payload = Vec::with_capacity(total_len);
         payload.extend_from_slice(m.payload);
@@ -124,6 +156,10 @@ impl cipher::MessageEncrypter for Tls12Cipher {
             .encrypt_in_place(&nonce, &aad, &mut payload)
             .map_err(|_| rustls::Error::EncryptError)
             .map(|_| cipher::OpaqueMessage::new(m.typ, m.version, payload))
+    }
+
+    fn encrypted_payload_len(&self, payload_len: usize) -> usize {
+        payload_len + CHACHAPOLY1305_OVERHEAD
     }
 }
 

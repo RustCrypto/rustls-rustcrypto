@@ -9,6 +9,7 @@ use rustls::{
 };
 use sec1::DecodeEcPrivateKey;
 
+#[derive(Debug)]
 pub struct Ed25519SigningKey {
     key:    Arc<ed25519_dalek::SigningKey>,
     scheme: SignatureScheme,

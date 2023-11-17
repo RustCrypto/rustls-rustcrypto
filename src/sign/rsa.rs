@@ -19,6 +19,7 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
     SignatureScheme::RSA_PKCS1_SHA256,
 ];
 
+#[derive(Debug)]
 pub struct RsaSigningKey(RsaPrivateKey);
 
 impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {

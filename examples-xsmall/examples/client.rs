@@ -62,17 +62,9 @@ impl ServerCertVerifier for NoopServerVerifier {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let mut root_store = rustls::RootCertStore::empty();
-    root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
-
-    let config = rustls::ClientConfig::builder_with_provider(&Provider)
-        .with_safe_defaults()
-        .with_custom_certificate_verifier(Provider::certificate_verifier(root_store))
-        .with_no_client_auth();
-
     // Prepare the HTTPS connector
     let https = hyper_rustls::HttpsConnectorBuilder::new()
-        .with_tls_config(config)
+        .with_provider_and_webpki_roots(&Provider)
         .https_or_http()
         .enable_all_versions()
         .build();

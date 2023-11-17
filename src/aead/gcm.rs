@@ -8,12 +8,14 @@ use rustls::{
         self, AeadKey, BorrowedPlainMessage, MessageDecrypter, MessageEncrypter, OpaqueMessage,
         PlainMessage, Tls13AeadAlgorithm,
     },
-    ContentType, ProtocolVersion,
+    ConnectionTrafficSecrets, ContentType, ProtocolVersion,
 };
 #[cfg(feature = "tls12")]
 use {
     aead::AeadCore, crypto_common::typenum::Unsigned, rustls::crypto::cipher::KeyBlockShape,
     rustls::crypto::cipher::Tls12AeadAlgorithm,
+    aead::AeadCore, aes_gcm::AesGcm, generic_array::ArrayLength, rustls::crypto::cipher::Iv,
+    rustls::crypto::cipher::KeyBlockShape, rustls::crypto::cipher::Tls12AeadAlgorithm,
 };
 
 macro_rules! impl_gcm_tls13 {
