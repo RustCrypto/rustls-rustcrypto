@@ -212,7 +212,7 @@ where
     AeadCipherTls13<T>: AeadMetaTls13,
 {
     fn encrypt(&self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
-        let total_len = m.payload.len() + 1 + <Self as AeadMetaTls13>::OVERHEAD;
+        let total_len = self.encrypted_payload_len(m.payload.len());
 
         // construct a TLSInnerPlaintext
         let mut payload = Vec::with_capacity(total_len);
@@ -233,6 +233,10 @@ where
                 ))
             })
     }
+
+    fn encrypted_payload_len(&self, payload_len: usize) -> usize {
+        payload_len + 1 + <Self as AeadMetaTls13>::OVERHEAD
+    }
 }
 
 #[cfg(feature = "tls12")]
@@ -252,7 +256,7 @@ where
         let nonce = cipher::Nonce::new(&self.1.into(), seq).0;
         let aad = cipher::make_tls12_aad(seq, m.typ, m.version, m.payload.len());
 
-        let total_len = m.payload.len() + TagSize::USIZE;
+        let total_len = self.encrypted_payload_len(m.payload.len());
         let explicit_nonce_len = Self::key_block_shape().explicit_nonce_len;
         let mut payload = Vec::with_capacity(explicit_nonce_len + total_len);
         payload.extend_from_slice(&nonce.as_ref()[4..]);
@@ -263,6 +267,10 @@ where
             .map(|tag| payload.extend(tag.as_ref()))
             .map_err(|_| rustls::Error::EncryptError)
             .and_then(|_| Ok(OpaqueMessage::new(m.typ, m.version, payload)))
+    }
+
+    fn encrypted_payload_len(&self, payload_len: usize) -> usize {
+        payload_len + TagSize::USIZE
     }
 }
 

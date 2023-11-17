@@ -1,4 +1,4 @@
-use std::{str::FromStr, sync::Arc};
+use std::str::FromStr;
 
 use anyhow::anyhow;
 use hyper::{body::to_bytes, client, Body, Uri};
@@ -65,18 +65,9 @@ impl ServerCertVerifier for NoopServerVerifier {
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
 
-    let mut root_store = rustls::RootCertStore::empty();
-    root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
-
-    let config = rustls::ClientConfig::builder_with_provider(&Provider)
-        .with_safe_defaults()
-        .dangerous()
-        .with_custom_certificate_verifier(Provider::certificate_verifier(Arc::new(root_store)))
-        .with_no_client_auth();
-
     // Prepare the HTTPS connector
     let https = hyper_rustls::HttpsConnectorBuilder::new()
-        .with_tls_config(config)
+        .with_provider_and_webpki_roots(&Provider)
         .https_or_http()
         .enable_all_versions()
         .build();
