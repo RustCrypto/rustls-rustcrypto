@@ -47,7 +47,7 @@ macro_rules! impl_gcm_tls13 {
 
             impl MessageEncrypter for [<Tls13Cipher $name>] {
                 fn encrypt(&self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
-                    let total_len = m.payload.len() + 1 + $overhead;
+                    let total_len = self.encrypted_payload_len(m.payload.len());
 
                     // construct a TLSInnerPlaintext
                     let mut payload = Vec::with_capacity(total_len);
@@ -67,6 +67,10 @@ macro_rules! impl_gcm_tls13 {
                                 payload,
                             ))
                         })
+                }
+
+                fn encrypted_payload_len(&self, payload_len: usize) -> usize {
+                    payload_len + 1 + $overhead
                 }
             }
 
@@ -134,7 +138,7 @@ macro_rules! impl_gcm_tls12 {
                     let nonce = cipher::Nonce::new(&self.1.into(), seq).0;
                     let aad = cipher::make_tls12_aad(seq, m.typ, m.version, m.payload.len());
 
-                    let total_len = m.payload.len() + <$aead as AeadCore>::TagSize::to_usize();
+                    let total_len = self.encrypted_payload_len(m.payload.len());
                     let explicit_nonce_len = 8;
                     let mut payload = Vec::with_capacity(explicit_nonce_len + total_len);
                     payload.extend_from_slice(&nonce.as_ref()[4..]);
@@ -145,6 +149,9 @@ macro_rules! impl_gcm_tls12 {
                         .map(|tag| payload.extend(tag.as_ref() as &[u8]))
                         .map_err(|_| rustls::Error::EncryptError)
                         .and_then(|_| Ok(OpaqueMessage::new(m.typ, m.version, payload)))
+                }
+                fn encrypted_payload_len(&self, payload_len: usize) -> usize {
+                    payload_len + TagSize::USIZE
                 }
             }
 

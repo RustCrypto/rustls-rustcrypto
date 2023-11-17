@@ -21,15 +21,6 @@ use rustls::{
 #[derive(Debug)]
 pub struct Provider;
 
-impl Provider {
-    pub fn certificate_verifier(roots: RootCertStore) -> Arc<dyn ServerCertVerifier> {
-        Arc::new(WebPkiServerVerifier::new_with_algorithms(
-            roots,
-            verify::ALGORITHMS,
-        ))
-    }
-}
-
 impl CryptoProvider for Provider {
     fn fill_random(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
         use rand_core::RngCore;
@@ -184,8 +175,8 @@ pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
             suite:         CipherSuite::TLS13_AES_128_GCM_SHA256,
             hash_provider: hash::SHA256,
         },
-        hmac_provider: hmac::SHA256,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes128Gcm>::DEFAULT,
+        hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
+        aead_alg:      &aead::gcm::Tls13Aes128Gcm,
     });
 
 pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
@@ -194,8 +185,8 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
             suite:         CipherSuite::TLS13_AES_256_GCM_SHA384,
             hash_provider: hash::SHA384,
         },
-        hmac_provider: hmac::SHA384,
-        aead_alg:      &aead::gcm::Gcm::<aes_gcm::Aes256Gcm>::DEFAULT,
+        hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA384),
+        aead_alg:      &aead::gcm::Tls13Aes256Gcm,
     });
 
 const TLS13_AES_SUITES: &[SupportedCipherSuite] =

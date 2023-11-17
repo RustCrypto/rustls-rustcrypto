@@ -31,7 +31,6 @@ sec1 = { version = "0.7.3", features = ["pkcs8", "pem"] }
 sha2 = "0.10.7"
 signature = "2.1.0"
 subtle = "2.5.0"
-tokio-rustls = "0.24.1"
 typenum = "1.16.0"
 webpki = { package = "rustls-webpki", version = "0.102.0-alpha.2", default-features = false }
 webpki-roots = "0.26.0-alpha.1"
@@ -53,7 +52,6 @@ hyper-rustls = { version = "0.24.1", features = ["http2"] }
 rcgen = "0.11.1"
 test-case = "3.2.1"
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
-tokio-rustls = "0.24.1"
 webpki-roots = "0.26.0-alpha.1"
 
 [patch.crates-io]
