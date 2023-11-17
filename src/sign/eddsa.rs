@@ -29,7 +29,7 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
             PrivateKeyDer::Pkcs1(_) => Err(format!("ED25519 does not support PKCS#1 key")),
-            _ => todo!(),
+            _ => Err("not supported".into()),
         };
         pkey.map(|kp| {
             Self {

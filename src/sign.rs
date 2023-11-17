@@ -1,5 +1,5 @@
 use alloc::{sync::Arc, vec::Vec};
-use core::{fmt, marker::PhantomData};
+use core::marker::PhantomData;
 
 use pki_types::PrivateKeyDer;
 use rustls::{
@@ -70,47 +70,26 @@ where
     }
 }
 
-#[derive(Debug)]
-pub struct SignError(());
+pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
+    let rsa = |_| RsaSigningKey::try_from(der).map(|x| Arc::new(x) as _);
 
-impl fmt::Display for SignError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str("sign error")
-    }
+    rsa(())
+        .or_else(|_| any_ecdsa_type(der))
+        .or_else(|_| any_eddsa_type(der))
 }
 
-pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, SignError> {
-    if let Ok(rsa) = RsaSigningKey::try_from(der) {
-        Ok(Arc::new(rsa))
-    } else if let Ok(ecdsa) = any_ecdsa_type(der) {
-        Ok(ecdsa)
-    } else if let Ok(eddsa) = any_eddsa_type(der) {
-        Ok(eddsa)
-    } else {
-        Err(SignError(()))
-    }
+pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
+    let p256 = |_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _);
+    let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
+    p256(()).or_else(p384)
 }
 
-pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, SignError> {
-    if let Ok(ecdsa_p256) = EcdsaSigningKeyP256::try_from(der) {
-        return Ok(Arc::new(ecdsa_p256));
-    }
-
-    if let Ok(ecdsa_p384) = EcdsaSigningKeyP384::try_from(der) {
-        return Ok(Arc::new(ecdsa_p384));
-    }
-
-    Err(SignError(()))
-}
-
-pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, SignError> {
-    if let Ok(ed25519) = Ed25519SigningKey::try_from(der) {
-        return Ok(Arc::new(ed25519));
-    }
+pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
+    let ed25519 = |_| Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _);
 
     // TODO: Add support for Ed448
 
-    Err(SignError(()))
+    ed25519(())
 }
 
 pub mod ecdsa;

@@ -40,15 +40,7 @@ impl CryptoProvider for Provider {
         &self,
         key_der: pki_types::PrivateKeyDer<'static>,
     ) -> Result<Arc<dyn rustls::sign::SigningKey>, rustls::Error> {
-        let p256 =
-            |_| sign::ecdsa::EcdsaSigningKeyP256::try_from(&key_der).map(|x| Arc::new(x) as _);
-        let p384 =
-            |_| sign::ecdsa::EcdsaSigningKeyP384::try_from(&key_der).map(|x| Arc::new(x) as _);
-        let ed25519 =
-            |_| sign::eddsa::Ed25519SigningKey::try_from(&key_der).map(|x| Arc::new(x) as _);
-        let rsa = |_| sign::rsa::RsaSigningKey::try_from(&key_der).map(|x| Arc::new(x) as _);
-
-        p256(()).or_else(p384).or_else(ed25519).or_else(rsa)
+        sign::any_supported_type(&key_der)
     }
 
     fn signature_verification_algorithms(&self) -> rustls::WebPkiSupportedAlgorithms {

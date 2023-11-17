@@ -35,7 +35,7 @@ impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
             PrivateKeyDer::Sec1(_) => Err(format!("RSA does not support SEC-1 key")),
-            _ => todo!(),
+            _ => Err("not supported".into()),
         };
 
         pkey.map(Self).map_err(rustls::Error::General)
