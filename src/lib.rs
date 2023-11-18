@@ -70,10 +70,10 @@ const TLS12_RSA_SCHEMES: [SignatureScheme; 6] = [
 pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common:       CipherSuiteCommon {
-            suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-            hash_provider: hash::SHA256,
+            suite:                 CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            hash_provider:         hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:         &TLS12_ECDSA_SCHEMES,
@@ -85,10 +85,10 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
 pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common:       CipherSuiteCommon {
-            suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-            hash_provider: hash::SHA384,
+            suite:                 CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            hash_provider:         hash::SHA384,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:         &TLS12_ECDSA_SCHEMES,
@@ -100,10 +100,10 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
 pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common:       CipherSuiteCommon {
-            suite:         CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-            hash_provider: hash::SHA256,
+            suite:                 CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+            hash_provider:         hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
         kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
@@ -122,10 +122,10 @@ const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
 pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common:       CipherSuiteCommon {
-            suite:         CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-            hash_provider: hash::SHA256,
+            suite:                 CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            hash_provider:         hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:         &TLS12_RSA_SCHEMES,
@@ -137,10 +137,10 @@ pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
 pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common:       CipherSuiteCommon {
-            suite:         CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-            hash_provider: hash::SHA384,
+            suite:                 CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            hash_provider:         hash::SHA384,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:         &TLS12_RSA_SCHEMES,
@@ -152,10 +152,10 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
 pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common:       CipherSuiteCommon {
-            suite:         CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-            hash_provider: hash::SHA256,
+            suite:                 CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+            hash_provider:         hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         kx:           rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign:         &TLS12_RSA_SCHEMES,
@@ -183,27 +183,27 @@ const TLS12_SUITES: &[SupportedCipherSuite] = &[];
 pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common:        CipherSuiteCommon {
-            suite:         CipherSuite::TLS13_AES_128_GCM_SHA256,
-            hash_provider: hash::SHA256,
+            suite:                 CipherSuite::TLS13_AES_128_GCM_SHA256,
+            hash_provider:         hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
         aead_alg:      &aead::gcm::Tls13Aes128Gcm,
-        quic: None,
+        quic:          None,
     });
 
 pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common:        CipherSuiteCommon {
-            suite:         CipherSuite::TLS13_AES_256_GCM_SHA384,
-            hash_provider: hash::SHA384,
+            suite:                 CipherSuite::TLS13_AES_256_GCM_SHA384,
+            hash_provider:         hash::SHA384,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA384),
         aead_alg:      &aead::gcm::Tls13Aes256Gcm,
-        quic: None,
+        quic:          None,
     });
 
 const TLS13_AES_SUITES: &[SupportedCipherSuite] =
@@ -212,14 +212,14 @@ const TLS13_AES_SUITES: &[SupportedCipherSuite] =
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common:        CipherSuiteCommon {
-            suite:         CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
-            hash_provider: hash::SHA256,
+            suite:                 CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
+            hash_provider:         hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
+            integrity_limit:       1 << 36,
         },
         hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
         aead_alg:      &aead::chacha20::Chacha20Poly1305,
-        quic: None,
+        quic:          None,
     });
 
 const TLS13_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
@@ -243,5 +243,6 @@ mod hash;
 mod hmac;
 mod kx;
 mod misc;
+pub mod quic;
 pub mod sign;
 mod verify;
