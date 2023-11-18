@@ -2,8 +2,14 @@
 
 use alloc::boxed::Box;
 
+use aead::AeadCore;
+use chacha20poly1305::{AeadInPlace, KeyInit, KeySizeUser};
+use crypto_common::typenum::Unsigned;
 use rustls::{
-    crypto::cipher::{AeadKey, Iv},
+    crypto::{
+        cipher,
+        cipher::{AeadKey, Iv},
+    },
     quic, Error, Tls13CipherSuite,
 };
 
@@ -42,28 +48,37 @@ impl quic::HeaderProtectionKey for HeaderProtectionKey {
 
 pub struct PacketKey {
     #[allow(dead_code)]
-    key:   AeadKey,
-    #[allow(dead_code)]
     /// Computes unique nonces for each packet
-    iv:    Iv,
+    iv:     Iv,
     /// The cipher suite used for this packet key
-    suite: &'static Tls13CipherSuite,
+    suite:  &'static Tls13CipherSuite,
+    crypto: chacha20poly1305::ChaCha20Poly1305,
 }
 
 impl PacketKey {
     pub fn new(suite: &'static Tls13CipherSuite, key: AeadKey, iv: Iv) -> Self {
-        Self { key, iv, suite }
+        Self {
+            iv,
+            suite,
+            crypto: chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref()).unwrap(),
+        }
     }
 }
 
 impl quic::PacketKey for PacketKey {
     fn encrypt_in_place(
         &self,
-        _packet_number: u64,
-        _header: &[u8],
-        _payload: &mut [u8],
+        packet_number: u64,
+        aad: &[u8],
+        payload: &mut [u8],
     ) -> Result<quic::Tag, Error> {
-        todo!()
+        let nonce = cipher::Nonce::new(&self.iv, packet_number).0;
+
+        let tag = self
+            .crypto
+            .encrypt_in_place_detached(&nonce.into(), &aad, payload)
+            .map_err(|_| rustls::Error::EncryptError)?;
+        Ok(quic::Tag::from(tag.as_ref()))
     }
 
     /// Decrypt a QUIC packet
@@ -75,11 +90,23 @@ impl quic::PacketKey for PacketKey {
     /// `payload`, up to the length found in the return value.
     fn decrypt_in_place<'a>(
         &self,
-        _packet_number: u64,
-        _header: &[u8],
-        _payload: &'a mut [u8],
+        packet_number: u64,
+        aad: &[u8],
+        payload: &'a mut [u8],
     ) -> Result<&'a [u8], Error> {
-        todo!()
+        let mut payload_ = payload.to_vec();
+        let payload_len = payload_.len();
+        let nonce = chacha20poly1305::Nonce::from(cipher::Nonce::new(&self.iv, packet_number).0);
+
+        self.crypto
+            .decrypt_in_place(&nonce, &aad, &mut payload_)
+            .map_err(|_| rustls::Error::DecryptError)?;
+
+        // Unfortunately the lifetime bound on decrypt_in_place sucks
+        payload.copy_from_slice(&payload_);
+
+        let plain_len = payload_len - self.tag_len();
+        Ok(&payload[..plain_len])
     }
 
     /// Number of times the packet key can be used without sacrificing
@@ -102,11 +129,11 @@ impl quic::PacketKey for PacketKey {
     /// Tag length for the underlying AEAD algorithm
     #[inline]
     fn tag_len(&self) -> usize {
-        todo!()
+        <chacha20poly1305::ChaCha20Poly1305 as AeadCore>::TagSize::to_usize()
     }
 }
 
-pub struct KeyBuilder();
+pub struct KeyBuilder(AeadKey);
 
 impl rustls::quic::Algorithm for KeyBuilder {
     fn packet_key(
@@ -123,6 +150,6 @@ impl rustls::quic::Algorithm for KeyBuilder {
     }
 
     fn aead_key_len(&self) -> usize {
-        todo!()
+        chacha20poly1305::ChaCha20Poly1305::key_size()
     }
 }

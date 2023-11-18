@@ -158,7 +158,7 @@ macro_rules! impl_gcm_tls12 {
                     let total_len = self.encrypted_payload_len(m.payload.len());
                     let explicit_nonce_len = 8;
                     let mut payload = Vec::with_capacity(explicit_nonce_len + total_len);
-                    payload.extend_from_slice(&nonce.as_ref()[4..]);
+                    payload.extend_from_slice(&nonce.as_ref()[4..]); // explicit
                     payload.extend_from_slice(m.payload);
 
                     self.0
@@ -190,7 +190,7 @@ macro_rules! impl_gcm_tls12 {
 
                     let nonce: aead::Nonce<$aead> = {
                         let mut nonce = [0u8; 12];
-                        nonce[..4].copy_from_slice(&self.1);
+                        nonce[..4].copy_from_slice(&self.1); // dec_iv
                         nonce[4..].copy_from_slice(&payload[..explicit_nonce_len]);
                         nonce.into()
                     };
