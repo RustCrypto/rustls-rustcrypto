@@ -2,6 +2,7 @@ use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgo
 use signature::Verifier;
 use webpki::alg_id;
 
+#[derive(Debug)]
 struct Ed25519Verify;
 
 impl SignatureVerificationAlgorithm for Ed25519Verify {

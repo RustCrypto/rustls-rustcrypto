@@ -109,23 +109,6 @@ impl quic::PacketKey for PacketKey {
         Ok(&payload[..plain_len])
     }
 
-    /// Number of times the packet key can be used without sacrificing
-    /// confidentiality
-    ///
-    /// See <https://www.rfc-editor.org/rfc/rfc9001.html#name-confidentiality-limit>.
-    #[inline]
-    fn confidentiality_limit(&self) -> u64 {
-        self.suite.common.confidentiality_limit
-    }
-
-    /// Number of times the packet key can be used without sacrificing integrity
-    ///
-    /// See <https://www.rfc-editor.org/rfc/rfc9001.html#name-integrity-limit>.
-    #[inline]
-    fn integrity_limit(&self) -> u64 {
-        self.suite.common.integrity_limit
-    }
-
     /// Tag length for the underlying AEAD algorithm
     #[inline]
     fn tag_len(&self) -> usize {
@@ -136,13 +119,8 @@ impl quic::PacketKey for PacketKey {
 pub struct KeyBuilder(AeadKey);
 
 impl rustls::quic::Algorithm for KeyBuilder {
-    fn packet_key(
-        &self,
-        suite: &'static Tls13CipherSuite,
-        key: AeadKey,
-        iv: Iv,
-    ) -> Box<dyn quic::PacketKey> {
-        Box::new(PacketKey::new(suite, key, iv))
+    fn packet_key(&self, _key: AeadKey, _iv: Iv) -> Box<dyn quic::PacketKey> {
+        todo!()
     }
 
     fn header_protection_key(&self, key: AeadKey) -> Box<dyn quic::HeaderProtectionKey> {

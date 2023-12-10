@@ -2,12 +2,12 @@ use std::str::FromStr;
 
 use anyhow::anyhow;
 use hyper::{body::to_bytes, client, Body, Uri};
-use pki_types::CertificateDer;
+use pki_types::{CertificateDer, ServerName};
 use rustls::{
     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
-    DigitallySignedStruct, ServerName, SignatureScheme,
+    DigitallySignedStruct, SignatureScheme,
 };
-use rustls_rustcrypto::Provider;
+use rustls_rustcrypto::provider;
 
 #[derive(Debug)]
 struct NoopServerVerifier;
@@ -67,7 +67,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Prepare the HTTPS connector
     let https = hyper_rustls::HttpsConnectorBuilder::new()
-        .with_provider_and_webpki_roots(&Provider)
+        .with_provider_and_webpki_roots(provider())?
         .https_or_http()
         .enable_all_versions()
         .build();

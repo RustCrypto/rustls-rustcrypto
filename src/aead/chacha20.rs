@@ -85,7 +85,7 @@ struct Tls13Cipher(chacha20poly1305::ChaCha20Poly1305, cipher::Iv);
 
 impl cipher::MessageEncrypter for Tls13Cipher {
     fn encrypt(
-        &self,
+        &mut self,
         m: cipher::BorrowedPlainMessage,
         seq: u64,
     ) -> Result<cipher::OpaqueMessage, rustls::Error> {
@@ -118,7 +118,7 @@ impl cipher::MessageEncrypter for Tls13Cipher {
 
 impl cipher::MessageDecrypter for Tls13Cipher {
     fn decrypt(
-        &self,
+        &mut self,
         mut m: cipher::OpaqueMessage,
         seq: u64,
     ) -> Result<cipher::PlainMessage, rustls::Error> {
@@ -140,7 +140,7 @@ struct Tls12Cipher(chacha20poly1305::ChaCha20Poly1305, cipher::Iv);
 #[cfg(feature = "tls12")]
 impl cipher::MessageEncrypter for Tls12Cipher {
     fn encrypt(
-        &self,
+        &mut self,
         m: cipher::BorrowedPlainMessage,
         seq: u64,
     ) -> Result<cipher::OpaqueMessage, rustls::Error> {
@@ -166,7 +166,7 @@ impl cipher::MessageEncrypter for Tls12Cipher {
 #[cfg(feature = "tls12")]
 impl cipher::MessageDecrypter for Tls12Cipher {
     fn decrypt(
-        &self,
+        &mut self,
         mut m: cipher::OpaqueMessage,
         seq: u64,
     ) -> Result<cipher::PlainMessage, rustls::Error> {

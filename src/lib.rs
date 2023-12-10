@@ -13,38 +13,38 @@ use alloc::sync::Arc;
 #[cfg(feature = "tls12")]
 use rustls::SignatureScheme;
 use rustls::{
-    crypto::{CryptoProvider, GetRandomFailed, SupportedKxGroup},
-    CipherSuite, CipherSuiteCommon, SupportedCipherSuite, Tls13CipherSuite,
+    crypto::{CipherSuiteCommon, CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom},
+    CipherSuite, SupportedCipherSuite, Tls13CipherSuite,
 };
 
 #[derive(Debug)]
 pub struct Provider;
 
-impl CryptoProvider for Provider {
-    fn fill_random(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
+pub fn provider() -> CryptoProvider {
+    CryptoProvider {
+        cipher_suites:                     ALL_CIPHER_SUITES.to_vec(),
+        kx_groups:                         kx::ALL_KX_GROUPS.to_vec(),
+        signature_verification_algorithms: verify::ALGORITHMS,
+        secure_random:                     &Provider,
+        key_provider:                      &Provider,
+    }
+}
+
+impl SecureRandom for Provider {
+    fn fill(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
         use rand_core::RngCore;
         rand_core::OsRng
             .try_fill_bytes(bytes)
             .map_err(|_| GetRandomFailed)
     }
+}
 
-    fn default_cipher_suites(&self) -> &'static [SupportedCipherSuite] {
-        ALL_CIPHER_SUITES
-    }
-
-    fn default_kx_groups(&self) -> &'static [&'static dyn SupportedKxGroup] {
-        kx::ALL_KX_GROUPS
-    }
-
+impl KeyProvider for Provider {
     fn load_private_key(
         &self,
         key_der: pki_types::PrivateKeyDer<'static>,
     ) -> Result<Arc<dyn rustls::sign::SigningKey>, rustls::Error> {
         sign::any_supported_type(&key_der)
-    }
-
-    fn signature_verification_algorithms(&self) -> rustls::WebPkiSupportedAlgorithms {
-        verify::ALGORITHMS
     }
 }
 

@@ -51,7 +51,7 @@ macro_rules! impl_gcm_tls13 {
             struct [<Tls13Cipher $name>]($aead, cipher::Iv);
 
             impl MessageEncrypter for [<Tls13Cipher $name>] {
-                fn encrypt(&self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
+                fn encrypt(&mut self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
                     let total_len = self.encrypted_payload_len(m.payload.len());
 
                     // construct a TLSInnerPlaintext
@@ -80,7 +80,7 @@ macro_rules! impl_gcm_tls13 {
             }
 
             impl MessageDecrypter for [<Tls13Cipher $name>] {
-                fn decrypt(&self, mut m: OpaqueMessage, seq: u64) -> Result<PlainMessage, rustls::Error> {
+                fn decrypt(&mut self, mut m: OpaqueMessage, seq: u64) -> Result<PlainMessage, rustls::Error> {
                     let payload = m.payload_mut();
                     let nonce = cipher::Nonce::new(&self.1, seq).0;
                     let aad = cipher::make_tls13_aad(payload.len());
@@ -151,7 +151,7 @@ macro_rules! impl_gcm_tls12 {
 
             #[cfg(feature = "tls12")]
             impl MessageEncrypter for [<Tls12Cipher $name Encrypter>] {
-                fn encrypt(&self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
+                fn encrypt(&mut self, m: BorrowedPlainMessage, seq: u64) -> Result<OpaqueMessage, rustls::Error> {
                     let nonce = cipher::Nonce::new(&self.1.into(), seq).0;
                     let aad = cipher::make_tls12_aad(seq, m.typ, m.version, m.payload.len());
 
@@ -177,7 +177,7 @@ macro_rules! impl_gcm_tls12 {
 
             #[cfg(feature = "tls12")]
             impl MessageDecrypter for [<Tls12Cipher $name Decrypter>] {
-                fn decrypt(&self, mut m: OpaqueMessage, seq: u64) -> Result<PlainMessage, rustls::Error> {
+                fn decrypt(&mut self, mut m: OpaqueMessage, seq: u64) -> Result<PlainMessage, rustls::Error> {
                     type TagSize = <$aead as AeadCore>::TagSize;
 
                     let payload = m.payload();

@@ -2,12 +2,12 @@ use std::str::FromStr;
 
 use hyper::{body::to_bytes, client, client::HttpConnector, Body, Uri};
 use hyper_rustls::HttpsConnector;
-use rustls_rustcrypto::Provider;
+use rustls_rustcrypto::provider;
 
 pub fn build_hyper_client(
 ) -> anyhow::Result<client::Client<HttpsConnector<HttpConnector>, hyper::Body>> {
     let https = hyper_rustls::HttpsConnectorBuilder::new()
-        .with_provider_and_webpki_roots(&Provider)
+        .with_provider_and_webpki_roots(provider())?
         .https_or_http()
         .enable_all_versions()
         .build();

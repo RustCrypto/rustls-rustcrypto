@@ -1,6 +1,7 @@
 use std::{
     io::{self},
     net::ToSocketAddrs,
+    sync::Arc,
 };
 
 use hyper::{
@@ -10,7 +11,8 @@ use hyper::{
 };
 use hyper_rustls::TlsAcceptor;
 use pki_types::PrivateKeyDer;
-use rustls_rustcrypto::Provider;
+use rustls::ServerConfig;
+use rustls_rustcrypto::provider;
 
 struct TestPki {
     server_cert_der: Vec<u8>,
@@ -62,11 +64,15 @@ async fn main() -> anyhow::Result<()> {
         .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))?;
     let incoming = AddrIncoming::bind(&addr)?;
     let acceptor = TlsAcceptor::builder()
-        .with_provider_and_single_cert(
-            &Provider,
-            vec![pki.server_cert_der.clone().into()],
-            PrivateKeyDer::Pkcs8(pki.server_key_der.clone().into()),
-        )?
+        .with_tls_config(
+            ServerConfig::builder_with_provider(Arc::new(provider()))
+                .with_safe_default_protocol_versions()?
+                .with_no_client_auth()
+                .with_single_cert(
+                    vec![pki.server_cert_der.clone().into()],
+                    PrivateKeyDer::Pkcs8(pki.server_key_der.clone().into()),
+                )?,
+        )
         .with_all_versions_alpn()
         .with_incoming(incoming);
     let service = make_service_fn(|_| async { Ok::<_, io::Error>(service_fn(echo)) });
