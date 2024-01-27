@@ -1,19 +1,22 @@
-use std::{
-    io::{self},
-    net::ToSocketAddrs,
-    sync::Arc,
-};
+use std::{net::ToSocketAddrs, sync::Arc};
 
+use futures_util::StreamExt;
+use http_body_util::{BodyExt, Full};
 use hyper::{
-    server::conn::AddrIncoming,
-    service::{make_service_fn, service_fn},
-    Body, Method, Request, Response, Server, StatusCode,
+    body::{Bytes, Incoming},
+    service::service_fn,
+    Method, Request, Response, StatusCode,
 };
-use hyper_rustls::TlsAcceptor;
+use hyper_util::{
+    rt::{TokioExecutor, TokioIo},
+    server::conn::auto::Builder,
+};
 use pki_types::PrivateKeyDer;
 use rustls::ServerConfig;
 use rustls_rustcrypto::provider;
-
+use tls_listener::{SpawningHandshakes, TlsListener};
+use tokio::{net::TcpListener, signal::ctrl_c};
+use tokio_rustls::TlsAcceptor;
 struct TestPki {
     server_cert_der: Vec<u8>,
     server_key_der: Vec<u8>,
@@ -21,7 +24,7 @@ struct TestPki {
 
 impl TestPki {
     fn new() -> Self {
-        let alg = &rcgen::PKCS_ED25519;
+        let alg = &rcgen::PKCS_ECDSA_P384_SHA384;
         let mut ca_params = rcgen::CertificateParams::new(Vec::new());
         ca_params
             .distinguished_name
@@ -62,40 +65,59 @@ async fn main() -> anyhow::Result<()> {
         .to_socket_addrs()?
         .next()
         .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))?;
-    let incoming = AddrIncoming::bind(&addr)?;
-    let acceptor = TlsAcceptor::builder()
-        .with_tls_config(
-            ServerConfig::builder_with_provider(Arc::new(provider()))
-                .with_safe_default_protocol_versions()?
-                .with_no_client_auth()
-                .with_single_cert(
-                    vec![pki.server_cert_der.clone().into()],
-                    PrivateKeyDer::Pkcs8(pki.server_key_der.clone().into()),
-                )?,
-        )
-        .with_all_versions_alpn()
-        .with_incoming(incoming);
-    let service = make_service_fn(|_| async { Ok::<_, io::Error>(service_fn(echo)) });
-    let server = Server::builder(acceptor).serve(service);
 
-    // Run the future, keep going until an error occurs.
+    let incoming = TcpListener::bind(&addr).await?;
+
+    let mut server_config = ServerConfig::builder_with_provider(Arc::new(provider()))
+        .with_safe_default_protocol_versions()?
+        .with_no_client_auth()
+        .with_single_cert(
+            vec![pki.server_cert_der.clone().into()],
+            PrivateKeyDer::Pkcs8(pki.server_key_der.clone().into()),
+        )?;
+    server_config.alpn_protocols = vec![b"h2".to_vec(), b"http/1.1".to_vec(), b"http/1.0".to_vec()];
+    let tls_acceptor = TlsAcceptor::from(Arc::new(server_config));
+    let service = service_fn(echo);
+
     println!("Starting to serve on https://{}.", addr);
-    server.await?;
+
+    TlsListener::new(SpawningHandshakes(tls_acceptor), incoming)
+        .take_until(ctrl_c())
+        .for_each_concurrent(None, |s| {
+            async {
+                match s {
+                    Ok((stream, remote_addr)) => {
+                        println!("accepted client from {}", remote_addr);
+                        if let Err(err) = Builder::new(TokioExecutor::new())
+                            .serve_connection(TokioIo::new(stream), service)
+                            .await
+                        {
+                            eprintln!("failed to serve connection: {err:#}");
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("failed to perform tls handshake: {:?}", e);
+                    }
+                }
+            }
+        })
+        .await;
+
     Ok(())
 }
 
 // Custom echo service, handling two different routes and a
 // catch-all 404 responder.
-async fn echo(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
-    let mut response = Response::new(Body::empty());
+async fn echo(req: Request<Incoming>) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    let mut response = Response::new(Full::default());
     match (req.method(), req.uri().path()) {
         // Help route.
         (&Method::GET, "/") => {
-            *response.body_mut() = Body::from("Try POST /echo\n");
+            *response.body_mut() = Full::from("Try POST /echo\n");
         }
         // Echo service route.
         (&Method::POST, "/echo") => {
-            *response.body_mut() = req.into_body();
+            *response.body_mut() = Full::from(req.into_body().collect().await?.to_bytes());
         }
         // Catch-all 404.
         _ => {

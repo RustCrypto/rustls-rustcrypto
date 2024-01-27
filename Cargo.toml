@@ -46,13 +46,16 @@ alloc = ["webpki/alloc", "pki-types/alloc"]
 anyhow = "1.0.75"
 claim = "0.5.0"
 env_logger = "0.10"
-hyper = "0.14.27"
-hyper-rustls = { version = "0.25.0", default-features = false, features = ["native-tokio", "http1", "tls12", "logging", "acceptor", "http2", "webpki-roots"] }
-rcgen = "0.11.3"
+futures-util = "0.3.30"
+http = "1.0.0"
+http-body-util = "0.1.0"
+hyper = "1.1.0"
+hyper-rustls = { version = "0.26.0", default-features = false, features = ["native-tokio", "http1", "tls12", "logging", "http2", "webpki-roots"] }
+hyper-util = { version = "0.1.2", features = ["client", "server-auto", "tokio", "client-legacy"] }
+rcgen = "0.12.0"
 test-case = "3.2.1"
-tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
+tls-listener = { version = "0.9.1", features = ["rt", "rustls"] }
+tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net", "signal"] }
+tokio-rustls = { version = "0.25.0", default-features = false, features = ["tls12"] }
+tokio-stream = { version = "0.1.14", features = ["net"] }
 webpki-roots = "0.26.0"
-
-[patch.crates-io]
-hyper-rustls = { git = "https://github.com/rustls/hyper-rustls" }
-rcgen = { git = "https://github.com/rustls/rcgen" }
