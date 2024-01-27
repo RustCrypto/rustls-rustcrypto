@@ -78,7 +78,7 @@ impl quic::PacketKey for PacketKey {
 
         let tag = self
             .crypto
-            .encrypt_in_place_detached(&nonce.into(), &aad, payload)
+            .encrypt_in_place_detached(&nonce.into(), aad, payload)
             .map_err(|_| rustls::Error::EncryptError)?;
         Ok(quic::Tag::from(tag.as_ref()))
     }
@@ -101,7 +101,7 @@ impl quic::PacketKey for PacketKey {
         let nonce = chacha20poly1305::Nonce::from(cipher::Nonce::new(&self.iv, packet_number).0);
 
         self.crypto
-            .decrypt_in_place(&nonce, &aad, &mut payload_)
+            .decrypt_in_place(&nonce, aad, &mut payload_)
             .map_err(|_| rustls::Error::DecryptError)?;
 
         // Unfortunately the lifetime bound on decrypt_in_place sucks
