@@ -61,17 +61,16 @@ jobs:
           components: rustfmt
       - run: cargo fmt --all -- --check
 
-# TODO(tarcieri): run tests in CI
-#  test:
-#    strategy:
-#      matrix:
-#        toolchain:
-#          - stable
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: RustCrypto/actions/cargo-cache@master
-#      - uses: dtolnay/rust-toolchain@master
-#        with:
-#          toolchain: ${{ matrix.toolchain }}
-#      - run: cargo test
+  test:
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: RustCrypto/actions/cargo-cache@master
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - run: cargo test --features tls12
