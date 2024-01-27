@@ -47,11 +47,13 @@ impl quic::HeaderProtectionKey for HeaderProtectionKey {
 }
 
 pub struct PacketKey {
-    #[allow(dead_code)]
     /// Computes unique nonces for each packet
-    iv:     Iv,
+    iv: Iv,
+
     /// The cipher suite used for this packet key
-    suite:  &'static Tls13CipherSuite,
+    #[allow(dead_code)]
+    suite: &'static Tls13CipherSuite,
+
     crypto: chacha20poly1305::ChaCha20Poly1305,
 }
 
