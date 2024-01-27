@@ -83,21 +83,19 @@ async fn main() -> anyhow::Result<()> {
 
     TlsListener::new(SpawningHandshakes(tls_acceptor), incoming)
         .take_until(ctrl_c())
-        .for_each_concurrent(None, |s| {
-            async {
-                match s {
-                    Ok((stream, remote_addr)) => {
-                        println!("accepted client from {}", remote_addr);
-                        if let Err(err) = Builder::new(TokioExecutor::new())
-                            .serve_connection(TokioIo::new(stream), service)
-                            .await
-                        {
-                            eprintln!("failed to serve connection: {err:#}");
-                        }
+        .for_each_concurrent(None, |s| async {
+            match s {
+                Ok((stream, remote_addr)) => {
+                    println!("accepted client from {}", remote_addr);
+                    if let Err(err) = Builder::new(TokioExecutor::new())
+                        .serve_connection(TokioIo::new(stream), service)
+                        .await
+                    {
+                        eprintln!("failed to serve connection: {err:#}");
                     }
-                    Err(e) => {
-                        eprintln!("failed to perform tls handshake: {:?}", e);
-                    }
+                }
+                Err(e) => {
+                    eprintln!("failed to perform tls handshake: {:?}", e);
                 }
             }
         })
