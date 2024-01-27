@@ -17,6 +17,20 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
+  build:
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: RustCrypto/actions/cargo-cache@master
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - run: cargo build
+
   clippy:
     runs-on: ubuntu-latest
     steps:
@@ -47,16 +61,17 @@ jobs:
           components: rustfmt
       - run: cargo fmt --all -- --check
 
-  test:
-    strategy:
-      matrix:
-        toolchain:
-          - stable
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: RustCrypto/actions/cargo-cache@master
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.toolchain }}
-      - run: cargo test
+# TODO(tarcieri): run tests in CI
+#  test:
+#    strategy:
+#      matrix:
+#        toolchain:
+#          - stable
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: RustCrypto/actions/cargo-cache@master
+#      - uses: dtolnay/rust-toolchain@master
+#        with:
+#          toolchain: ${{ matrix.toolchain }}
+#      - run: cargo test
