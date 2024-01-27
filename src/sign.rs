@@ -21,8 +21,8 @@ where
     T: RandomizedSigner<S>,
 {
     _marker: PhantomData<S>,
-    key:     Arc<T>,
-    scheme:  SignatureScheme,
+    key: Arc<T>,
+    scheme: SignatureScheme,
 }
 
 impl<T, S> Signer for GenericRandomizedSigner<S, T>
@@ -49,8 +49,8 @@ where
     T: signature::Signer<S>,
 {
     _marker: PhantomData<S>,
-    key:     Arc<T>,
-    scheme:  SignatureScheme,
+    key: Arc<T>,
+    scheme: SignatureScheme,
 }
 
 impl<S, T> Signer for GenericSigner<S, T>

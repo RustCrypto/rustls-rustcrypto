@@ -26,15 +26,11 @@ impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
 
     fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         let pkey = match value {
-            PrivateKeyDer::Pkcs8(der) => {
-                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
-            }
-            PrivateKeyDer::Pkcs1(der) => {
-                RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
-            }
-            PrivateKeyDer::Sec1(_) => Err(format!("RSA does not support SEC-1 key")),
+            PrivateKeyDer::Pkcs8(der) => RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
+                .map_err(|e| format!("failed to decrypt private key: {e}")),
+            PrivateKeyDer::Pkcs1(der) => RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
+                .map_err(|e| format!("failed to decrypt private key: {e}")),
+            PrivateKeyDer::Sec1(_) => Err("RSA does not support SEC-1 key".to_string()),
             _ => Err("not supported".into()),
         };
 

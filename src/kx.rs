@@ -21,7 +21,7 @@ impl crypto::SupportedKxGroup for X25519 {
 
 pub struct X25519KeyExchange {
     priv_key: x25519_dalek::EphemeralSecret,
-    pub_key:  x25519_dalek::PublicKey,
+    pub_key: x25519_dalek::PublicKey,
 }
 
 impl crypto::ActiveKeyExchange for X25519KeyExchange {
