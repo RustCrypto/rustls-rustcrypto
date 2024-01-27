@@ -59,8 +59,8 @@ impl cipher::Tls12AeadAlgorithm for Chacha20Poly1305 {
 
     fn key_block_shape(&self) -> cipher::KeyBlockShape {
         cipher::KeyBlockShape {
-            enc_key_len:        32,
-            fixed_iv_len:       12,
+            enc_key_len: 32,
+            fixed_iv_len: 12,
             explicit_nonce_len: 0,
         }
     }

@@ -11,7 +11,7 @@ use sec1::DecodeEcPrivateKey;
 
 #[derive(Debug)]
 pub struct Ed25519SigningKey {
-    key:    Arc<ed25519_dalek::SigningKey>,
+    key: Arc<ed25519_dalek::SigningKey>,
     scheme: SignatureScheme,
 }
 
@@ -31,11 +31,9 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
             PrivateKeyDer::Pkcs1(_) => Err(format!("ED25519 does not support PKCS#1 key")),
             _ => Err("not supported".into()),
         };
-        pkey.map(|kp| {
-            Self {
-                key:    Arc::new(kp),
-                scheme: SignatureScheme::ED25519,
-            }
+        pkey.map(|kp| Self {
+            key: Arc::new(kp),
+            scheme: SignatureScheme::ED25519,
         })
         .map_err(rustls::Error::General)
     }
@@ -46,8 +44,8 @@ impl SigningKey for Ed25519SigningKey {
         if offered.contains(&self.scheme) {
             Some(Box::new(super::GenericSigner {
                 _marker: PhantomData,
-                key:     self.key.clone(),
-                scheme:  self.scheme,
+                key: self.key.clone(),
+                scheme: self.scheme,
             }))
         } else {
             None

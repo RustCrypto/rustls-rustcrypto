@@ -16,7 +16,7 @@ use rustls_rustcrypto::provider;
 
 struct TestPki {
     server_cert_der: Vec<u8>,
-    server_key_der:  Vec<u8>,
+    server_key_der: Vec<u8>,
 }
 
 impl TestPki {
