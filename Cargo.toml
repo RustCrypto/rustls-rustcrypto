@@ -50,7 +50,7 @@ http = "1.0.0"
 http-body-util = "0.1.0"
 hyper = "1.1.0"
 hyper-rustls = { version = "0.26.0", default-features = false, features = ["native-tokio", "http1", "tls12", "logging", "http2", "webpki-roots"] }
-hyper-util = { version = "0.1.2", features = ["client", "server-auto", "tokio", "client-legacy"] }
+hyper-util = { version = "0.1.3", features = ["client", "server-auto", "tokio", "client-legacy"] }
 rcgen = "0.12.0"
 test-case = "3.2.1"
 tls-listener = { version = "0.9.1", features = ["rt", "rustls"] }
