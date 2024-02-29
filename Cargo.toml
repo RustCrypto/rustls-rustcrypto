@@ -44,7 +44,7 @@ alloc = ["webpki/alloc", "pki-types/alloc"]
 [dev-dependencies]
 anyhow = "1.0.75"
 claim = "0.5.0"
-env_logger = "0.10"
+env_logger = "0.11"
 futures-util = "0.3.30"
 http = "1.0.0"
 http-body-util = "0.1.0"
