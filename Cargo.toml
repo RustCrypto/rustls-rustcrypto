@@ -42,7 +42,7 @@ std = ["webpki/std", "pki-types/std"]
 alloc = ["webpki/alloc", "pki-types/alloc"]
 
 [dev-dependencies]
-anyhow = "1.0.75"
+anyhow = "1.0.80"
 claim = "0.5.0"
 env_logger = "0.10"
 futures-util = "0.3.30"
