@@ -57,4 +57,4 @@ tls-listener = { version = "0.9.1", features = ["rt", "rustls"] }
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net", "signal"] }
 tokio-rustls = { version = "0.25.0", default-features = false, features = ["tls12"] }
 tokio-stream = { version = "0.1.14", features = ["net"] }
-webpki-roots = "0.26.0"
+webpki-roots = "0.26.1"
