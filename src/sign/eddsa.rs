@@ -1,12 +1,13 @@
-use alloc::{boxed::Box, sync::Arc};
+use alloc::format;
+use alloc::sync::Arc;
 use core::marker::PhantomData;
+#[cfg(not(feature = "std"))]
+use {alloc::boxed::Box, alloc::string::ToString};
 
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
-use rustls::{
-    sign::{Signer, SigningKey},
-    SignatureAlgorithm, SignatureScheme,
-};
+use rustls::sign::{Signer, SigningKey};
+use rustls::{SignatureAlgorithm, SignatureScheme};
 use sec1::DecodeEcPrivateKey;
 
 #[derive(Debug)]

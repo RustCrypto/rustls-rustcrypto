@@ -1,10 +1,14 @@
-use alloc::{boxed::Box, format, sync::Arc};
+#[cfg(not(feature = "std"))]
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::sync::Arc;
 use core::marker::PhantomData;
 
 use paste::paste;
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
-use rustls::{sign::SigningKey, SignatureAlgorithm, SignatureScheme};
+use rustls::sign::SigningKey;
+use rustls::{SignatureAlgorithm, SignatureScheme};
 use sec1::DecodeEcPrivateKey;
 
 macro_rules! impl_ecdsa {

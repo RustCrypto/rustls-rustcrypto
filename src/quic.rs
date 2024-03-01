@@ -1,17 +1,13 @@
 #![allow(clippy::duplicate_mod)]
 
+#[cfg(not(feature = "std"))]
 use alloc::boxed::Box;
 
 use aead::AeadCore;
 use chacha20poly1305::{AeadInPlace, KeyInit, KeySizeUser};
 use crypto_common::typenum::Unsigned;
-use rustls::{
-    crypto::{
-        cipher,
-        cipher::{AeadKey, Iv},
-    },
-    quic, Error, Tls13CipherSuite,
-};
+use rustls::crypto::cipher::{self, AeadKey, Iv};
+use rustls::{quic, Error, Tls13CipherSuite};
 
 pub struct HeaderProtectionKey(AeadKey);
 
@@ -115,6 +111,14 @@ impl quic::PacketKey for PacketKey {
     #[inline]
     fn tag_len(&self) -> usize {
         <chacha20poly1305::ChaCha20Poly1305 as AeadCore>::TagSize::to_usize()
+    }
+
+    fn integrity_limit(&self) -> u64 {
+        1 << 36
+    }
+
+    fn confidentiality_limit(&self) -> u64 {
+        u64::MAX
     }
 }
 
