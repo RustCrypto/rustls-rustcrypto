@@ -1,8 +1,9 @@
+#[cfg(not(feature = "std"))]
 use alloc::boxed::Box;
 
 use digest::{Digest, OutputSizeUser};
 use paste::paste;
-use rustls::{crypto, crypto::hash};
+use rustls::crypto::{self, hash};
 use sha2::{Sha256, Sha384};
 
 macro_rules! impl_hash {

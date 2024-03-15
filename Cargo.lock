@@ -710,7 +710,7 @@ dependencies = [
  "hyper",
  "hyper-util",
  "log",
- "rustls",
+ "rustls 0.22.2",
  "rustls-native-certs",
  "rustls-pki-types",
  "tokio",
@@ -741,9 +741,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.2.4"
+version = "2.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "967d6dd42f16dbf0eb8040cb9e477933562684d3918f7d253f2ff9087fb3e7a3"
+checksum = "7b0b929d511467233429c45a44ac1dcaa21ba0f5ba11e4879e6ed28ddb4f9df4"
 dependencies = [
  "equivalent",
  "hashbrown",
@@ -1234,6 +1234,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustls"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53e56521f047352df0db9a3c5aafc573eeb8909ab80f9d4cba201d8d73539009"
+dependencies = [
+ "log",
+ "once_cell",
+ "rustls-pki-types",
+ "rustls-webpki",
+ "subtle",
+ "zeroize",
+]
+
+[[package]]
 name = "rustls-native-certs"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1295,7 +1309,7 @@ dependencies = [
  "rand_core",
  "rcgen",
  "rsa",
- "rustls",
+ "rustls 0.23.0",
  "rustls-pki-types",
  "rustls-webpki",
  "sec1",
@@ -1609,7 +1623,7 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "775e0c0f0adb3a2f22a00c4745d728b479985fc15ee7ca6a2608388c5569860f"
 dependencies = [
- "rustls",
+ "rustls 0.22.2",
  "rustls-pki-types",
  "tokio",
 ]

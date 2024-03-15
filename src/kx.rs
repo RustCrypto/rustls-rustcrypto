@@ -1,3 +1,4 @@
+#[cfg(not(feature = "std"))]
 use alloc::boxed::Box;
 
 use crypto::{SharedSecret, SupportedKxGroup};
@@ -29,8 +30,11 @@ impl crypto::ActiveKeyExchange for X25519KeyExchange {
         let peer_array: [u8; 32] = peer
             .try_into()
             .map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
-        let their_pub = x25519_dalek::PublicKey::from(peer_array);
-        Ok(self.priv_key.diffie_hellman(&their_pub).as_ref().into())
+        Ok(self
+            .priv_key
+            .diffie_hellman(&peer_array.into())
+            .as_ref()
+            .into())
     }
 
     fn pub_key(&self) -> &[u8] {

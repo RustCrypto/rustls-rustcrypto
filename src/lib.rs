@@ -5,17 +5,19 @@
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core
 )]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 extern crate alloc;
 
 use alloc::sync::Arc;
 
+use rustls::crypto::{
+    CipherSuiteCommon, CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom,
+};
+use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
+
 #[cfg(feature = "tls12")]
 use rustls::SignatureScheme;
-use rustls::{
-    crypto::{CipherSuiteCommon, CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom},
-    CipherSuite, SupportedCipherSuite, Tls13CipherSuite,
-};
 
 #[derive(Debug)]
 pub struct Provider;
@@ -73,7 +75,6 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
             suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
             hash_provider: hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign: &TLS12_ECDSA_SCHEMES,
@@ -88,7 +89,6 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
             suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
             hash_provider: hash::SHA384,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign: &TLS12_ECDSA_SCHEMES,
@@ -103,7 +103,6 @@ pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
             suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
             hash_provider: hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
@@ -125,7 +124,6 @@ pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
             suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
             hash_provider: hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign: &TLS12_RSA_SCHEMES,
@@ -140,7 +138,6 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
             suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
             hash_provider: hash::SHA384,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign: &TLS12_RSA_SCHEMES,
@@ -155,7 +152,6 @@ pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
             suite: CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
             hash_provider: hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
         sign: &TLS12_RSA_SCHEMES,
@@ -186,7 +182,6 @@ pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
             suite: CipherSuite::TLS13_AES_128_GCM_SHA256,
             hash_provider: hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
         aead_alg: &aead::gcm::Tls13Aes128Gcm,
@@ -199,7 +194,6 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
             suite: CipherSuite::TLS13_AES_256_GCM_SHA384,
             hash_provider: hash::SHA384,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA384),
         aead_alg: &aead::gcm::Tls13Aes256Gcm,
@@ -215,7 +209,6 @@ pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
             suite: CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
             hash_provider: hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: 1 << 36,
         },
         hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
         aead_alg: &aead::chacha20::Chacha20Poly1305,

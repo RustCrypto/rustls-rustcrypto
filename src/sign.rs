@@ -1,18 +1,16 @@
-use alloc::{sync::Arc, vec::Vec};
+use alloc::sync::Arc;
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
 use core::marker::PhantomData;
 
-use pki_types::PrivateKeyDer;
-use rustls::{
-    sign::{Signer, SigningKey},
-    Error, SignatureScheme,
-};
-use signature::{RandomizedSigner, SignatureEncoding};
+use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
+use self::eddsa::Ed25519SigningKey;
+use self::rsa::RsaSigningKey;
 
-use self::{
-    ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384},
-    eddsa::Ed25519SigningKey,
-    rsa::RsaSigningKey,
-};
+use pki_types::PrivateKeyDer;
+use rustls::sign::{Signer, SigningKey};
+use rustls::{Error, SignatureScheme};
+use signature::{RandomizedSigner, SignatureEncoding};
 
 #[derive(Debug)]
 pub struct GenericRandomizedSigner<S, T>

@@ -1,12 +1,14 @@
-use alloc::{boxed::Box, sync::Arc};
+use alloc::format;
+use alloc::sync::Arc;
+#[cfg(not(feature = "std"))]
+use {alloc::boxed::Box, alloc::string::ToString};
 
-use pkcs8::{self, DecodePrivateKey};
+use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
-use rsa::{pkcs1::DecodeRsaPrivateKey, RsaPrivateKey};
-use rustls::{
-    sign::{Signer, SigningKey},
-    SignatureAlgorithm, SignatureScheme,
-};
+use rsa::pkcs1::DecodeRsaPrivateKey;
+use rsa::RsaPrivateKey;
+use rustls::sign::{Signer, SigningKey};
+use rustls::{SignatureAlgorithm, SignatureScheme};
 use sha2::{Sha256, Sha384, Sha512};
 
 const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
