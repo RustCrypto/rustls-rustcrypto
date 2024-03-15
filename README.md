@@ -1,6 +1,6 @@
 # rustls-rustcrypto
 
-WIP crypto provider implementation for the upcoming version 0.22.0 of [rustls](https://github.com/rustls/rustls/pull/1405) using RustCrypto.
+WIP RustCrypto-based provider implementation for version 0.23 of [rustls](https://github.com/rustls/rustls/pull/1405).
 
 Some code comes directly from one of main rustls contributor, [@ctz](https://github.com/ctz). 
 
