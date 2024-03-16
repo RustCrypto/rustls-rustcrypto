@@ -16,7 +16,6 @@ digest = { version = "0.10.7", default-features = false }
 ecdsa = { version = "0.16.8", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"] }
 hmac = { version = "0.12.1", default-features = false }
-# TODO: figure out why std was needed here
 p256 = { version = "0.13.2", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1.0.14", default-features = false }
@@ -39,12 +38,9 @@ tls12 = ["rustls/tls12"]
 # Only enable feature in upstream if there is an overall effect e.g. aead/alloc in-place
 # zeroize is another typical that can be turned off
 
-# not sure std was needed upstream ? go one by one which have effective std error gating
-std = []
-#std = ["webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"]
-# not sure these are needed ? go one by one
+# TODO: go through all of these that what gets exposed
+std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"]
 alloc = []
+# TODO: was any use for using alloc on dependencies ? used to be for in-place ?
 #alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
-
-[dev-dependencies]
