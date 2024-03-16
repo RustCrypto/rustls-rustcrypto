@@ -38,9 +38,8 @@ tls12 = ["rustls/tls12"]
 # Only enable feature in upstream if there is an overall effect e.g. aead/alloc in-place
 # zeroize is another typical that can be turned off
 
-# TODO: go through all of these that what gets exposed
+# TODO: go through all of these that what gets exposed re: std error type
 std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"]
-alloc = []
-# TODO: was any use for using alloc on dependencies ? used to be for in-place ?
-#alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
+# TODO: go through all of these to ensure to_vec etc. impls are exposed
+alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
