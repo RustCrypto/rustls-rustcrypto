@@ -4,57 +4,42 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
+# Ensure all dependencies + feats are mapped to crate features for correct usage
+# default features often have std breaking no_std and potentially other unwanted
 [dependencies]
-aead = "0.5.2"
-aes-gcm = "0.10.3"
-block-buffer = "0.10.4"
-chacha20poly1305 = "0.10.1"
-crypto-common = "0.1.6"
-der = "0.7.8"
-digest = "0.10.7"
-ecdsa = "0.16.8"
-ed25519-dalek = { version = "2.0.0", features = ["pkcs8"] }
-elliptic-curve = "0.13.5"
-generic-array = "0.14.7"
-hmac = "0.12.1"
-p256 = { version = "0.13.2", features = ["ecdh"] }
-p384 = { version = "0.13.0", features = ["ecdh"] }
-paste = "1.0.14"
-pkcs1 = { version = "0.7.5", features = ["pem", "pkcs8"] }
-pkcs8 = { version = "0.10.2", features = ["pem", "pkcs5"] }
+aead = { version = "0.5.2", default-features = false }
+aes-gcm = { version = "0.10.3", default-features = false, features = ["aes", "alloc"] }
+chacha20poly1305 = { version = "0.10.1", default-features = false }
+crypto-common = { version = "0.1.6", default-features = false }
+der = { version = "0.7.8", default-features = false }
+digest = { version = "0.10.7", default-features = false }
+ecdsa = { version = "0.16.8", default-features = false, features = ["alloc"] }
+ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"] }
+hmac = { version = "0.12.1", default-features = false }
+p256 = { version = "0.13.2", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
+p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
+paste = { version = "1.0.14", default-features = false }
+pkcs8 = { version = "0.10.2", default-features = false, features = ["pem", "pkcs5"] }
 pki-types = { package = "rustls-pki-types", version = "1.0.1", default-features = false }
-rand_core = "0.6.4"
-rsa = { version = "0.9.2", features = ["sha2"] }
+rand_core = { version = "0.6.4", default-features = false, features = ["getrandom"] }
+rsa = { version = "0.9.2", default-features = false, features = ["sha2"] }
 rustls = { version = "0.23.0", default-features = false }
-sec1 = { version = "0.7.3", features = ["pkcs8", "pem"] }
-sha2 = "0.10.7"
-signature = "2.1.0"
-subtle = "2.5.0"
-typenum = "1.16.0"
+sec1 = { version = "0.7.3", default-features = false, features = ["pkcs8", "pem"] }
+sha2 = { version = "0.10.7", default-features = false }
+signature = { version = "2.1.0", default-features = false }
 webpki = { package = "rustls-webpki", version = "0.102.0", default-features = false }
-x25519-dalek = "2"
+x25519-dalek = { version = "2", default-features = false }
 
 [features]
-default = ["std", "tls12"]
+default = ["std", "tls12", "zeroize"]
 logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
-std = ["webpki/std", "pki-types/std", "rustls/std"]
-alloc = ["webpki/alloc", "pki-types/alloc"]
 
-[dev-dependencies]
-anyhow = "1.0.75"
-claim = "0.5.0"
-env_logger = "0.11"
-futures-util = "0.3.30"
-http = "1.1.0"
-http-body-util = "0.1.0"
-hyper = "1.1.0"
-hyper-rustls = { version = "0.26.0", default-features = false, features = ["native-tokio", "http1", "tls12", "logging", "http2", "webpki-roots"] }
-hyper-util = { version = "0.1.2", features = ["client", "server-auto", "tokio", "client-legacy"] }
-rcgen = "0.12.0"
-test-case = "3.2.1"
-tls-listener = { version = "0.10.0", features = ["rt", "rustls"] }
-tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net", "signal"] }
-tokio-rustls = { version = "0.25.0", default-features = false, features = ["tls12"] }
-tokio-stream = { version = "0.1.14", features = ["net"] }
-webpki-roots = "0.26"
+# Only enable feature in upstream if there is an overall effect e.g. aead/alloc in-place
+# zeroize is another typical that can be turned off
+
+# TODO: go through all of these that what gets exposed re: std error type
+std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"]
+# TODO: go through all of these to ensure to_vec etc. impls are exposed
+alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
+zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
