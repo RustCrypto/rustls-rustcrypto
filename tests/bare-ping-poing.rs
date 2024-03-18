@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 
 use std::fs::File;
 
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod, SslStream};
+use openssl::ssl::{SslFiletype, SslMethod, SslStream};
 use std::net::{TcpListener, TcpStream};
 use std::sync::Arc;
 use std::thread;
@@ -14,7 +14,7 @@ use rustls::pki_types::ServerName;
 use rustls_rustcrypto::provider as rustcrypto_provider;
 
 #[test]
-fn local_ping_pong() {
+fn vs_openssl_as_client() {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let server_addr = listener.local_addr().unwrap();
 
@@ -46,7 +46,7 @@ fn local_ping_pong() {
 
         tls.write_all(b"PING\n").unwrap();
 
-        let ciphersuite = tls.conn.negotiated_cipher_suite().unwrap();
+        let _ciphersuite = tls.conn.negotiated_cipher_suite().unwrap();
 
         let mut plaintext = Vec::new();
         tls.read_to_end(&mut plaintext).unwrap();
@@ -67,8 +67,7 @@ fn local_ping_pong() {
             match stream {
                 Ok(stream) => {
                     let mut ssl_context_build =
-                        openssl::ssl::SslContext::builder(openssl::ssl::SslMethod::tls_server())
-                            .unwrap();
+                        openssl::ssl::SslContext::builder(SslMethod::tls_server()).unwrap();
                     ssl_context_build.set_verify(openssl::ssl::SslVerifyMode::NONE);
                     ssl_context_build
                         .set_ca_file("certs/ca.rsa4096.crt")
@@ -76,14 +75,11 @@ fn local_ping_pong() {
                     ssl_context_build
                         .set_certificate_file(
                             "certs/rustcryp.to.rsa4096.ca_signed.crt",
-                            openssl::ssl::SslFiletype::PEM,
+                            SslFiletype::PEM,
                         )
                         .unwrap();
                     ssl_context_build
-                        .set_private_key_file(
-                            "certs/rustcryp.to.rsa4096.key",
-                            openssl::ssl::SslFiletype::PEM,
-                        )
+                        .set_private_key_file("certs/rustcryp.to.rsa4096.key", SslFiletype::PEM)
                         .unwrap();
                     // https://docs.rs/openssl/latest/openssl/ssl/struct.SslContextBuilder.html#method.set_cipher_list
                     // https://docs.rs/openssl/latest/openssl/ssl/struct.SslContextBuilder.html#method.set_ciphersuites
@@ -91,24 +87,24 @@ fn local_ping_pong() {
                     let ctx = ssl_context_build.build();
                     let ssl = openssl::ssl::Ssl::new(&ctx).unwrap();
 
-                    let mut ssl_stream = openssl::ssl::SslStream::new(ssl, stream).unwrap();
+                    let mut ssl_stream = SslStream::new(ssl, stream).unwrap();
                     ssl_stream.accept().unwrap();
                     let mut buf_in = vec![0; 1024];
                     let siz = ssl_stream.ssl_read(&mut buf_in);
 
                     let incoming = match siz {
                         Ok(i) => buf_in[0..i].to_vec(),
-                        Err(e) => panic!("Error reading?"),
+                        Err(_e) => panic!("Error reading?"),
                     };
 
                     assert_eq!(core::str::from_utf8(&incoming), Ok("PING\n"));
 
                     let out = "PONG\n";
-                    ssl_stream.write(&out.as_bytes());
+                    ssl_stream.write(&out.as_bytes()).unwrap();
 
                     ssl_stream.shutdown().unwrap();
                 }
-                Err(e) => panic!("Connection failed"),
+                Err(_) => panic!("Server connection failed"),
             }
             return;
         }
