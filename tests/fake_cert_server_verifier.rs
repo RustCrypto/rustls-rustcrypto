@@ -8,8 +8,7 @@ use rustls::DigitallySignedStruct;
 use rustls::Error;
 use rustls::SignatureScheme;
 
-extern crate alloc;
-use alloc::vec::Vec;
+use std::vec::Vec;
 
 #[derive(Debug)]
 pub(crate) struct FakeServerCertVerifier;
@@ -42,7 +41,7 @@ impl ServerCertVerifier for FakeServerCertVerifier {
         Ok(HandshakeSignatureValid::assertion())
     }
     fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
-        alloc::vec![
+        vec![
             SignatureScheme::RSA_PKCS1_SHA1,
             SignatureScheme::ECDSA_SHA1_Legacy,
             SignatureScheme::RSA_PKCS1_SHA256,

@@ -1,5 +1,4 @@
-extern crate alloc;
-use alloc::vec::Vec;
+use std::vec::Vec;
 
 use rustls::DistinguishedName;
 use rustls::Error;
@@ -48,7 +47,7 @@ impl ClientCertVerifier for FakeClientCertVerifier {
         Ok(HandshakeSignatureValid::assertion())
     }
     fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
-        alloc::vec![
+        vec![
             SignatureScheme::RSA_PKCS1_SHA1,
             SignatureScheme::ECDSA_SHA1_Legacy,
             SignatureScheme::RSA_PKCS1_SHA256,

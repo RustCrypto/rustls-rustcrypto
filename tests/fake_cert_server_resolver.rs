@@ -1,5 +1,4 @@
-extern crate alloc;
-use alloc::sync::Arc;
+use std::sync::Arc;
 
 use rustls::server::ClientHello;
 
