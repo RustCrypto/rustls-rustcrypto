@@ -1,12 +1,9 @@
-use rustls::time_provider::TimeProvider;
-//use core::time::Duration;
 use rustls::pki_types::UnixTime;
+use rustls::time_provider::TimeProvider;
 
-// Required for no_std
 #[derive(Debug)]
-pub(crate) struct FakeTime;
+pub struct FakeTime;
 
-// TODO: Figure how to handle time
 impl TimeProvider for FakeTime {
     fn current_time(&self) -> Option<UnixTime> {
         None

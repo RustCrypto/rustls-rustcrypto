@@ -8,10 +8,8 @@ use rustls::DigitallySignedStruct;
 use rustls::Error;
 use rustls::SignatureScheme;
 
-use std::vec::Vec;
-
 #[derive(Debug)]
-pub(crate) struct FakeServerCertVerifier;
+pub struct FakeServerCertVerifier;
 
 impl ServerCertVerifier for FakeServerCertVerifier {
     fn verify_server_cert(

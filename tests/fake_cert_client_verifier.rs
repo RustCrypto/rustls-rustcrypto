@@ -1,5 +1,3 @@
-use std::vec::Vec;
-
 use rustls::DistinguishedName;
 use rustls::Error;
 
