@@ -9,6 +9,7 @@ use crypto_common::typenum::Unsigned;
 use rustls::crypto::cipher::{self, AeadKey, Iv};
 use rustls::{quic, Error, Tls13CipherSuite};
 
+#[allow(dead_code)] // TODO
 pub struct HeaderProtectionKey(AeadKey);
 
 impl HeaderProtectionKey {
@@ -122,6 +123,7 @@ impl quic::PacketKey for PacketKey {
     }
 }
 
+#[allow(dead_code)] // TODO
 pub struct KeyBuilder(AeadKey);
 
 impl rustls::quic::Algorithm for KeyBuilder {
