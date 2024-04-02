@@ -11,7 +11,7 @@ aead = { version = "0.5.2", default-features = false }
 aes-gcm = { version = "0.10.3", default-features = false, features = ["aes", "alloc"] }
 chacha20poly1305 = { version = "0.10.1", default-features = false }
 crypto-common = { version = "0.1.6", default-features = false }
-der = { version = "0.7.8", default-features = false }
+der = { version = "0.7.9", default-features = false }
 digest = { version = "0.10.7", default-features = false }
 ecdsa = { version = "0.16.8", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"] }
