@@ -1,6 +1,5 @@
-use alloc::sync::Arc;
-#[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
+#[cfg(feature = "alloc")]
+use alloc::{sync::Arc, vec::Vec};
 use core::marker::PhantomData;
 
 use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
