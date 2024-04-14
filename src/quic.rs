@@ -1,6 +1,6 @@
 #![allow(clippy::duplicate_mod)]
 
-#[cfg(not(feature = "std"))]
+#[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
 use aead::AeadCore;

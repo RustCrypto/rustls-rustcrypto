@@ -1,8 +1,6 @@
-use alloc::format;
-use alloc::sync::Arc;
+#[cfg(feature = "alloc")]
+use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 use core::marker::PhantomData;
-#[cfg(not(feature = "std"))]
-use {alloc::boxed::Box, alloc::string::ToString};
 
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;

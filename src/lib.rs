@@ -7,8 +7,13 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[cfg(not(feature = "alloc"))]
+compile_error!("Rustls currently does not support alloc-less environments");
+
+#[cfg(feature = "alloc")]
 extern crate alloc;
 
+#[cfg(feature = "alloc")]
 use alloc::sync::Arc;
 
 use rustls::crypto::{

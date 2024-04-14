@@ -1,7 +1,5 @@
-#[cfg(not(feature = "std"))]
-use alloc::boxed::Box;
-use alloc::format;
-use alloc::sync::Arc;
+#[cfg(feature = "alloc")]
+use alloc::{boxed::Box, format, sync::Arc};
 use core::marker::PhantomData;
 
 use paste::paste;
