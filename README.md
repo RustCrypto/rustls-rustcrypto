@@ -1,10 +1,6 @@
 # rustls-rustcrypto
 
-WIP RustCrypto-based provider implementation for version 0.23 of [rustls](https://github.com/rustls/rustls/pull/1405).
-
-Some code comes directly from one of main rustls contributor, [@ctz](https://github.com/ctz).
-
-Some part of this code is directly derived from his work but modified to use generic instead.
+[RustCrypto]-based provider implementation for version 0.23 of [rustls], maintained by the RustCrypto organization.
 
 ## ⚠️USE THIS AT YOUR OWN RISK! DO NOT USE THIS IN PRODUCTION⚠️
 
@@ -45,8 +41,13 @@ Licensed under either of:
 
 at your option.
 
+Some code authored by [@ctz](https://github.com/ctz) was adapted from upstream rustls. Licensed as above with permission.
+
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
+
+[RustCrypto]: https://github.com/RustCrypto/
+[rustls]: https://github.com/rustls/rustls/pull/1405
