@@ -17,22 +17,6 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        toolchain:
-          - stable
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: RustCrypto/actions/cargo-cache@master
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.toolchain }}
-      - run: cargo build
-      - name: Test no_std with alloc build
-        run: cargo build --no-default-features --features tls12,alloc
-
   clippy:
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +26,6 @@ jobs:
           toolchain: 1.75.0
           components: clippy
       - run: cargo clippy --all --all-features -- -D warnings
-
 
   doc:
     runs-on: ubuntu-latest
@@ -62,6 +45,25 @@ jobs:
           toolchain: stable
           components: rustfmt
       - run: cargo fmt --all -- --check
+
+  no_std:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - 1.56.0 # MSRV
+          - stable
+        target:
+          - armv7a-none-eabi
+          - thumbv7em-none-eabi
+          - wasm32-unknown-unknown
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.target }}
+      - run: cargo build --no-default-features --features tls12,alloc --release --target ${{ matrix.target }}
 
   test:
     strategy:
