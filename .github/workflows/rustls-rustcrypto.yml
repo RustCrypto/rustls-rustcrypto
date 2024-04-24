@@ -81,3 +81,22 @@ jobs:
       - run: cargo test --features tls12
       - name: Test no_std with alloc
         run: cargo test --no-default-features --features tls12,alloc
+
+  cross:
+    strategy:
+      matrix:
+        include:
+          - target: powerpc-unknown-linux-gnu
+            rust: 1.75.0 # MSRV
+          - target: powerpc-unknown-linux-gnu
+            rust: stable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ${{ matrix.deps }}
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.target }}
+      - uses: RustCrypto/actions/cross-install@master
+      - run: cross test --release --target ${{ matrix.target }} --all-features
