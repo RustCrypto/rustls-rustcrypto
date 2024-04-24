@@ -1,11 +1,22 @@
-#![deny(
+#![no_std]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![doc = include_str!("../README.md")]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg",
+    html_favicon_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"
+)]
+#![warn(
     clippy::all,
     // TODO: clippy::pedantic,
     clippy::alloc_instead_of_core,
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core
 )]
-#![cfg_attr(not(feature = "std"), no_std)]
+
+//! # Usage
+//!
+//! See [`examples-xsmall`](https://github.com/RustCrypto/rustls-rustcrypto/tree/master/examples-xsmall)
+//! for a usage example.
 
 #[cfg(not(feature = "alloc"))]
 compile_error!("Rustls currently does not support alloc-less environments");
