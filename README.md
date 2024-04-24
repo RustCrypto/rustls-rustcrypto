@@ -1,5 +1,12 @@
 # rustls-rustcrypto
 
+[![crate][crate-image]][crate-link]
+[![Docs][docs-image]][docs-link]
+[![Build Status][build-image]][build-link]
+![Apache2/MIT licensed][license-image]
+![Rust Version][rustc-image]
+[![Project Chat][chat-image]][chat-link]
+
 [RustCrypto]-based provider implementation for version 0.23 of [rustls], maintained by the RustCrypto organization.
 
 ## ⚠️USE THIS AT YOUR OWN RISK! DO NOT USE THIS IN PRODUCTION⚠️
@@ -49,5 +56,20 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
 
+[//]: # (badges)
+
+[crate-image]: https://buildstats.info/crate/rustls-rustcrypto
+[crate-link]: https://crates.io/crates/rustls-rustcrypto
+[docs-image]: https://docs.rs/rustls-rustcrypto/badge.svg
+[docs-link]: https://docs.rs/rustls-rustcrypto/
+[build-image]: https://github.com/RustCrypto/rustls-rustcrypto/actions/workflows/rustls-rustcrypto.yml/badge.svg
+[build-link]: https://github.com/RustCrypto/rustls-rustcrypto/actions/workflows/rustls-rustcrypto.yml
+[license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.75+-blue.svg
+[chat-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
+[chat-link]: https://rustcrypto.zulipchat.com/#narrow/stream/434751-TLS
+
+[//]: # (links)
+
 [RustCrypto]: https://github.com/RustCrypto/
-[rustls]: https://github.com/rustls/rustls/pull/1405
+[rustls]: https://github.com/rustls/rustls/
