@@ -15,14 +15,6 @@ Not only that this is incomplete that only few selected TLS suites implemented (
 
 Note that RustCrypto performance is generally inferior than ring, but in exchange you got a pure Rust implementation that theoretically compiles everywhere Rust was ported to. In our case, we need to have `std` but foundational support for future `no_std` expansion is already here.
 
-This package is still in its very early phase, so until we think the code is okay for general public use, this won't be published to crates.io anytime soon.
-
-Meanwhile you can try it out using git crate installation:
-
-```toml
-rustls-rustcrypto = { git = "https://github.com/RustCrypto/rustls-rustcrypto", version = "0.1" }
-```
-
 ## Supported Cipher Suites
 
 - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
