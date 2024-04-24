@@ -19,14 +19,16 @@ pub struct Chacha20Poly1305;
 impl Tls13AeadAlgorithm for Chacha20Poly1305 {
     fn encrypter(&self, key: AeadKey, iv: Iv) -> Box<dyn MessageEncrypter> {
         Box::new(Tls13Cipher(
-            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref()).unwrap(),
+            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
+                .expect("key should be valid"),
             iv,
         ))
     }
 
     fn decrypter(&self, key: AeadKey, iv: Iv) -> Box<dyn MessageDecrypter> {
         Box::new(Tls13Cipher(
-            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref()).unwrap(),
+            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
+                .expect("key should be valid"),
             iv,
         ))
     }
@@ -48,14 +50,16 @@ impl Tls13AeadAlgorithm for Chacha20Poly1305 {
 impl Tls12AeadAlgorithm for Chacha20Poly1305 {
     fn encrypter(&self, key: AeadKey, iv: &[u8], _: &[u8]) -> Box<dyn MessageEncrypter> {
         Box::new(Tls12Cipher(
-            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref()).unwrap(),
+            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
+                .expect("key should be valid"),
             Iv::copy(iv),
         ))
     }
 
     fn decrypter(&self, key: AeadKey, iv: &[u8]) -> Box<dyn MessageDecrypter> {
         Box::new(Tls12Cipher(
-            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref()).unwrap(),
+            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
+                .expect("key should be valid"),
             Iv::copy(iv),
         ))
     }
@@ -79,7 +83,7 @@ impl Tls12AeadAlgorithm for Chacha20Poly1305 {
         debug_assert_eq!(NONCE_LEN, iv.len());
         Ok(ConnectionTrafficSecrets::Chacha20Poly1305 {
             key,
-            iv: Iv::new(iv[..].try_into().unwrap()),
+            iv: Iv::new(iv[..].try_into().expect("conversion should succeed")),
         })
     }
 }
@@ -89,7 +93,7 @@ struct Tls13Cipher(chacha20poly1305::ChaCha20Poly1305, Iv);
 impl MessageEncrypter for Tls13Cipher {
     fn encrypt(
         &mut self,
-        m: OutboundPlainMessage,
+        m: OutboundPlainMessage<'_>,
         seq: u64,
     ) -> Result<OutboundOpaqueMessage, rustls::Error> {
         let total_len = self.encrypted_payload_len(m.payload.len());
@@ -143,7 +147,7 @@ struct Tls12Cipher(chacha20poly1305::ChaCha20Poly1305, Iv);
 impl MessageEncrypter for Tls12Cipher {
     fn encrypt(
         &mut self,
-        m: OutboundPlainMessage,
+        m: OutboundPlainMessage<'_>,
         seq: u64,
     ) -> Result<OutboundOpaqueMessage, rustls::Error> {
         let total_len = self.encrypted_payload_len(m.payload.len());

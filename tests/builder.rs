@@ -40,7 +40,7 @@ fn integrate_client_builder_with_details_fake() {
     let rustls_client_config = dangerous_verifier.with_no_client_auth();
 
     // RustCrypto is not fips
-    assert_eq!(rustls_client_config.fips(), false);
+    assert!(!rustls_client_config.fips());
 }
 
 use rustls::DistinguishedName;
@@ -79,5 +79,5 @@ fn integrate_server_builder_with_details_fake() {
         dangerous_verifier.with_cert_resolver(Arc::new(server_cert_resolver));
 
     // RustCrypto is not fips
-    assert_eq!(rustls_client_config.fips(), false);
+    assert!(!rustls_client_config.fips());
 }

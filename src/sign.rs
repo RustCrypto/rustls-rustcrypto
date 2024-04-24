@@ -67,26 +67,37 @@ where
     }
 }
 
+/// Extract any supported key from the given DER input.
+///
+/// # Errors
+///
+/// Returns an error if the key couldn't be decoded.
 pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    let rsa = |_| RsaSigningKey::try_from(der).map(|x| Arc::new(x) as _);
-
-    rsa(())
+    RsaSigningKey::try_from(der)
+        .map(|x| Arc::new(x) as _)
         .or_else(|_| any_ecdsa_type(der))
         .or_else(|_| any_eddsa_type(der))
 }
 
+/// Extract any supported ECDSA key from the given DER input.
+///
+/// # Errors
+///
+/// Returns an error if the key couldn't be decoded.
 pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
     let p256 = |_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _);
     let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
     p256(()).or_else(p384)
 }
 
+/// Extract any supported EDDSA key from the given DER input.
+///
+/// # Errors
+///
+/// Returns an error if the key couldn't be decoded.
 pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    let ed25519 = |_| Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _);
-
     // TODO: Add support for Ed448
-
-    ed25519(())
+    Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _)
 }
 
 pub mod ecdsa;

@@ -59,7 +59,8 @@ impl PacketKey {
         Self {
             iv,
             suite,
-            crypto: chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref()).unwrap(),
+            crypto: chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
+                .expect("key should be valid"),
         }
     }
 }
