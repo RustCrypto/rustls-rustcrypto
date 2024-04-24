@@ -694,6 +694,7 @@ dependencies = [
  "digest",
  "ecdsa",
  "ed25519-dalek",
+ "getrandom",
  "hmac",
  "p256",
  "p384",
