@@ -27,10 +27,6 @@ Note that RustCrypto performance is generally inferior than ring, but in exchang
 - TLS13_AES_256_GCM_SHA384
 - TLS13_CHACHA20_POLY1305_SHA256
 
-## QUIC Support
-
-There won't be QUIC support anytime soon until <https://github.com/rustls/rustls/issues/1491> is solved. HTTP/2 however should work out of the box.
-
 ## License
 
 Licensed under either of:
