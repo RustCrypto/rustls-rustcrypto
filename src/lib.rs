@@ -6,11 +6,25 @@
     html_favicon_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"
 )]
 #![warn(
-    clippy::all,
-    // TODO: clippy::pedantic,
     clippy::alloc_instead_of_core,
+    clippy::cast_lossless,
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::checked_conversions,
+    clippy::from_iter_instead_of_collect,
+    clippy::missing_errors_doc,
+    clippy::mod_module_files,
+    clippy::implicit_saturating_sub,
+    clippy::panic,
+    clippy::panic_in_result_fn,
     clippy::std_instead_of_alloc,
-    clippy::std_instead_of_core
+    clippy::std_instead_of_core,
+    clippy::unwrap_used,
+    rust_2018_idioms,
+    trivial_numeric_casts,
+    unused_lifetimes
 )]
 
 //! # Usage

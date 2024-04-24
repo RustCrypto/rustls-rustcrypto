@@ -60,7 +60,7 @@ macro_rules! impl_gcm_tls13 {
             struct [<Tls13Cipher $name>]($aead, cipher::Iv);
 
             impl MessageEncrypter for [<Tls13Cipher $name>] {
-                fn encrypt(&mut self, m: OutboundPlainMessage, seq: u64) -> Result<OutboundOpaqueMessage, rustls::Error> {
+                fn encrypt(&mut self, m: OutboundPlainMessage<'_>, seq: u64) -> Result<OutboundOpaqueMessage, rustls::Error> {
                     let total_len = self.encrypted_payload_len(m.payload.len());
                     let mut payload = PrefixedPayload::with_capacity(total_len);
 
@@ -156,7 +156,7 @@ macro_rules! impl_gcm_tls12 {
 
             #[cfg(feature = "tls12")]
             impl MessageEncrypter for [<Tls12Cipher $name Encrypter>] {
-                fn encrypt(&mut self, m: OutboundPlainMessage, seq: u64) -> Result<OutboundOpaqueMessage, rustls::Error> {
+                fn encrypt(&mut self, m: OutboundPlainMessage<'_>, seq: u64) -> Result<OutboundOpaqueMessage, rustls::Error> {
                     let total_len = self.encrypted_payload_len(m.payload.len());
                     let mut payload = PrefixedPayload::with_capacity(total_len);
 
