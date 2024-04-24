@@ -1,8 +1,18 @@
 [package]
 name = "rustls-rustcrypto"
-version = "0.1.0"
-edition = "2021"
+description = """
+Pure Rust cryptography provider for the Rustls TLS library using algorithm implementations from the
+RustCrypto organization
+"""
+version = "0.0.1-alpha"
+authors = ["RustCrypto Developers"]
 license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/RustCrypto/rustls-rustcrypto"
+categories = ["cryptography", "no-std"]
+keywords = ["rustls", "tls"]
+edition = "2021"
+rust-version = "1.75"
 
 # Ensure all dependencies + feats are mapped to crate features for correct usage
 # default features often have std breaking no_std and potentially other unwanted
