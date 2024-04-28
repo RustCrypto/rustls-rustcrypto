@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::{Read, Write};
 use std::net::SocketAddr;
 use std::net::TcpStream;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use rustls_rustcrypto::provider as rustcrypto_provider;
@@ -14,13 +15,13 @@ use rustls::pki_types::CertificateDer;
 use rustls::pki_types::ServerName;
 
 /// Read rustls compatible CertificateDer from ca_path
-fn load_ca_der(ca_path: &str) -> CertificateDer {
+fn load_ca_der(ca_path: PathBuf) -> CertificateDer<'static> {
     let mut ca_pkcs10_file = File::open(ca_path).unwrap();
     let mut ca_pkcs10_data: Vec<u8> = vec![];
     ca_pkcs10_file.read_to_end(&mut ca_pkcs10_data).unwrap();
     let (ca_type_label, ca_data) = pem_rfc7468::decode_vec(&ca_pkcs10_data).unwrap();
     assert_eq!(ca_type_label, "CERTIFICATE");
-    ca_data.try_into().unwrap()
+    ca_data.into()
 }
 
 /// provide rustls roots with pinned CA cert
@@ -45,7 +46,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(ca_pinned: &str, server_addr: SocketAddr) -> Self {
+    pub fn new(ca_pinned: PathBuf, server_addr: SocketAddr) -> Self {
         let ca = load_ca_der(ca_pinned);
         let roots = roots(ca);
         let config = rustcrypto_client_config(roots);

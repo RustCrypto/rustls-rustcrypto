@@ -1,5 +1,6 @@
 pub mod net_util;
-pub mod openssl_util;
+mod openssl_util;
+pub use openssl_util::Server as OpenSslServer;
 
 mod rustls_util;
 pub use rustls_util::Client as RustCryptoTlsClient;
@@ -38,7 +39,7 @@ mod test {
 
         // Server OpenSSL thread
         let server_thread = thread::spawn(move || {
-            let mut openssl_server = openssl_util::Server::from_listener(listener);
+            let mut openssl_server = OpenSslServer::from_listener(listener);
             let mut tls_stream = openssl_server.accept_next(
                 path_certs.join(CA_CERT),
                 path_certs.join(CERT),
