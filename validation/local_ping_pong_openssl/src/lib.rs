@@ -8,7 +8,7 @@ pub use rustls_util::Client as RustCryptoTlsClient;
 mod test {
     use super::*;
 
-    use std::io::{Read, Write};
+    use std::io::Write;
     use std::path::Path;
     use std::thread;
     use std::time::Duration;
