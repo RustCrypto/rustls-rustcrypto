@@ -43,5 +43,3 @@ std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"
 # TODO: go through all of these to ensure to_vec etc. impls are exposed
 alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
-
-[dev-dependencies]
