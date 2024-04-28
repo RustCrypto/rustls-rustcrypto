@@ -7,6 +7,7 @@
 pub struct GroupsList {
     pub P256: bool,
     pub P384: bool,
+    pub P521: bool,
     pub X25519: bool,
     pub X448: bool,
     pub brainpoolP256r1tls13: bool,
@@ -24,6 +25,7 @@ impl GroupsList {
         GroupsList {
             P256: false,
             P384: false,
+            P521: false,
             X25519: false,
             X448: false,
             brainpoolP256r1tls13: false,
@@ -43,6 +45,7 @@ impl Default for GroupsList {
         GroupsList {
             P256: true,
             P384: true,
+            P521: false,
             X25519: true,
             X448: false,
             brainpoolP256r1tls13: false,
@@ -66,6 +69,9 @@ impl core::fmt::Display for GroupsList {
         }
         if self.P384 {
             vec_groups.push("P-384");
+        }
+        if self.P521 {
+            vec_groups.push("P-521");
         }
         if self.X25519 {
             vec_groups.push("X25519");
