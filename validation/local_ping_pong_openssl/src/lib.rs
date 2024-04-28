@@ -102,7 +102,7 @@ mod test {
     #[test]
     #[should_panic]
     fn vs_openssl_as_client_group_none() {
-        let mut group_list = OpenSslGroupsList::all_false();
+        let group_list = OpenSslGroupsList::all_false();
         vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
     }
     #[test]
