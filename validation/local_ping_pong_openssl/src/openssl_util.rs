@@ -4,6 +4,9 @@ use std::path::PathBuf;
 
 use openssl::ssl::{SslFiletype, SslMethod, SslStream};
 
+mod groups_list;
+pub use groups_list::GroupsList;
+
 #[derive(Debug)]
 #[allow(non_snake_case)]
 pub struct CipherSuites {
@@ -62,6 +65,7 @@ impl Server {
     }
     pub fn accept_next(
         &mut self,
+        groups_list: GroupsList,
         cipher_suites: CipherSuites,
         path_ca_cert: PathBuf,
         path_cert: PathBuf,
@@ -86,6 +90,10 @@ impl Server {
 
         ssl_context_build
             .set_private_key_file(path_key, SslFiletype::PEM)
+            .unwrap();
+
+        ssl_context_build
+            .set_groups_list(&groups_list.to_string())
             .unwrap();
 
         ssl_context_build

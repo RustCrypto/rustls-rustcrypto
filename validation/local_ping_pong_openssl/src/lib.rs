@@ -1,6 +1,7 @@
 pub mod net_util;
 mod openssl_util;
 pub use openssl_util::CipherSuites as OpenSslCipherSuites;
+pub use openssl_util::GroupsList as OpenSslGroupsList;
 pub use openssl_util::Server as OpenSslServer;
 
 mod rustls_util;
@@ -20,7 +21,7 @@ mod test {
 
     #[test]
     fn vs_openssl_as_client_autoneg() {
-        vs_openssl_as_client(OpenSslCipherSuites::default());
+        vs_openssl_as_client(OpenSslGroupsList::default(), OpenSslCipherSuites::default());
     }
 
     #[test]
@@ -33,7 +34,7 @@ mod test {
             TLS_AES_128_CCM_SHA256: false,
             TLS_AES_128_CCM_8_SHA256: false,
         };
-        vs_openssl_as_client(cipher_suites);
+        vs_openssl_as_client(OpenSslGroupsList::default(), cipher_suites);
     }
 
     #[test]
@@ -45,7 +46,7 @@ mod test {
             TLS_AES_128_CCM_SHA256: false,
             TLS_AES_128_CCM_8_SHA256: false,
         };
-        vs_openssl_as_client(cipher_suites);
+        vs_openssl_as_client(OpenSslGroupsList::default(), cipher_suites);
     }
 
     #[test]
@@ -57,7 +58,7 @@ mod test {
             TLS_AES_128_CCM_SHA256: false,
             TLS_AES_128_CCM_8_SHA256: false,
         };
-        vs_openssl_as_client(cipher_suites);
+        vs_openssl_as_client(OpenSslGroupsList::default(), cipher_suites);
     }
 
     #[test]
@@ -69,7 +70,7 @@ mod test {
             TLS_AES_128_CCM_SHA256: false,
             TLS_AES_128_CCM_8_SHA256: false,
         };
-        vs_openssl_as_client(cipher_suites);
+        vs_openssl_as_client(OpenSslGroupsList::default(), cipher_suites);
     }
 
     #[test]
@@ -82,7 +83,7 @@ mod test {
             TLS_AES_128_CCM_SHA256: true,
             TLS_AES_128_CCM_8_SHA256: false,
         };
-        vs_openssl_as_client(cipher_suites);
+        vs_openssl_as_client(OpenSslGroupsList::default(), cipher_suites);
     }
 
     #[test]
@@ -95,10 +96,35 @@ mod test {
             TLS_AES_128_CCM_SHA256: false,
             TLS_AES_128_CCM_8_SHA256: true,
         };
-        vs_openssl_as_client(cipher_suites);
+        vs_openssl_as_client(OpenSslGroupsList::default(), cipher_suites);
     }
 
-    fn vs_openssl_as_client(cipher_suites: OpenSslCipherSuites) {
+    #[test]
+    #[should_panic]
+    fn vs_openssl_as_client_group_none() {
+        let mut group_list = OpenSslGroupsList::all_false();
+        vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
+    }
+    #[test]
+    fn vs_openssl_as_client_group_p256() {
+        let mut group_list = OpenSslGroupsList::all_false();
+        group_list.P256 = true;
+        vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
+    }
+    #[test]
+    fn vs_openssl_as_client_group_p384() {
+        let mut group_list = OpenSslGroupsList::all_false();
+        group_list.P384 = true;
+        vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
+    }
+    #[test]
+    fn vs_openssl_as_client_group_x25519() {
+        let mut group_list = OpenSslGroupsList::all_false();
+        group_list.X25519 = true;
+        vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
+    }
+
+    fn vs_openssl_as_client(groups_list: OpenSslGroupsList, cipher_suites: OpenSslCipherSuites) {
         let path_certs = Path::new("certs");
 
         let (listener, server_addr) = net_util::new_localhost_tcplistener();
@@ -113,7 +139,7 @@ mod test {
 
         // Canary Timeout thread
         let timeout_thread = thread::spawn(move || {
-            thread::sleep(Duration::from_millis(100));
+            thread::sleep(Duration::from_millis(1_000));
             panic!("timeout");
         });
 
@@ -121,6 +147,7 @@ mod test {
         let server_thread = thread::spawn(move || {
             let mut openssl_server = OpenSslServer::from_listener(listener);
             let mut tls_stream = openssl_server.accept_next(
+                groups_list,
                 cipher_suites,
                 path_certs.join(CA_CERT),
                 path_certs.join(CERT),
