@@ -13,12 +13,12 @@ mod test {
     use std::thread;
     use std::time::Duration;
 
+    const CA_CERT: &'static str = "ca.rsa4096.crt";
+    const CERT: &'static str = "rustcryp.to.rsa4096.ca_signed.crt";
+    const RSA_KEY: &'static str = "rustcryp.to.rsa4096.key";
+
     #[test]
     fn vs_openssl_as_client() {
-        const CA_CERT: &'static str = "ca.rsa4096.crt";
-        const CERT: &'static str = "rustcryp.to.rsa4096.ca_signed.crt";
-        const RSA_KEY: &'static str = "rustcryp.to.rsa4096.key";
-
         let path_certs = Path::new("certs");
 
         let (listener, server_addr) = net_util::new_localhost_tcplistener();
@@ -53,10 +53,11 @@ mod test {
 
         loop {
             thread::sleep(Duration::from_millis(10));
-            if client_thread.is_finished() == true && server_thread.is_finished() == true {
+
+            if client_thread.is_finished() && server_thread.is_finished() {
                 break;
             }
-            if timeout_thread.is_finished() == true {
+            if timeout_thread.is_finished() {
                 panic!("TIMEOUT");
             }
         }
