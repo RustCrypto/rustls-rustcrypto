@@ -6,6 +6,7 @@ between rustls and rustcrypto-rustcrypto provider under different targets.
 | Crate            | Description                                      |
 | :---             | :---                                             |
 | consumer-no_std  | Basic consumer library aiming no_std environment |
+| local_ping_pong_openssl | Local tests against OpenSSL reference     |
 
 These live in the workspace due to different dependency requirements between
 tests where development-deps may pollute the integration under test.

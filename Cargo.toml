@@ -45,5 +45,3 @@ alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
 
 [dev-dependencies]
-openssl = { version = "0.10", default-features = false }
-pem-rfc7468 = { version = "0.7", default-features = false, features = ["alloc"] }
