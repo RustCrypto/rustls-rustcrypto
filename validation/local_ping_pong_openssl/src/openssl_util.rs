@@ -10,8 +10,8 @@ pub struct CipherSuites {
     pub TLS_AES_128_GCM_SHA256: bool,
     pub TLS_AES_256_GCM_SHA384: bool,
     pub TLS_CHACHA20_POLY1305_SHA256: bool,
-    pub TLS_AES_128_CCM_SHA256: false,
-    pub TLS_AES_128_CCM_8_SHA256: false,
+    pub TLS_AES_128_CCM_SHA256: bool,
+    pub TLS_AES_128_CCM_8_SHA256: bool,
 }
 
 impl core::fmt::Display for CipherSuites {
@@ -42,8 +42,8 @@ impl Default for CipherSuites {
             TLS_AES_128_GCM_SHA256: true,
             TLS_AES_256_GCM_SHA384: true,
             TLS_CHACHA20_POLY1305_SHA256: true,
-            TLS_AES_128_CCM_SHA256: true,
-            TLS_AES_128_CCM_8_SHA256: true,
+            TLS_AES_128_CCM_SHA256: false,
+            TLS_AES_128_CCM_8_SHA256: false,
         }
     }
 }
