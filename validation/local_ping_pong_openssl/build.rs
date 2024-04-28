@@ -37,7 +37,7 @@ fn check_gen_certs() {
         }
     }
 
-    if generate == true {
+    if generate {
         Command::new("make")
             .arg("rsa4096")
             .current_dir(out_dir)

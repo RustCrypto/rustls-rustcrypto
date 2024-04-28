@@ -8,18 +8,23 @@ pub use rustls_util::Client as RustCryptoTlsClient;
 mod test {
     use super::*;
 
-    use std::io::Write;
     use std::path::Path;
     use std::thread;
     use std::time::Duration;
 
     #[test]
     fn vs_openssl_as_client() {
+        const CA_CERT: &'static str = "ca.rsa4096.crt";
+        const CERT: &'static str = "rustcryp.to.rsa4096.ca_signed.crt";
+        const RSA_KEY: &'static str = "rustcryp.to.rsa4096.key";
+
+        let path_certs = Path::new("certs");
+
         let (listener, server_addr) = net_util::new_localhost_tcplistener();
 
         // Client rustls-rustcrypto thread
         let client_thread = thread::spawn(move || {
-            let mut rustls_client = RustCryptoTlsClient::new("certs/ca.rsa4096.crt", server_addr);
+            let mut rustls_client = RustCryptoTlsClient::new(path_certs.join(CA_CERT), server_addr);
             rustls_client.ping();
             assert_eq!(rustls_client.wait_pong(), "PONG\n");
             return;
@@ -33,26 +38,16 @@ mod test {
 
         // Server OpenSSL thread
         let server_thread = thread::spawn(move || {
-            let path_ca_cert = Path::new("certs").join("ca.rsa4096.crt");
-            let path_cert = Path::new("certs").join("rustcryp.to.rsa4096.ca_signed.crt");
-            let path_key = Path::new("certs").join("rustcryp.to.rsa4096.key");
+            let mut openssl_server = openssl_util::Server::from_listener(listener);
+            let mut tls_stream = openssl_server.accept_next(
+                path_certs.join(CA_CERT),
+                path_certs.join(CERT),
+                path_certs.join(RSA_KEY),
+            );
 
-            let mut ssl_stream =
-                openssl_util::accept_next(listener, path_ca_cert, path_cert, path_key);
-
-            let mut buf_in = vec![0; 1024];
-            let siz = ssl_stream.ssl_read(&mut buf_in);
-
-            let incoming = match siz {
-                Ok(i) => buf_in[0..i].to_vec(),
-                Err(_e) => panic!("Error reading?"),
-            };
-
-            assert_eq!(core::str::from_utf8(&incoming), Ok("PING\n"));
-
-            let out = "PONG\n";
-            ssl_stream.write(&out.as_bytes()).unwrap();
-            ssl_stream.shutdown().unwrap();
+            assert_eq!(tls_stream.wait_ping(), "PING\n");
+            tls_stream.pong();
+            tls_stream.shutdown();
         });
 
         loop {
