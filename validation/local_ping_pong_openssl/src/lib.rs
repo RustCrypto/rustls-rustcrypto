@@ -1,5 +1,6 @@
 pub mod net_util;
 mod openssl_util;
+pub use openssl_util::CipherSuites as OpenSslCipherSuites;
 pub use openssl_util::Server as OpenSslServer;
 
 mod rustls_util;
@@ -18,7 +19,86 @@ mod test {
     const RSA_KEY: &'static str = "rustcryp.to.rsa4096.key";
 
     #[test]
-    fn vs_openssl_as_client() {
+    fn vs_openssl_as_client_autoneg() {
+        vs_openssl_as_client(OpenSslCipherSuites::default());
+    }
+
+    #[test]
+    #[should_panic] // No ciphers enabled for max supported SSL/TLS version
+    fn vs_openssl_as_client_none() {
+        let cipher_suites = OpenSslCipherSuites {
+            TLS_AES_128_GCM_SHA256: false,
+            TLS_AES_256_GCM_SHA384: false,
+            TLS_CHACHA20_POLY1305_SHA256: false,
+            TLS_AES_128_CCM_SHA256: false,
+            TLS_AES_128_CCM_8_SHA256: false,
+        };
+        vs_openssl_as_client(cipher_suites);
+    }
+
+    #[test]
+    fn vs_openssl_as_client_gcm_sha256() {
+        let cipher_suites = OpenSslCipherSuites {
+            TLS_AES_128_GCM_SHA256: true,
+            TLS_AES_256_GCM_SHA384: false,
+            TLS_CHACHA20_POLY1305_SHA256: false,
+            TLS_AES_128_CCM_SHA256: false,
+            TLS_AES_128_CCM_8_SHA256: false,
+        };
+        vs_openssl_as_client(cipher_suites);
+    }
+
+    #[test]
+    fn vs_openssl_as_client_gcm_sha384() {
+        let cipher_suites = OpenSslCipherSuites {
+            TLS_AES_128_GCM_SHA256: false,
+            TLS_AES_256_GCM_SHA384: true,
+            TLS_CHACHA20_POLY1305_SHA256: false,
+            TLS_AES_128_CCM_SHA256: false,
+            TLS_AES_128_CCM_8_SHA256: false,
+        };
+        vs_openssl_as_client(cipher_suites);
+    }
+
+    #[test]
+    fn vs_openssl_as_client_poly1305_sha256() {
+        let cipher_suites = OpenSslCipherSuites {
+            TLS_AES_128_GCM_SHA256: false,
+            TLS_AES_256_GCM_SHA384: false,
+            TLS_CHACHA20_POLY1305_SHA256: true,
+            TLS_AES_128_CCM_SHA256: false,
+            TLS_AES_128_CCM_8_SHA256: false,
+        };
+        vs_openssl_as_client(cipher_suites);
+    }
+
+    #[test]
+    #[should_panic] // no_shared_cipher
+    fn vs_openssl_as_client_ccm_sha256() {
+        let cipher_suites = OpenSslCipherSuites {
+            TLS_AES_128_GCM_SHA256: false,
+            TLS_AES_256_GCM_SHA384: false,
+            TLS_CHACHA20_POLY1305_SHA256: false,
+            TLS_AES_128_CCM_SHA256: true,
+            TLS_AES_128_CCM_8_SHA256: false,
+        };
+        vs_openssl_as_client(cipher_suites);
+    }
+
+    #[test]
+    #[should_panic] // no_shared_cipher
+    fn vs_openssl_as_client_ccm8_sha256() {
+        let cipher_suites = OpenSslCipherSuites {
+            TLS_AES_128_GCM_SHA256: false,
+            TLS_AES_256_GCM_SHA384: false,
+            TLS_CHACHA20_POLY1305_SHA256: false,
+            TLS_AES_128_CCM_SHA256: false,
+            TLS_AES_128_CCM_8_SHA256: true,
+        };
+        vs_openssl_as_client(cipher_suites);
+    }
+
+    fn vs_openssl_as_client(cipher_suites: OpenSslCipherSuites) {
         let path_certs = Path::new("certs");
 
         let (listener, server_addr) = net_util::new_localhost_tcplistener();
@@ -41,6 +121,7 @@ mod test {
         let server_thread = thread::spawn(move || {
             let mut openssl_server = OpenSslServer::from_listener(listener);
             let mut tls_stream = openssl_server.accept_next(
+                cipher_suites,
                 path_certs.join(CA_CERT),
                 path_certs.join(CERT),
                 path_certs.join(RSA_KEY),

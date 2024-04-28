@@ -4,6 +4,50 @@ use std::path::PathBuf;
 
 use openssl::ssl::{SslFiletype, SslMethod, SslStream};
 
+#[derive(Debug)]
+#[allow(non_snake_case)]
+pub struct CipherSuites {
+    pub TLS_AES_128_GCM_SHA256: bool,
+    pub TLS_AES_256_GCM_SHA384: bool,
+    pub TLS_CHACHA20_POLY1305_SHA256: bool,
+    pub TLS_AES_128_CCM_SHA256: bool,
+    pub TLS_AES_128_CCM_8_SHA256: bool,
+}
+
+impl core::fmt::Display for CipherSuites {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+        let mut vec_suites: Vec<&str> = vec![];
+        if self.TLS_AES_128_GCM_SHA256 {
+            vec_suites.push("TLS_AES_128_GCM_SHA256");
+        }
+        if self.TLS_AES_256_GCM_SHA384 {
+            vec_suites.push("TLS_AES_256_GCM_SHA384");
+        }
+        if self.TLS_CHACHA20_POLY1305_SHA256 {
+            vec_suites.push("TLS_CHACHA20_POLY1305_SHA256");
+        }
+        if self.TLS_AES_128_CCM_SHA256 {
+            vec_suites.push("TLS_AES_128_CCM_SHA256");
+        }
+        if self.TLS_AES_128_CCM_8_SHA256 {
+            vec_suites.push("TLS_AES_128_CCM_8_SHA256");
+        }
+        write!(f, "{}", vec_suites.join(":"))
+    }
+}
+
+impl Default for CipherSuites {
+    fn default() -> Self {
+        CipherSuites {
+            TLS_AES_128_GCM_SHA256: true,
+            TLS_AES_256_GCM_SHA384: true,
+            TLS_CHACHA20_POLY1305_SHA256: true,
+            TLS_AES_128_CCM_SHA256: true,
+            TLS_AES_128_CCM_8_SHA256: true,
+        }
+    }
+}
+
 pub struct Server {
     listener: TcpListener,
 }
@@ -18,6 +62,7 @@ impl Server {
     }
     pub fn accept_next(
         &mut self,
+        cipher_suites: CipherSuites,
         path_ca_cert: PathBuf,
         path_cert: PathBuf,
         path_key: PathBuf,
@@ -41,6 +86,10 @@ impl Server {
 
         ssl_context_build
             .set_private_key_file(path_key, SslFiletype::PEM)
+            .unwrap();
+
+        ssl_context_build
+            .set_ciphersuites(&cipher_suites.to_string())
             .unwrap();
         // https://docs.rs/openssl/latest/openssl/ssl/struct.SslContextBuilder.html#method.set_cipher_list
         // https://docs.rs/openssl/latest/openssl/ssl/struct.SslContextBuilder.html#method.set_ciphersuites
