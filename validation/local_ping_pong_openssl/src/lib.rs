@@ -130,6 +130,13 @@ mod test {
         group_list.X25519 = true;
         vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
     }
+    #[test]
+    #[should_panic] // no support
+    fn vs_openssl_as_client_group_x448() {
+        let mut group_list = OpenSslGroupsList::all_false();
+        group_list.X448 = true;
+        vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
+    }
 
     fn vs_openssl_as_client(groups_list: OpenSslGroupsList, cipher_suites: OpenSslCipherSuites) {
         let path_certs = Path::new("certs");
