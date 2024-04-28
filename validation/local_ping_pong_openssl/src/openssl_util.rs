@@ -64,8 +64,6 @@ impl TlsStream {
         };
 
         String::from_utf8_lossy(&incoming).to_string()
-
-        //assert_eq!(core::str::from_utf8(&incoming), Ok("PING\n"));
     }
     pub fn pong(&mut self) {
         let out = "PONG\n";
