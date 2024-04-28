@@ -43,7 +43,6 @@ mod test {
 
             let mut ssl_stream =
                 openssl_util::accept_next(listener, path_ca_cert, path_cert, path_key);
-            ssl_stream.accept().unwrap();
 
             let mut buf_in = vec![0; 1024];
             let siz = ssl_stream.ssl_read(&mut buf_in);

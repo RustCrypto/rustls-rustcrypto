@@ -28,10 +28,9 @@ pub fn accept_next(
                 ssl_context_build.check_private_key().unwrap();
                 let ctx = ssl_context_build.build();
                 let ssl = openssl::ssl::Ssl::new(&ctx).unwrap();
-                return SslStream::new(ssl, stream).unwrap();
-                //let mut ssl_stream = SslStream::new(ssl, stream).unwrap();
-                //ssl_stream.accept().unwrap();
-                //return ssl_stream;
+                let mut ssl_stream = SslStream::new(ssl, stream).unwrap();
+                ssl_stream.accept().unwrap();
+                return ssl_stream;
             }
             Err(_) => panic!("Failed OpenSSL accept_next()"),
         }
