@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::net::SocketAddr;
 use std::net::TcpStream;
 use std::sync::Arc;
@@ -14,7 +14,7 @@ use rustls::pki_types::CertificateDer;
 use rustls::pki_types::ServerName;
 
 /// Read rustls compatible CertificateDer from ca_path
-pub fn load_ca_der(ca_path: &str) -> CertificateDer {
+fn load_ca_der(ca_path: &str) -> CertificateDer {
     let mut ca_pkcs10_file = File::open(ca_path).unwrap();
     let mut ca_pkcs10_data: Vec<u8> = vec![];
     ca_pkcs10_file.read_to_end(&mut ca_pkcs10_data).unwrap();
@@ -24,14 +24,14 @@ pub fn load_ca_der(ca_path: &str) -> CertificateDer {
 }
 
 /// provide rustls roots with pinned CA cert
-pub fn roots(ca_pinned: CertificateDer) -> RootCertStore {
+fn roots(ca_pinned: CertificateDer) -> RootCertStore {
     let mut roots = rustls::RootCertStore::empty();
     roots.add(ca_pinned).unwrap();
     roots
 }
 
 /// Create new ClientConfig
-pub fn rustcrypto_client_config(root_store: RootCertStore) -> ClientConfig {
+fn rustcrypto_client_config(root_store: RootCertStore) -> ClientConfig {
     rustls::ClientConfig::builder_with_provider(Arc::new(rustcrypto_provider()))
         .with_safe_default_protocol_versions()
         .unwrap()
@@ -60,5 +60,13 @@ impl Client {
         let tls = rustls::StreamOwned::new(conn, sock);
 
         Self { tls }
+    }
+    pub fn ping(&mut self) {
+        self.tls.write_all(b"PING\n").unwrap()
+    }
+    pub fn wait_pong(&mut self) -> String {
+        let mut plaintext = Vec::new();
+        self.tls.read_to_end(&mut plaintext).unwrap();
+        String::from_utf8_lossy(&plaintext).to_string()
     }
 }

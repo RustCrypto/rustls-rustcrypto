@@ -1,6 +1,8 @@
 pub mod net_util;
 pub mod openssl_util;
-pub mod rustls_util;
+
+mod rustls_util;
+pub use rustls_util::Client as RustCryptoTlsClient;
 
 #[cfg(test)]
 mod test {
@@ -15,27 +17,21 @@ mod test {
     fn vs_openssl_as_client() {
         let (listener, server_addr) = net_util::new_localhost_tcplistener();
 
-        // rustls-rustcrypto Client thread
+        // Client rustls-rustcrypto thread
         let client_thread = thread::spawn(move || {
-            let rustls_client = rustls_util::Client::new("certs/ca.rsa4096.crt", server_addr);
-
-            let mut tls = rustls_client.tls;
-            tls.write_all(b"PING\n").unwrap();
-            let _ciphersuite = tls.conn.negotiated_cipher_suite().unwrap();
-            let mut plaintext = Vec::new();
-            tls.read_to_end(&mut plaintext).unwrap();
-
-            assert_eq!(core::str::from_utf8(&plaintext), Ok("PONG\n"));
-
+            let mut rustls_client = RustCryptoTlsClient::new("certs/ca.rsa4096.crt", server_addr);
+            rustls_client.ping();
+            assert_eq!(rustls_client.wait_pong(), "PONG\n");
             return;
         });
 
+        // Canary Timeout thread
         let timeout_thread = thread::spawn(move || {
             thread::sleep(Duration::from_millis(100));
             panic!("timeout");
         });
 
-        // OpenSSL Server Handler
+        // Server OpenSSL thread
         let server_thread = thread::spawn(move || {
             let path_ca_cert = Path::new("certs").join("ca.rsa4096.crt");
             let path_cert = Path::new("certs").join("rustcryp.to.rsa4096.ca_signed.crt");
