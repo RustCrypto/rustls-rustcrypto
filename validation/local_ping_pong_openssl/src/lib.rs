@@ -1,55 +1,27 @@
+pub mod net_util;
+pub mod openssl_util;
+pub mod rustls_util;
+
 #[cfg(test)]
 mod test {
-    use std::fs::File;
-    use std::io::{Read, Write};
+    use super::*;
 
-    use openssl::ssl::{SslFiletype, SslMethod, SslStream};
-    use std::net::{TcpListener, TcpStream};
-    use std::sync::Arc;
+    use std::io::{Read, Write};
+    use std::path::Path;
     use std::thread;
     use std::time::Duration;
 
-    use rustls::pki_types::CertificateDer;
-    use rustls::pki_types::ServerName;
-
-    use rustls_rustcrypto::provider as rustcrypto_provider;
-
     #[test]
     fn vs_openssl_as_client() {
-        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        let server_addr = listener.local_addr().unwrap();
-
-        let mut ca_pkcs10_file = File::open("certs/ca.rsa4096.crt").unwrap();
-        let mut ca_pkcs10_data: Vec<u8> = vec![];
-        ca_pkcs10_file.read_to_end(&mut ca_pkcs10_data).unwrap();
-        let (ca_type_label, ca_data) = pem_rfc7468::decode_vec(&ca_pkcs10_data).unwrap();
-        assert_eq!(ca_type_label, "CERTIFICATE");
-        let rustls_cert_der: CertificateDer = ca_data.try_into().unwrap();
+        let (listener, server_addr) = net_util::new_localhost_tcplistener();
 
         // rustls-rustcrypto Client thread
         let client_thread = thread::spawn(move || {
-            let mut root_store = rustls::RootCertStore::empty();
-            root_store.add(rustls_cert_der).unwrap();
+            let rustls_client = rustls_util::Client::new("certs/ca.rsa4096.crt", server_addr);
 
-            let config =
-                rustls::ClientConfig::builder_with_provider(Arc::new(rustcrypto_provider()))
-                    .with_safe_default_protocol_versions()
-                    .unwrap()
-                    .with_root_certificates(root_store)
-                    .with_no_client_auth();
-
-            let mut conn = rustls::ClientConnection::new(
-                Arc::new(config),
-                ServerName::try_from("localhost").unwrap(),
-            )
-            .unwrap();
-            let mut sock = TcpStream::connect(server_addr).unwrap();
-            let mut tls = rustls::Stream::new(&mut conn, &mut sock);
-
+            let mut tls = rustls_client.tls;
             tls.write_all(b"PING\n").unwrap();
-
             let _ciphersuite = tls.conn.negotiated_cipher_suite().unwrap();
-
             let mut plaintext = Vec::new();
             tls.read_to_end(&mut plaintext).unwrap();
 
@@ -65,51 +37,27 @@ mod test {
 
         // OpenSSL Server Handler
         let server_thread = thread::spawn(move || {
-            for stream in listener.incoming() {
-                match stream {
-                    Ok(stream) => {
-                        let mut ssl_context_build =
-                            openssl::ssl::SslContext::builder(SslMethod::tls_server()).unwrap();
-                        ssl_context_build.set_verify(openssl::ssl::SslVerifyMode::NONE);
-                        ssl_context_build
-                            .set_ca_file("certs/ca.rsa4096.crt")
-                            .unwrap();
-                        ssl_context_build
-                            .set_certificate_file(
-                                "certs/rustcryp.to.rsa4096.ca_signed.crt",
-                                SslFiletype::PEM,
-                            )
-                            .unwrap();
-                        ssl_context_build
-                            .set_private_key_file("certs/rustcryp.to.rsa4096.key", SslFiletype::PEM)
-                            .unwrap();
-                        // https://docs.rs/openssl/latest/openssl/ssl/struct.SslContextBuilder.html#method.set_cipher_list
-                        // https://docs.rs/openssl/latest/openssl/ssl/struct.SslContextBuilder.html#method.set_ciphersuites
-                        ssl_context_build.check_private_key().unwrap();
-                        let ctx = ssl_context_build.build();
-                        let ssl = openssl::ssl::Ssl::new(&ctx).unwrap();
+            let path_ca_cert = Path::new("certs").join("ca.rsa4096.crt");
+            let path_cert = Path::new("certs").join("rustcryp.to.rsa4096.ca_signed.crt");
+            let path_key = Path::new("certs").join("rustcryp.to.rsa4096.key");
 
-                        let mut ssl_stream = SslStream::new(ssl, stream).unwrap();
-                        ssl_stream.accept().unwrap();
-                        let mut buf_in = vec![0; 1024];
-                        let siz = ssl_stream.ssl_read(&mut buf_in);
+            let mut ssl_stream =
+                openssl_util::accept_next(listener, path_ca_cert, path_cert, path_key);
+            ssl_stream.accept().unwrap();
 
-                        let incoming = match siz {
-                            Ok(i) => buf_in[0..i].to_vec(),
-                            Err(_e) => panic!("Error reading?"),
-                        };
+            let mut buf_in = vec![0; 1024];
+            let siz = ssl_stream.ssl_read(&mut buf_in);
 
-                        assert_eq!(core::str::from_utf8(&incoming), Ok("PING\n"));
+            let incoming = match siz {
+                Ok(i) => buf_in[0..i].to_vec(),
+                Err(_e) => panic!("Error reading?"),
+            };
 
-                        let out = "PONG\n";
-                        ssl_stream.write(&out.as_bytes()).unwrap();
+            assert_eq!(core::str::from_utf8(&incoming), Ok("PING\n"));
 
-                        ssl_stream.shutdown().unwrap();
-                    }
-                    Err(_) => panic!("Server connection failed"),
-                }
-                return;
-            }
+            let out = "PONG\n";
+            ssl_stream.write(&out.as_bytes()).unwrap();
+            ssl_stream.shutdown().unwrap();
         });
 
         loop {
