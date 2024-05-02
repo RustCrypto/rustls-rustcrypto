@@ -1,0 +1,6 @@
+target
+certs/*.crt
+certs/*.key
+certs/*.pfx
+certs/*.srl
+certs/*.csr
