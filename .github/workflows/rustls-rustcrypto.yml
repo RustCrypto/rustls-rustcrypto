@@ -82,9 +82,9 @@ jobs:
       - name: Test normal
         run: cargo nextest run
       - name: Test no_std
-        run: cargo nextest run --no-default-features --features tls12
-      - name: Test no_std with alloc
-        run: cargo nextest run --no-default-features --features tls12,alloc
+        run: cargo nextest run --no-default-features --features alloc
+      - name: Test no_std with TLS 1.2
+        run: cargo nextest run --no-default-features --features alloc,tls12
   coverage:
     runs-on: ubuntu-latest
     steps:
