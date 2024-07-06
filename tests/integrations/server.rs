@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use futures::TryFutureExt;
 use hyper_server::{HTML_NOT_FOUND_CONTENT, HTML_ROOT_CONTENT};
 use reqwest::Client;
@@ -26,6 +28,21 @@ async fn test_hyper_server() -> anyhow::Result<()> {
             .await?;
         assert_eq!(body, HTML_NOT_FOUND_CONTENT);
     }
+
+    {
+        let mut map: HashMap<String, String> = HashMap::new();
+        map.insert("hello".to_string(), "world".to_string());
+        map.insert("tls".to_string(), "rust".to_string());
+
+        let body: HashMap<String, String> = client
+            .post(format!("https://127.0.0.1:{}/echo", addr.port()))
+            .json(&map)
+            .send()
+            .and_then(|x| x.json())
+            .await?;
+        assert_eq!(body, map);
+    }
+
     Ok(())
 }
 

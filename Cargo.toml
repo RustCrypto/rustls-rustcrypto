@@ -55,14 +55,11 @@ hyper-rustls = { version = "0.27.2", default-features = false, features = ["http
 hyper-util = { version = "0.1.6", features = ["tokio", "server-auto", "service", "http1", "http2"] }
 indoc = "2.0.5"
 rcgen = "0.13.1"
-reqwest = { version = "0.12.5", default-features = false, features = ["http2", "charset", "rustls-tls-webpki-roots"] }
+reqwest = { version = "0.12.5", default-features = false, features = ["http2", "charset", "rustls-tls-webpki-roots", "json"] }
 test-case = "3.3.1"
 tls-listener = { version = "0.10.0", features = ["rt", "rustls"], git = "https://github.com/tmccombs/tls-listener" }
 tokio = { version = "1.38.0", features = ["rt-multi-thread", "macros"] }
 tokio-rustls = { version = "0.26.0", default-features = false }
-tower-async = "0.2.0"
-tower-async-http = { version = "0.2.0", features = ["map-request-body", "util"] }
-tower-async-hyper = "0.1.0"
 
 [features]
 default = ["std", "tls12", "zeroize"]

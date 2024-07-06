@@ -17,10 +17,6 @@ impl TestPki {
         &self.ca_cert
     }
 
-    pub fn algo(&self) -> &SignatureAlgorithm {
-        self.algo
-    }
-
     pub fn sign(&self, names: Vec<String>) -> (Certificate, KeyPair) {
         // Create a server end entity cert issued by the CA.
         let mut params = CertificateParams::new(names.clone()).unwrap();
