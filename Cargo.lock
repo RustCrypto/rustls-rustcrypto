@@ -664,9 +664,9 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.2"
+version = "0.23.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dfbdb5ddfafe3040e01fe9dced711e27b5336ac97d4a9b2089f0066a04b5846"
+checksum = "ebbbdb961df0ad3f2652da8f3fdc4b36122f568f968f45ad3316f26c025c677b"
 dependencies = [
  "log",
  "once_cell",
@@ -684,7 +684,7 @@ checksum = "5ede67b28608b4c60685c7d54122d4400d90f62b40caee7700e700380a390fa8"
 
 [[package]]
 name = "rustls-rustcrypto"
-version = "0.0.1-alpha"
+version = "0.0.2-alpha"
 dependencies = [
  "aead",
  "aes-gcm",
