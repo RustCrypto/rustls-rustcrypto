@@ -78,8 +78,8 @@ pub fn provider_and_init_rng(rng: &'static mut (dyn RngCore + Send + Sync)) -> C
     provider()
 }
 
-// The global RNG cell that points to a user-defined, custom global RNG state. 
-// Technically speaking, we want something similar to a lazy cell, except the user can customize the closure 
+// The global RNG cell that points to a user-defined, custom global RNG state.
+// Technically speaking, we want something similar to a lazy cell, except the user can customize the closure
 static mut RNG: OnceCell<&'static mut (dyn RngCore + Send + Sync)> = OnceCell::new();
 
 fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
