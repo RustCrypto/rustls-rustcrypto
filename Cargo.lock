@@ -3,6 +3,30 @@
 version = 3
 
 [[package]]
+name = "acceptance-test"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "claim",
+ "env_logger",
+ "futures",
+ "http-body-util",
+ "hyper",
+ "hyper-util",
+ "indoc",
+ "rcgen",
+ "reqwest",
+ "rustls",
+ "rustls-pki-types",
+ "rustls-rustcrypto",
+ "test-case",
+ "tokio",
+ "tokio-rustls",
+ "webpki-root-certs",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -761,7 +785,6 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tower-service",
- "webpki-roots",
 ]
 
 [[package]]
@@ -1353,32 +1376,18 @@ version = "0.0.2-alpha"
 dependencies = [
  "aead",
  "aes-gcm",
- "anyhow",
- "bytes",
  "chacha20poly1305",
- "claim",
  "crypto-common",
  "der",
  "digest",
  "ecdsa",
  "ed25519-dalek",
- "env_logger",
- "futures",
- "getrandom",
  "hmac",
- "http",
- "http-body-util",
- "hyper",
- "hyper-rustls",
- "hyper-util",
- "indoc",
  "p256",
  "p384",
  "paste",
  "pkcs8",
  "rand_core",
- "rcgen",
- "reqwest",
  "rsa",
  "rustls",
  "rustls-pki-types",
@@ -1386,10 +1395,6 @@ dependencies = [
  "sec1",
  "sha2",
  "signature",
- "test-case",
- "tokio",
- "tokio-rustls",
- "webpki-root-certs",
  "x25519-dalek",
 ]
 
@@ -1880,15 +1885,6 @@ name = "webpki-root-certs"
 version = "0.26.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8c6dfa3ac045bc517de14c7b1384298de1dbd229d38e08e169d9ae8c170937c"
-dependencies = [
- "rustls-pki-types",
-]
-
-[[package]]
-name = "webpki-roots"
-version = "0.26.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "841c67bff177718f1d4dfefde8d8f0e78f9b6589319ba88312f567fc5841a958"
 dependencies = [
  "rustls-pki-types",
 ]
