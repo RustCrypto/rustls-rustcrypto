@@ -24,42 +24,42 @@ chacha20poly1305 = { version = "0.10.1", default-features = false }
 crypto-common = { version = "0.1.6", default-features = false }
 der = { version = "0.7.9", default-features = false }
 digest = { version = "0.10.7", default-features = false }
-ecdsa = { version = "0.16.8", default-features = false, features = ["alloc"] }
+ecdsa = { version = "0.16.9", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"] }
 hmac = { version = "0.12.1", default-features = false }
 p256 = { version = "0.13.2", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1.0.15", default-features = false }
 pkcs8 = { version = "0.10.2", default-features = false, features = ["pem", "pkcs5"] }
-pki-types = { package = "rustls-pki-types", version = "1.0.1", default-features = false }
+pki-types = { package = "rustls-pki-types", version = "1.8.0", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = ["getrandom"] }
-rsa = { version = "0.9.2", default-features = false, features = ["sha2"] }
-rustls = { version = "0.23.12", default-features = false }
+rsa = { version = "0.9.6", default-features = false, features = ["sha2"] }
+rustls = { version = "0.23.13", default-features = false }
 sec1 = { version = "0.7.3", default-features = false, features = ["pkcs8", "pem"] }
-sha2 = { version = "0.10.7", default-features = false }
-signature = { version = "2.1.0", default-features = false }
-webpki = { package = "rustls-webpki", version = "0.102.0", default-features = false }
+sha2 = { version = "0.10.8", default-features = false }
+signature = { version = "2.2.0", default-features = false }
+webpki = { package = "rustls-webpki", version = "0.102.8", default-features = false }
 x25519-dalek = { version = "2", default-features = false }
 
 [dev-dependencies]
-anyhow = "1.0.86"
-bytes = "1.6.0"
+anyhow = "1.0.89"
+bytes = "1.7.2"
 claim = "0.5.0"
-env_logger = "0.11.3"
+env_logger = "0.11.5"
 futures = "0.3.30"
 getrandom = { version = "0.2", features = ["custom"] } # workaround to build on no_std targets
 http = "1.1.0"
 http-body-util = "0.1.2"
-hyper = { version = "1.4.0", default-features = false, features = ["http1", "http2", "client", "server"] }
-hyper-rustls = { version = "0.27.2", default-features = false, features = ["http1", "http2", "webpki-roots"] }
-hyper-util = { version = "0.1.6", features = ["tokio", "server-auto", "service", "http1", "http2"] }
+hyper = { version = "1.4.1", default-features = false, features = ["http1", "http2", "client", "server"] }
+hyper-rustls = { version = "0.27.3", default-features = false, features = ["http1", "http2", "webpki-roots"] }
+hyper-util = { version = "0.1.9", features = ["tokio", "server-auto", "service", "http1", "http2"] }
 indoc = "2.0.5"
 rcgen = "0.13.1"
-reqwest = { version = "0.12.5", default-features = false, features = ["http2", "charset", "rustls-tls-webpki-roots", "json"] }
+reqwest = { version = "0.12.7", default-features = false, features = ["http2", "charset", "rustls-tls-manual-roots-no-provider", "json"] }
 test-case = "3.3.1"
-tls-listener = { version = "0.10.0", features = ["rt", "rustls"], git = "https://github.com/tmccombs/tls-listener" }
-tokio = { version = "1.38.0", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1.40.0", features = ["rt-multi-thread", "macros"] }
 tokio-rustls = { version = "0.26.0", default-features = false }
+webpki-root-certs = "0.26.6"
 
 [features]
 default = ["std", "tls12", "zeroize"]

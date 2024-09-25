@@ -5,7 +5,6 @@ use std::{
 
 use super::pki::TestPki;
 use bytes::Bytes;
-use futures::StreamExt;
 use http_body_util::{BodyExt, Full};
 use hyper::{body::Incoming, service::service_fn, Method, Request, Response, StatusCode};
 use hyper_util::{
@@ -15,7 +14,6 @@ use hyper_util::{
 use indoc::indoc;
 use pki_types::PrivateKeyDer;
 use rustls::ServerConfig;
-use tls_listener::TlsListener;
 use tokio::net::TcpListener;
 use tokio_rustls::TlsAcceptor;
 
@@ -78,26 +76,35 @@ pub async fn make_hyper_server() -> anyhow::Result<(
     let service = service_fn(serve);
 
     Ok((
-        tokio::spawn(
-            TlsListener::new(tls_acceptor, listener).for_each_concurrent(
-                None,
-                move |s| async move {
-                    match s {
-                        Ok((stream, _)) => {
-                            if let Err(err) = Builder::new(TokioExecutor::new())
-                                .serve_connection(TokioIo::new(stream), service)
-                                .await
-                            {
-                                eprintln!("failed to serve connection: {err:#}");
+        tokio::spawn(async move {
+            loop {
+                match listener.accept().await {
+                    Ok((stream, _)) => {
+                        tokio::spawn({
+                            let tls_acceptor = tls_acceptor.clone();
+                            async move {
+                                match tls_acceptor.accept(stream).await {
+                                    Ok(stream) => {
+                                        if let Err(err) = Builder::new(TokioExecutor::new())
+                                            .serve_connection(TokioIo::new(stream), service)
+                                            .await
+                                        {
+                                            eprintln!("failed to serve connection: {err:#}");
+                                        }
+                                    }
+                                    Err(err) => {
+                                        eprintln!("failed to upgrade TLS connection: {err:#}");
+                                    }
+                                }
                             }
-                        }
-                        Err(e) => {
-                            eprintln!("failed to perform tls handshake: {:?}", e);
-                        }
+                        });
                     }
-                },
-            ),
-        ),
+                    Err(err) => {
+                        eprintln!("failed to accept connection: {err:#}");
+                    }
+                }
+            }
+        }),
         addr,
         reqwest::Certificate::from_der(pki.ca_cert().der())?,
     ))

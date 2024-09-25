@@ -1,7 +1,6 @@
 use claim::{assert_err, assert_ok};
 use futures::TryFutureExt;
 use test_case::test_case;
-
 // For the available tests check out here: https://badssl.com/dashboard/
 
 #[test_case("https://codeforces.com/", Ok(()))]
@@ -22,8 +21,12 @@ use test_case::test_case;
 #[tokio::test]
 async fn test_generic_sites(uri: &str, expected: Result<(), ()>) {
     let _ = env_logger::builder().is_test(true).try_init();
-    let _ = rustls_rustcrypto::provider().install_default().unwrap();
-    let body = reqwest::get(uri).and_then(|x| x.text());
+    let _ = rustls_rustcrypto::provider().install_default();
+    let body = crate::utils::make_client()
+        .expect("client cannot be built")
+        .get(uri)
+        .send()
+        .and_then(|x| x.text());
 
     if expected.is_ok() {
         assert_ok!(body.await);

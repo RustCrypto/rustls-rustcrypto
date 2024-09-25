@@ -7,7 +7,7 @@ use reqwest::Client;
 #[tokio::test]
 async fn test_hyper_server() -> anyhow::Result<()> {
     let _ = env_logger::builder().is_test(true).try_init();
-    let _ = rustls_rustcrypto::provider().install_default().unwrap();
+    let _ = rustls_rustcrypto::provider().install_default();
 
     let (_server, addr, root_cert) = hyper_server::make_hyper_server().await?;
     let client = Client::builder().add_root_certificate(root_cert).build()?;

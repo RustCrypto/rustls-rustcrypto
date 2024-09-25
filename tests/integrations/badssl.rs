@@ -11,7 +11,7 @@ use test_case::test_case;
 #[test_case("https://ecc384.badssl.com/", Ok(()); "test ECC384 verification")]
 #[test_case("https://rsa2048.badssl.com/", Ok(()); "test RSA-2048 verification")]
 #[test_case("https://rsa4096.badssl.com/", Ok(()); "test RSA-4096 verification")]
-#[cfg_attr(TODO, test_case("https://rsa8192.badssl.com/", Err(()); "test RSA-8192 verification"))]
+#[test_case("https://rsa8192.badssl.com/", Err(()); "test RSA-8192 verification")]
 #[test_case("https://sha256.badssl.com/", Ok(()); "test SHA-256 hash")]
 #[test_case("https://sha384.badssl.com/", Err(()); "test SHA-384 hash (but expired)")]
 #[test_case("https://sha512.badssl.com/", Err(()); "test SHA-512 hash (but expired)")]
@@ -22,8 +22,12 @@ use test_case::test_case;
 #[tokio::test]
 async fn test_badssl_tls12(uri: &str, expected: Result<(), ()>) {
     let _ = env_logger::builder().is_test(true).try_init();
-    let _ = rustls_rustcrypto::provider().install_default().unwrap();
-    let body = reqwest::get(uri).and_then(|x| x.text());
+    let _ = rustls_rustcrypto::provider().install_default();
+    let body = crate::utils::make_client()
+        .expect("client cannot be built")
+        .get(uri)
+        .send()
+        .and_then(|x| x.text());
 
     if expected.is_ok() {
         assert_ok!(body.await);
@@ -50,13 +54,19 @@ async fn test_badssl_tls12(uri: &str, expected: Result<(), ()>) {
 #[test_case("https://self-signed.badssl.com/", Err(()); "test self signed")]
 #[test_case("https://untrusted-root.badssl.com/", Err(()); "test untrusted root")]
 #[test_case("https://wrong.host.badssl.com/", Err(()); "test wrong host")]
-#[test_case("https://no-sct.badssl.com/", Err(()); "test Signed Certificate Timestamp")] // NET::ERR_CERTIFICATE_TRANSPARENCY_REQUIRED
+// SCT is not implemented in Rustls yet
+#[cfg_attr(TODO, test_case("https://no-sct.badssl.com/", Err(()); "test Signed Certificate Timestamp"))] // NET::ERR_CERTIFICATE_TRANSPARENCY_REQUIRED
+// TLS Cert Pinning is not implemented in Rustls yet 
 #[cfg_attr(TODO, test_case("https://pinning-test.badssl.com/", Err(()); "test pinning test"))] // NET::ERR_SSL_PINNED_KEY_NOT_IN_CERT_CHAIN
 #[tokio::test]
 async fn test_badssl(uri: &str, expected: Result<(), ()>) {
     let _ = env_logger::builder().is_test(true).try_init();
-    let _ = rustls_rustcrypto::provider().install_default().unwrap();
-    let body = reqwest::get(uri).and_then(|x| x.text());
+    let _ = rustls_rustcrypto::provider().install_default();
+    let body = crate::utils::make_client()
+        .expect("client cannot be built")
+        .get(uri)
+        .send()
+        .and_then(|x| x.text());
 
     if expected.is_ok() {
         assert_ok!(body.await);
