@@ -65,6 +65,12 @@ pub fn provider() -> CryptoProvider {
     }
 }
 
+#[cfg(feature = "alloc")]
+pub fn provider_and_init_rng(rng: Box<dyn RngCore + Send + Sync>) -> CryptoProvider {
+    init_randomness_source(rng);
+    provider()
+}
+
 // TODO: switch to ThinBox once it is available
 #[cfg(feature = "alloc")]
 static mut RNG: OnceCell<Box<dyn RngCore + Send + Sync>> = OnceCell::new();
