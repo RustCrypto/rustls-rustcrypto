@@ -32,7 +32,7 @@ p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa
 paste = { version = "1.0.14", default-features = false }
 pkcs8 = { version = "0.10.2", default-features = false, features = ["pem", "pkcs5"] }
 pki-types = { package = "rustls-pki-types", version = "1.0.1", default-features = false }
-rand_core = { version = "0.6.4", default-features = false, features = ["getrandom"] }
+rand_core = { version = "0.6.4", default-features = false }
 rsa = { version = "0.9.2", default-features = false, features = ["sha2"] }
 rustls = { version = "0.23.0", default-features = false }
 sec1 = { version = "0.7.3", default-features = false, features = ["pkcs8", "pem"] }
@@ -45,7 +45,7 @@ x25519-dalek = { version = "2", default-features = false }
 getrandom = { version = "0.2", features = ["custom"] } # workaround to build on no_std targets
 
 [features]
-default = ["std", "tls12", "zeroize"]
+default = ["std", "tls12", "zeroize", "getrandom"]
 logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
 
@@ -57,3 +57,5 @@ std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"
 # TODO: go through all of these to ensure to_vec etc. impls are exposed
 alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
+
+getrandom = ["alloc", "rand_core/getrandom"]
