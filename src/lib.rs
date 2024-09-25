@@ -75,7 +75,6 @@ pub fn provider_and_init_rng(rng: &'static mut (dyn RngCore + Send + Sync)) -> C
     provider()
 }
 
-// TODO: switch to ThinBox once it is available
 static mut RNG: AtomicOnceCell<&'static mut (dyn RngCore + Send + Sync)> = AtomicOnceCell::new();
 
 
