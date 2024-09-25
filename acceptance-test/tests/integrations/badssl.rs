@@ -56,7 +56,7 @@ async fn test_badssl_tls12(uri: &str, expected: Result<(), ()>) {
 #[test_case("https://wrong.host.badssl.com/", Err(()); "test wrong host")]
 // SCT is not implemented in Rustls yet
 #[cfg_attr(TODO, test_case("https://no-sct.badssl.com/", Err(()); "test Signed Certificate Timestamp"))] // NET::ERR_CERTIFICATE_TRANSPARENCY_REQUIRED
-// TLS Cert Pinning is not implemented in Rustls yet 
+// TLS Cert Pinning is not implemented in Rustls yet
 #[cfg_attr(TODO, test_case("https://pinning-test.badssl.com/", Err(()); "test pinning test"))] // NET::ERR_SSL_PINNED_KEY_NOT_IN_CERT_CHAIN
 #[tokio::test]
 async fn test_badssl(uri: &str, expected: Result<(), ()>) {
