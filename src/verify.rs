@@ -8,7 +8,7 @@ use self::rsa::{
     RSA_PSS_SHA512,
 };
 
-pub static ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
+pub const ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
     all: &[
         ECDSA_P256_SHA256,
         ECDSA_P256_SHA384,
