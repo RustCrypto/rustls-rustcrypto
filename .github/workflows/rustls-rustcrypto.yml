@@ -80,11 +80,11 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
       - uses: taiki-e/install-action@nextest
       - name: Test normal
-        run: cargo nextest run
+        run: cargo nextest run --all
       - name: Test no_std
-        run: cargo nextest run --no-default-features --features alloc
+        run: cargo nextest run --all --no-default-features --features alloc
       - name: Test no_std with TLS 1.2
-        run: cargo nextest run --no-default-features --features alloc,tls12
+        run: cargo nextest run --all --no-default-features --features alloc,tls12
   coverage:
     runs-on: ubuntu-latest
     steps:
@@ -97,7 +97,7 @@ jobs:
       - uses: taiki-e/install-action@cargo-llvm-cov
       - uses: taiki-e/install-action@nextest
       - name: Collect coverage data
-        run: cargo llvm-cov nextest
+        run: cargo llvm-cov nextest --all
   cross:
     strategy:
       matrix:
@@ -118,4 +118,4 @@ jobs:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
       - uses: taiki-e/install-action@nextest
-      - run: cargo nextest run --release --target ${{ matrix.target }} --all-features
+      - run: cargo nextest run --all --release --target ${{ matrix.target }} --all-features
