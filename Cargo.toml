@@ -12,7 +12,7 @@ repository = "https://github.com/RustCrypto/rustls-rustcrypto"
 categories = ["cryptography", "no-std"]
 keywords = ["rustls", "tls"]
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.78"
 
 # Ensure all dependencies + feats are mapped to crate features for correct usage
 # default features often have std breaking no_std and potentially other unwanted
