@@ -101,13 +101,11 @@ fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
 // Initialize an RNG source, and panic if was already set when it think it is unset, which would only happen if two threads set the data at the same time, otherwise a no-op if it was already set.
 // This ensures the user would have to decide on the RNG source at the very beginning, likely the first function call in main and find way to provide entropy themselves
 // TIP: you can put your RNG state as a global variable, which is usually useful for MCUs
+// SAFETY (under "atomic" assumption): If the randomness source is already set in progress when it is trying to set the value, either one can safely commit the write or the whole program panic
+// DANGER (without "atomic" assumption): this operation can be racy if any two asymmetric cores access the same memory region at the same time without prior cache invalidation knowledge
+#[allow(static_mut_refs)]
 pub unsafe fn init_randomness_source(rng: &'static mut (dyn RngCore + Send + Sync)) {
-    // SAFETY (under "atomic" assumption): If the randomness source is already set in progress when it is trying to set the value, either one can safely commit the write or the whole program panic
-    // DANGER (without "atomic" assumption): this operation can be racy if any two asymmetric cores access the same memory region at the same time without prior cache invalidation knowledge
-    #[allow(static_mut_refs)]
-    unsafe {
-        let _ = RNG.set(rng);
-    }
+    let _ = RNG.set(rng);
 }
 
 impl SecureRandom for Provider {
