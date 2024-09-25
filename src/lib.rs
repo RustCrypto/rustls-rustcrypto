@@ -89,7 +89,7 @@ fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
     }
 
     // SAFETY: If randomness source is not already set, the whole program panics due to the unwrap
-    // UNSAFETY: If you have a memory corruption (whether stack or heap or not), this could
+    // UNSAFETY: If you have a memory corruption (whether stack or heap or not), this assumption could be violated
     #[allow(static_mut_refs)]
     unsafe {
         RNG.get_mut().expect("RNG was not set").as_mut()
@@ -98,7 +98,7 @@ fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
 
 // Initialize an RNG source, and panic if it was already set, which would only happen if two threads set the data at the same time.
 // This ensures the user would have to decide on the RNG source at the very beginning, likely the first function call in main and find way to provide entropy themselves
-// TIP: Use Box::from_raw to prevent having to do real heap allocation if you can assume your program to be single-threaded and your put RNG state as a global variable
+// TIP: Use Box::from_raw to prevent having to do real heap allocation if you can assume your program to be single-threaded and you put RNG state as a global variable, which is usually useful for MCUs
 #[cfg(feature = "alloc")]
 pub fn init_randomness_source(rng: Box<dyn RngCore + Send + Sync>) {
     // SAFETY: If randomness source is already set, the whole program panics
