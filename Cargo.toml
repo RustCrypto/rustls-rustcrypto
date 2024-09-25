@@ -1,5 +1,9 @@
 [workspace]
-members = ["acceptance-test"]
+members = [
+    "acceptance-test",
+    "validation/consumer-no_std",
+    "validation/local_ping_pong_openssl"
+]
 
 [workspace.dependencies]
 rustls = { version = "0.23.13", default-features = false }
