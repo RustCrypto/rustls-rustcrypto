@@ -40,101 +40,83 @@ extern crate alloc;
 
 use core::fmt::Debug;
 
-#[cfg(not(feature = "atomic"))]
-use core::cell::OnceCell;
-
-#[cfg(feature = "atomic")]
-use atomic_once_cell::AtomicOnceCell as OnceCell;
+use core::num::NonZeroU32;
 
 #[cfg(feature = "alloc")]
 use alloc::sync::Arc;
 
 use rand_core::{CryptoRng, RngCore};
-use rustls::crypto::{
-    CipherSuiteCommon, CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom,
-};
+use rustls::crypto::{CipherSuiteCommon, CryptoProvider, KeyProvider, SecureRandom};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
 #[cfg(feature = "tls12")]
 use rustls::SignatureScheme;
 
+#[cfg(feature = "getrandom")]
+use rustls::crypto::GetRandomFailed;
+
 #[derive(Debug, Clone)]
-pub struct Provider;
+pub(crate) struct CryptoProviderRng;
 
-pub fn provider() -> CryptoProvider {
-    CryptoProvider {
-        cipher_suites: ALL_CIPHER_SUITES.to_vec(),
-        kx_groups: kx::ALL_KX_GROUPS.to_vec(),
-        signature_verification_algorithms: verify::ALGORITHMS,
-        secure_random: &Provider,
-        key_provider: &Provider,
+impl RngCore for CryptoProviderRng {
+    fn next_u32(&mut self) -> u32 {
+        let mut limbs: [u8; 4] = [0; 4];
+        self.fill_bytes(&mut limbs);
+        u32::from_ne_bytes(limbs)
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        let mut limbs: [u8; 8] = [0; 8];
+        self.fill_bytes(&mut limbs);
+        u64::from_ne_bytes(limbs)
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        self.try_fill_bytes(dest).unwrap()
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand_core::Error> {
+        CryptoProvider::get_default()
+            .unwrap()
+            .secure_random
+            .fill(dest)
+            .map_err(|_| unsafe { NonZeroU32::new_unchecked(1).into() })
     }
 }
 
-pub fn provider_and_init_rng(rng: &'static mut (dyn RngCore + Send + Sync)) -> CryptoProvider {
-    unsafe {
-        init_randomness_source(rng);
-    }
-    provider()
-}
+impl CryptoRng for CryptoProviderRng {}
 
-// The global RNG cell that points to a user-defined, custom global RNG state.
-// Technically speaking, we want something similar to a lazy cell, except the user can customize the closure
-static mut RNG: OnceCell<&'static mut (dyn RngCore + Send + Sync)> = OnceCell::new();
+#[derive(Debug)]
+#[cfg(feature = "getrandom")]
+struct OsRngSecureRandom;
 
-fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
-    #[cfg(feature = "getrandom")]
-    // SAFETY: we only init the randomness source if the once cell was not initialized
-    unsafe {
-        static mut OS_RNG: &'static mut (dyn RngCore + Send + Sync) = &mut rand_core::OsRng;
-        init_randomness_source(OS_RNG);
-    }
-
-    // SAFETY: If randomness source is not already set, the whole program panics due to the unwrap
-    // UNSAFETY: If you have a memory corruption (whether stack or heap or not), this assumption could be violated
-    #[allow(static_mut_refs)]
-    unsafe {
-        RNG.get_mut().expect("RNG was not set")
-    }
-}
-
-// Initialize an RNG source, and panic if was already set when it think it is unset, which would only happen if two threads set the data at the same time, otherwise a no-op if it was already set.
-// This ensures the user would have to decide on the RNG source at the very beginning, likely the first function call in main and find way to provide entropy themselves
-// TIP: you can put your RNG state as a global variable, which is usually useful for MCUs
-// SAFETY (under "atomic" assumption): If the randomness source is already set in progress when it is trying to set the value, either one can safely commit the write or the whole program panic
-// DANGER (without "atomic" assumption): this operation can be racy if any two asymmetric cores access the same memory region at the same time without prior cache invalidation knowledge
-#[allow(static_mut_refs)]
-pub unsafe fn init_randomness_source(rng: &'static mut (dyn RngCore + Send + Sync)) {
-    let _ = RNG.set(rng);
-}
-
-impl SecureRandom for Provider {
-    fn fill(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
-        get_rng_danger()
-            .try_fill_bytes(bytes)
+#[cfg(feature = "getrandom")]
+impl SecureRandom for OsRngSecureRandom {
+    fn fill(&self, buf: &mut [u8]) -> Result<(), GetRandomFailed> {
+        use rand_core::RngCore;
+        rand_core::OsRng
+            .try_fill_bytes(buf)
             .map_err(|_| GetRandomFailed)
     }
 }
 
-impl RngCore for Provider {
-    fn next_u32(&mut self) -> u32 {
-        get_rng_danger().next_u32()
-    }
+#[derive(Debug, Clone)]
+pub struct Provider;
 
-    fn next_u64(&mut self) -> u64 {
-        get_rng_danger().next_u64()
-    }
-
-    fn fill_bytes(&mut self, dest: &mut [u8]) {
-        get_rng_danger().fill_bytes(dest)
-    }
-
-    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand_core::Error> {
-        get_rng_danger().try_fill_bytes(dest)
-    }
+#[cfg(feature = "getrandom")]
+pub fn provider() -> CryptoProvider {
+    provider_with_rng(&OsRngSecureRandom)
 }
 
-impl CryptoRng for Provider {}
+pub fn provider_with_rng(rng: &'static dyn SecureRandom) -> CryptoProvider {
+    CryptoProvider {
+        cipher_suites: ALL_CIPHER_SUITES.to_vec(),
+        kx_groups: kx::ALL_KX_GROUPS.to_vec(),
+        signature_verification_algorithms: verify::ALGORITHMS,
+        secure_random: rng,
+        key_provider: &Provider,
+    }
+}
 
 impl KeyProvider for Provider {
     fn load_private_key(

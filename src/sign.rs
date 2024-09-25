@@ -2,8 +2,6 @@
 use alloc::{sync::Arc, vec::Vec};
 use core::marker::PhantomData;
 
-use crate::Provider;
-
 use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
 use self::eddsa::Ed25519SigningKey;
 use self::rsa::RsaSigningKey;
@@ -31,7 +29,7 @@ where
 {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
         self.key
-            .try_sign_with_rng(&mut Provider, message)
+            .try_sign_with_rng(&mut crate::CryptoProviderRng, message)
             .map_err(|_| rustls::Error::General("signing failed".into()))
             .map(|sig: S| sig.to_vec())
     }
