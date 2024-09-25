@@ -1,0 +1,36 @@
+[package]
+name = "acceptance-test"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+anyhow = "1.0.89"
+bytes = "1.7.2"
+claim = "0.5.0"
+env_logger = "0.11.5"
+futures = "0.3.30"
+http-body-util = "0.1.2"
+hyper = { version = "1.4.1", default-features = false, features = ["http1", "http2", "client", "server"] }
+hyper-util = { version = "0.1.9", features = ["tokio", "server-auto", "service", "http1", "http2"] }
+indoc = "2.0.5"
+pki-types.workspace = true
+rcgen = "0.13.1"
+reqwest = { version = "0.12.7", default-features = false, features = ["http2", "charset", "rustls-tls-manual-roots-no-provider", "json"] }
+rustls-rustcrypto = { path = ".." }
+rustls.workspace = true
+test-case = "3.3.1"
+tokio = { version = "1.40.0", features = ["rt-multi-thread", "macros"] }
+tokio-rustls = { version = "0.26.0", default-features = false }
+webpki-root-certs = "0.26.6"
+
+[features]
+default = ["std", "tls12"]
+logging = ["rustls/logging"]
+tls12 = ["rustls/tls12", "tokio-rustls/tls12"]
+# TODO: go through all of these that what gets exposed re: std error type
+std = ["alloc", "pki-types/std", "rustls/std"]
+# TODO: go through all of these to ensure to_vec etc. impls are exposed
+alloc = ["pki-types/alloc"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(TODO)'] }

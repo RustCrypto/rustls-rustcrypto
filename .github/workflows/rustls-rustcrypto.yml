@@ -78,10 +78,26 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-      - run: cargo test --features tls12
-      - name: Test no_std with alloc
-        run: cargo test --no-default-features --features tls12,alloc
-
+      - uses: taiki-e/install-action@nextest
+      - name: Test normal
+        run: cargo nextest run --all
+      - name: Test no_std
+        run: cargo nextest run --all --no-default-features --features alloc
+      - name: Test no_std with TLS 1.2
+        run: cargo nextest run --all --no-default-features --features alloc,tls12
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: RustCrypto/actions/cargo-cache@master
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: llvm-tools-preview
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - uses: taiki-e/install-action@nextest
+      - name: Collect coverage data
+        run: cargo llvm-cov nextest --all
   cross:
     strategy:
       matrix:
@@ -93,10 +109,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ${{ matrix.deps }}
+      - name: Install cross-compilation tools
+        uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
-      - uses: RustCrypto/actions/cross-install@master
-      - run: cross test --release --target ${{ matrix.target }} --all-features
+      - uses: taiki-e/install-action@nextest
+      - run: cargo nextest run --all --release --target ${{ matrix.target }} --all-features
