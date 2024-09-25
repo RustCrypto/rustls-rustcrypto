@@ -72,12 +72,12 @@ impl RngCore for CryptoProviderRng {
     }
 
     fn fill_bytes(&mut self, dest: &mut [u8]) {
-        self.try_fill_bytes(dest).unwrap()
+        self.try_fill_bytes(dest).expect("random bytes should be filled")
     }
 
     fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand_core::Error> {
         CryptoProvider::get_default()
-            .unwrap()
+            .expect("provider should be set")
             .secure_random
             .fill(dest)
             .map_err(|_| unsafe { NonZeroU32::new_unchecked(1).into() })
@@ -93,7 +93,6 @@ struct OsRngSecureRandom;
 #[cfg(feature = "getrandom")]
 impl SecureRandom for OsRngSecureRandom {
     fn fill(&self, buf: &mut [u8]) -> Result<(), GetRandomFailed> {
-        use rand_core::RngCore;
         rand_core::OsRng
             .try_fill_bytes(buf)
             .map_err(|_| GetRandomFailed)
