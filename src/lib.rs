@@ -38,10 +38,13 @@ compile_error!("Rustls currently does not support alloc-less environments");
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-use core::{cell::OnceCell, fmt::Debug};
+use core::fmt::Debug;
 
 #[cfg(feature = "alloc")]
-use alloc::{boxed::Box, sync::Arc};
+use atomic_once_cell::AtomicOnceCell;
+
+#[cfg(feature = "alloc")]
+use alloc::sync::Arc;
 
 use rand_core::{CryptoRng, RngCore};
 use rustls::crypto::{
@@ -65,52 +68,44 @@ pub fn provider() -> CryptoProvider {
     }
 }
 
-#[cfg(feature = "alloc")]
-pub fn provider_and_init_rng(rng: Box<dyn RngCore + Send + Sync>) -> CryptoProvider {
-    init_randomness_source(rng);
+pub fn provider_and_init_rng(rng: &'static mut (dyn RngCore + Send + Sync)) -> CryptoProvider {
+    unsafe {
+        init_randomness_source(rng);
+    }
     provider()
 }
 
 // TODO: switch to ThinBox once it is available
-#[cfg(feature = "alloc")]
-static mut RNG: OnceCell<Box<dyn RngCore + Send + Sync>> = OnceCell::new();
+static mut RNG: AtomicOnceCell<&'static mut (dyn RngCore + Send + Sync)> = AtomicOnceCell::new();
 
-#[cfg(feature = "alloc")]
+
 fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
     #[cfg(feature = "getrandom")]
-    #[allow(static_mut_refs)]
     // SAFETY: we only init the randomness source if the once cell was not initialized
     unsafe {
-        // TODO: Add unlikely(...) later when it is stabilized for faster speculative branch
-        if RNG.get().is_none() {
-            // This would either set the randomness source or panic, in other word, infallible
-            init_randomness_source(Box::new(rand_core::OsRng));
-        }
+        static mut OS_RNG: &'static mut (dyn RngCore + Send + Sync) = &mut rand_core::OsRng;
+        init_randomness_source(OS_RNG);
     }
 
     // SAFETY: If randomness source is not already set, the whole program panics due to the unwrap
     // UNSAFETY: If you have a memory corruption (whether stack or heap or not), this assumption could be violated
     #[allow(static_mut_refs)]
     unsafe {
-        RNG.get_mut().expect("RNG was not set").as_mut()
+        RNG.get_mut().expect("RNG was not set")
     }
 }
 
-// Initialize an RNG source, and panic if it was already set, which would only happen if two threads set the data at the same time.
+// Initialize an RNG source, and panic if was already set when it think it is unset, which would only happen if two threads set the data at the same time.
 // This ensures the user would have to decide on the RNG source at the very beginning, likely the first function call in main and find way to provide entropy themselves
-// TIP: Use Box::from_raw to prevent having to do real heap allocation if you can assume your program to be single-threaded and you put RNG state as a global variable, which is usually useful for MCUs
-#[cfg(feature = "alloc")]
-pub fn init_randomness_source(rng: Box<dyn RngCore + Send + Sync>) {
+// TIP: you can put your RNG state as a global variable, which is usually useful for MCUs
+pub unsafe fn init_randomness_source(rng: &'static mut (dyn RngCore + Send + Sync)) {
     // SAFETY: If randomness source is already set, the whole program panics
     #[allow(static_mut_refs)]
     unsafe {
-        if RNG.set(rng).is_err() {
-            panic!("RNG was set twice")
-        }
+        let _ = RNG.set(rng);
     }
 }
 
-#[cfg(feature = "alloc")]
 impl SecureRandom for Provider {
     fn fill(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
         get_rng_danger()
@@ -119,7 +114,6 @@ impl SecureRandom for Provider {
     }
 }
 
-#[cfg(feature = "alloc")]
 impl RngCore for Provider {
     fn next_u32(&mut self) -> u32 {
         get_rng_danger().next_u32()
@@ -138,7 +132,6 @@ impl RngCore for Provider {
     }
 }
 
-#[cfg(feature = "alloc")]
 impl CryptoRng for Provider {}
 
 impl KeyProvider for Provider {
@@ -211,7 +204,7 @@ pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     });
 
 #[cfg(feature = "tls12")]
-const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
+pub const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
     TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
     TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
     TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
@@ -321,7 +314,7 @@ pub const TLS13_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     &[TLS13_CHACHA20_POLY1305_SHA256]
 );
 
-pub static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
+pub const ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     SupportedCipherSuite,
     if cfg!(feature = "tls12") {
         TLS12_SUITES

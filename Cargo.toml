@@ -19,6 +19,7 @@ rust-version = "1.75"
 [dependencies]
 aead = { version = "0.5.2", default-features = false }
 aes-gcm = { version = "0.10.3", default-features = false, features = ["aes", "alloc"] }
+atomic_once_cell = "0.1.6"
 chacha20poly1305 = { version = "0.10.1", default-features = false }
 crypto-common = { version = "0.1.6", default-features = false }
 der = { version = "0.7.9", default-features = false }
@@ -40,9 +41,6 @@ signature = { version = "2.1.0", default-features = false }
 webpki = { package = "rustls-webpki", version = "0.102.0", default-features = false }
 x25519-dalek = { version = "2", default-features = false }
 
-[dev-dependencies]
-getrandom = { version = "0.2", features = ["custom"] } # workaround to build on no_std targets
-
 [features]
 default = ["std", "tls12", "zeroize", "getrandom"]
 logging = ["rustls/logging"]
@@ -57,4 +55,4 @@ std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"
 alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
 
-getrandom = ["alloc", "rand_core/getrandom"]
+getrandom = ["rand_core/getrandom"]
