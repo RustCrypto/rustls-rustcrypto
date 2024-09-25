@@ -40,8 +40,11 @@ extern crate alloc;
 
 use core::fmt::Debug;
 
-#[cfg(feature = "alloc")]
-use atomic_once_cell::AtomicOnceCell;
+#[cfg(not(feature = "atomic"))]
+use core::cell::OnceCell;
+
+#[cfg(feature = "atomic")]
+use atomic_once_cell::AtomicOnceCell as OnceCell;
 
 #[cfg(feature = "alloc")]
 use alloc::sync::Arc;
@@ -75,8 +78,9 @@ pub fn provider_and_init_rng(rng: &'static mut (dyn RngCore + Send + Sync)) -> C
     provider()
 }
 
-static mut RNG: AtomicOnceCell<&'static mut (dyn RngCore + Send + Sync)> = AtomicOnceCell::new();
-
+// The global RNG cell that points to a user-defined, custom global RNG state. 
+// Technically speaking, we want something similar to a lazy cell, except the user can customize the closure 
+static mut RNG: OnceCell<&'static mut (dyn RngCore + Send + Sync)> = OnceCell::new();
 
 fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
     #[cfg(feature = "getrandom")]
@@ -94,11 +98,12 @@ fn get_rng_danger() -> &'static mut (dyn RngCore + Send + Sync) {
     }
 }
 
-// Initialize an RNG source, and panic if was already set when it think it is unset, which would only happen if two threads set the data at the same time.
+// Initialize an RNG source, and panic if was already set when it think it is unset, which would only happen if two threads set the data at the same time, otherwise a no-op if it was already set.
 // This ensures the user would have to decide on the RNG source at the very beginning, likely the first function call in main and find way to provide entropy themselves
 // TIP: you can put your RNG state as a global variable, which is usually useful for MCUs
 pub unsafe fn init_randomness_source(rng: &'static mut (dyn RngCore + Send + Sync)) {
-    // SAFETY: If randomness source is already set, the whole program panics
+    // SAFETY (under "atomic" assumption): If the randomness source is already set in progress when it is trying to set the value, either one can safely commit the write or the whole program panic
+    // DANGER (without "atomic" assumption): this operation can be racy if any two asymmetric cores access the same memory region at the same time without prior cache invalidation knowledge
     #[allow(static_mut_refs)]
     unsafe {
         let _ = RNG.set(rng);
