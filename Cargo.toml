@@ -70,7 +70,7 @@ full = [
     "rsa-full",
     "format",
 ]
-format = ["pem", "pkcs1", "pkcs8", "sec1", "der"]
+format = ["pem", "pkcs1", "pkcs8", "sec1"]
 logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
 
@@ -95,10 +95,10 @@ p384 = ["dep:p384", "nist"]
 p521 = ["dep:p521", "nist"]
 ed25519 = ["dep:ed25519-dalek"]
 
-sec1 = ["dep:sec1"]
-pem = ["sec1?/pem", "pkcs8?/pem", "p256?/pem", "p384?/pem", "p521?/pem"]
+sec1 = ["dep:sec1", "der"]
+pem = ["sec1?/pem", "pkcs8?/pem", "p256?/pem", "p384?/pem", "p521?/pem", "der"]
 
-pkcs1 = ["dep:pkcs1"]
+pkcs1 = ["dep:pkcs1", "der"]
 pkcs8 = [
     "dep:pkcs8",
     "ed25519-dalek?/pkcs8",
@@ -106,6 +106,7 @@ pkcs8 = [
     "p256?/pkcs8",
     "p384?/pkcs8",
     "p521?/pkcs8",
+    "der"
 ]
 
 ecdsa = ["dep:ecdsa"]
