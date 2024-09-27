@@ -27,11 +27,6 @@
     unused_lifetimes
 )]
 
-//! # Usage
-//!
-//! See [`examples-xsmall`](https://github.com/RustCrypto/rustls-rustcrypto/tree/master/examples-xsmall)
-//! for a usage example.
-
 #[cfg(not(feature = "alloc"))]
 compile_error!("Rustls currently does not support alloc-less environments");
 
