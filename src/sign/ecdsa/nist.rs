@@ -1,10 +1,8 @@
+use crate::sign::GenericRandomizedSigner;
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, format, sync::Arc};
 use core::marker::PhantomData;
-
-use crate::sign::GenericRandomizedSigner;
 use paste::paste;
-
 #[cfg(feature = "der")]
 use pki_types::PrivateKeyDer;
 use rustls::sign::SigningKey;
@@ -71,5 +69,5 @@ macro_rules! impl_ecdsa {
 #[cfg(feature = "p256")]
 impl_ecdsa! {P256, SignatureScheme::ECDSA_NISTP256_SHA256, ::p256::ecdsa::SigningKey, ::p256::ecdsa::DerSignature}
 
-#[cfg(feature = "p256")]
+#[cfg(feature = "p384")]
 impl_ecdsa! {P384, SignatureScheme::ECDSA_NISTP384_SHA384, ::p384::ecdsa::SigningKey, ::p384::ecdsa::DerSignature}

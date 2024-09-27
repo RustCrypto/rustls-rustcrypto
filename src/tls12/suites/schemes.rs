@@ -3,13 +3,13 @@ use rustls::SignatureScheme;
 
 #[cfg(feature = "ecdsa")]
 pub const TLS12_ECDSA_SCHEMES: &[SignatureScheme] = &[
-    #[cfg(feature = "p256")]
+    #[cfg(feature = "ecdsa-p256")]
     SignatureScheme::ECDSA_NISTP256_SHA256,
-    #[cfg(feature = "p384")]
+    #[cfg(feature = "ecdsa-p384")]
     SignatureScheme::ECDSA_NISTP384_SHA384,
-    #[cfg(feature = "p521")]
+    #[cfg(feature = "ecdsa-p521")]
     SignatureScheme::ECDSA_NISTP521_SHA512,
-    #[cfg(feature = "ed25519")]
+    #[cfg(feature = "eddsa-ed25519")]
     SignatureScheme::ED25519,
 ];
 

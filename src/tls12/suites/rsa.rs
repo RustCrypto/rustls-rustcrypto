@@ -1,6 +1,8 @@
 use rustls::SupportedCipherSuite;
 
 #[cfg(feature = "aead")]
+use crate::tls12::suites::schemes::TLS12_RSA_SCHEMES;
+#[cfg(feature = "aead")]
 use crate::{hash, hmac};
 #[cfg(feature = "aead")]
 use rustls::crypto::{tls12::PrfUsingHmac, CipherSuiteCommon, KeyExchangeAlgorithm};
@@ -12,9 +14,6 @@ use crate::aead::{Aes128Gcm, Aes256Gcm};
 
 #[cfg(feature = "chacha20poly1305")]
 use crate::aead::ChaCha20Poly1305;
-
-#[cfg(feature = "aead")]
-use crate::tls12::suites::schemes::TLS12_RSA_SCHEMES;
 
 #[cfg(feature = "aes-gcm")]
 pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: Tls12CipherSuite = Tls12CipherSuite {

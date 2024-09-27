@@ -9,11 +9,17 @@ use rustls::{SignatureAlgorithm, SignatureScheme};
 use sha2::{Sha256, Sha384, Sha512};
 
 const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
+    #[cfg(feature = "rsa-pss")]
     SignatureScheme::RSA_PSS_SHA512,
+    #[cfg(feature = "rsa-pss")]
     SignatureScheme::RSA_PSS_SHA384,
+    #[cfg(feature = "rsa-pss")]
     SignatureScheme::RSA_PSS_SHA256,
+    #[cfg(feature = "rsa-pkcs1")]
     SignatureScheme::RSA_PKCS1_SHA512,
+    #[cfg(feature = "rsa-pkcs1")]
     SignatureScheme::RSA_PKCS1_SHA384,
+    #[cfg(feature = "rsa-pkcs1")]
     SignatureScheme::RSA_PKCS1_SHA256,
 ];
 
@@ -63,15 +69,21 @@ impl SigningKey for RsaSigningKey {
                 }
 
                 match scheme {
+                    #[cfg(feature = "rsa-pss")]
                     SignatureScheme::RSA_PSS_SHA512 => signer! {::rsa::pss::SigningKey::<Sha512>},
+                    #[cfg(feature = "rsa-pss")]
                     SignatureScheme::RSA_PSS_SHA384 => signer! {::rsa::pss::SigningKey::<Sha384>},
+                    #[cfg(feature = "rsa-pss")]
                     SignatureScheme::RSA_PSS_SHA256 => signer! {::rsa::pss::SigningKey::<Sha256>},
+                    #[cfg(feature = "rsa-pkcs1")]
                     SignatureScheme::RSA_PKCS1_SHA512 => {
                         signer! {::rsa::pkcs1v15::SigningKey::<Sha512>}
                     }
+                    #[cfg(feature = "rsa-pkcs1")]
                     SignatureScheme::RSA_PKCS1_SHA384 => {
                         signer! {::rsa::pkcs1v15::SigningKey::<Sha384>}
                     }
+                    #[cfg(feature = "rsa-pkcs1")]
                     SignatureScheme::RSA_PKCS1_SHA256 => {
                         signer! {::rsa::pkcs1v15::SigningKey::<Sha256>}
                     }
