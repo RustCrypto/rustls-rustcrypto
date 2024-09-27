@@ -2,8 +2,13 @@
 use alloc::{sync::Arc, vec::Vec};
 use core::marker::PhantomData;
 
+#[cfg(all(feature = "ecdsa", feature = "der"))]
 use self::ecdsa::nist::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
+
+#[cfg(all(feature = "eddsa", feature = "ed25519"))]
 use self::eddsa::ed25519::Ed25519SigningKey;
+
+#[cfg(feature = "rsa")]
 use self::rsa::RsaSigningKey;
 
 use pki_types::PrivateKeyDer;
@@ -72,11 +77,24 @@ where
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
+#[allow(unused_variables)]
 pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    RsaSigningKey::try_from(der)
-        .map(|x| Arc::new(x) as _)
-        .or_else(|_| any_ecdsa_type(der))
-        .or_else(|_| any_eddsa_type(der))
+    #[cfg(feature = "rsa")]
+    if let Ok(key) = RsaSigningKey::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+
+    #[cfg(feature = "ecdsa")]
+    if let Ok(key) = any_ecdsa_type(der) {
+        return Ok(key);
+    }
+
+    #[cfg(feature = "eddsa")]
+    if let Ok(key) = any_eddsa_type(der) {
+        return Ok(key);
+    }
+
+    Err(rustls::Error::General("not supported".into()))
 }
 
 /// Extract any supported ECDSA key from the given DER input.
@@ -84,10 +102,18 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
+#[allow(unused_variables)]
 pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    let p256 = |_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _);
-    let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
-    p256(()).or_else(p384)
+    #[cfg(all(feature = "der", feature = "p256"))]
+    if let Ok(key) = EcdsaSigningKeyP256::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+    #[cfg(all(feature = "der", feature = "p384"))]
+    if let Ok(key) = EcdsaSigningKeyP384::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+
+    Err(rustls::Error::General("not supported".into()))
 }
 
 /// Extract any supported EDDSA key from the given DER input.
@@ -95,11 +121,20 @@ pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, ru
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
+#[allow(unused_variables)]
 pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
     // TODO: Add support for Ed448
-    Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _)
+    #[cfg(feature = "ed25519")]
+    if let Ok(key) = Ed25519SigningKey::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+
+    Err(rustls::Error::General("not supported".into()))
 }
 
+#[cfg(feature = "ecdsa")]
 pub mod ecdsa;
+#[cfg(feature = "eddsa")]
 pub mod eddsa;
+#[cfg(feature = "rsa")]
 pub mod rsa;

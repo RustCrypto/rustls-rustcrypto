@@ -4,11 +4,11 @@ use core::marker::PhantomData;
 
 use crate::sign::GenericRandomizedSigner;
 use paste::paste;
-use pkcs8::DecodePrivateKey;
+
+#[cfg(feature = "der")]
 use pki_types::PrivateKeyDer;
 use rustls::sign::SigningKey;
 use rustls::{SignatureAlgorithm, SignatureScheme};
-use sec1::DecodeEcPrivateKey;
 
 macro_rules! impl_ecdsa {
 ($name: ident, $scheme: expr, $signing_key: ty, $signature: ty) => {
@@ -19,15 +19,20 @@ macro_rules! impl_ecdsa {
             scheme: SignatureScheme,
         }
 
+        #[cfg(feature = "der")]
         impl TryFrom<&PrivateKeyDer<'_>> for [<EcdsaSigningKey $name>] {
             type Error = rustls::Error;
 
             fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
                 let pkey = match value {
+                    #[cfg(feature = "pkcs8")]
                     PrivateKeyDer::Pkcs8(der) => {
+                        use pkcs8::DecodePrivateKey;
                         $signing_key::from_pkcs8_der(der.secret_pkcs8_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
                     },
+                    #[cfg(feature = "sec1")]
                     PrivateKeyDer::Sec1(sec1) => {
+                        use sec1::DecodeEcPrivateKey;
                         $signing_key::from_sec1_der(sec1.secret_sec1_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
                     },
                     PrivateKeyDer::Pkcs1(_) => Err(format!("ECDSA does not support PKCS#1 key")),
@@ -63,5 +68,8 @@ macro_rules! impl_ecdsa {
 };
 }
 
+#[cfg(feature = "p256")]
 impl_ecdsa! {P256, SignatureScheme::ECDSA_NISTP256_SHA256, ::p256::ecdsa::SigningKey, ::p256::ecdsa::DerSignature}
+
+#[cfg(feature = "p256")]
 impl_ecdsa! {P384, SignatureScheme::ECDSA_NISTP384_SHA384, ::p384::ecdsa::SigningKey, ::p384::ecdsa::DerSignature}

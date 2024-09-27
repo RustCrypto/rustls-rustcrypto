@@ -13,9 +13,8 @@ use rustls::crypto::cipher::{
 };
 use rustls::ConnectionTrafficSecrets;
 
-const TLS12_GCM_EXPLICIT_NONCE_LEN: usize = 8;
-
-const TLS12_GCM_OVERHEAD: usize = TLS12_GCM_EXPLICIT_NONCE_LEN + 16;
+const EXPLICIT_NONCE_LEN: usize = 8;
+const OVERHEAD: usize = EXPLICIT_NONCE_LEN + 16;
 
 macro_rules! impl_gcm {
 ($name: ident, $aead: ty, $nonce_pos: expr, $overhead: expr) => {
@@ -131,5 +130,5 @@ macro_rules! impl_gcm {
 };
 }
 
-impl_gcm! {Aes128Gcm, aes_gcm::Aes128Gcm, TLS12_GCM_EXPLICIT_NONCE_LEN, TLS12_GCM_OVERHEAD}
-impl_gcm! {Aes256Gcm, aes_gcm::Aes256Gcm, TLS12_GCM_EXPLICIT_NONCE_LEN, TLS12_GCM_OVERHEAD}
+impl_gcm! {Aes128Gcm, aes_gcm::Aes128Gcm, EXPLICIT_NONCE_LEN, OVERHEAD}
+impl_gcm! {Aes256Gcm, aes_gcm::Aes256Gcm, EXPLICIT_NONCE_LEN, OVERHEAD}

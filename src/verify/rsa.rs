@@ -1,7 +1,5 @@
 use paste::paste;
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
-use rsa::pkcs1::DecodeRsaPublicKey;
-use rsa::{pkcs1v15, pss, RsaPublicKey};
 use sha2::{Sha256, Sha384, Sha512};
 use signature::Verifier;
 use webpki::alg_id;
@@ -25,6 +23,9 @@ macro_rules! impl_generic_rsa_verifer {
                     message: &[u8],
                     signature: &[u8],
                 ) -> Result<(), crate::verify::Error> {
+                    use rsa::RsaPublicKey;
+                    use rsa::pkcs1::DecodeRsaPublicKey;
+
                     let public_key = RsaPublicKey::from_pkcs1_der(public_key)?;
                     let signature = <$signature>::try_from(signature)?;
                     <$verifying_key>::new(public_key).verify(message, &signature)?;
@@ -56,46 +57,54 @@ macro_rules! impl_generic_rsa_verifer {
     };
 }
 
+#[cfg(feature = "rsa-pkcs1")]
 impl_generic_rsa_verifer!(
     RSA_PKCS1_SHA256,
     alg_id::RSA_ENCRYPTION,
     alg_id::RSA_PKCS1_SHA256,
-    pkcs1v15::VerifyingKey<Sha256>,
-    pkcs1v15::Signature
+    ::rsa::pkcs1v15::VerifyingKey<Sha256>,
+    ::rsa::pkcs1v15::Signature
 );
+
+#[cfg(feature = "rsa-pkcs1")]
 impl_generic_rsa_verifer!(
     RSA_PKCS1_SHA384,
     alg_id::RSA_ENCRYPTION,
     alg_id::RSA_PKCS1_SHA384,
-    pkcs1v15::VerifyingKey<Sha384>,
-    pkcs1v15::Signature
+    ::rsa::pkcs1v15::VerifyingKey<Sha384>,
+    ::rsa::pkcs1v15::Signature
 );
+
+#[cfg(feature = "rsa-pkcs1")]
 impl_generic_rsa_verifer!(
     RSA_PKCS1_SHA512,
     alg_id::RSA_ENCRYPTION,
     alg_id::RSA_PKCS1_SHA512,
-    pkcs1v15::VerifyingKey<Sha512>,
-    pkcs1v15::Signature
+    ::rsa::pkcs1v15::VerifyingKey<Sha512>,
+    ::rsa::pkcs1v15::Signature
 );
 
+#[cfg(feature = "rsa-pss")]
 impl_generic_rsa_verifer!(
     RSA_PSS_SHA256,
     alg_id::RSA_ENCRYPTION,
     alg_id::RSA_PSS_SHA256,
-    pss::VerifyingKey<Sha256>,
-    pss::Signature
+    ::rsa::pss::VerifyingKey<Sha256>,
+    ::rsa::pss::Signature
 );
+#[cfg(feature = "rsa-pss")]
 impl_generic_rsa_verifer!(
     RSA_PSS_SHA384,
     alg_id::RSA_ENCRYPTION,
     alg_id::RSA_PSS_SHA384,
-    pss::VerifyingKey<Sha384>,
-    pss::Signature
+    ::rsa::pss::VerifyingKey<Sha384>,
+    ::rsa::pss::Signature
 );
+#[cfg(feature = "rsa-pss")]
 impl_generic_rsa_verifer!(
     RSA_PSS_SHA512,
     alg_id::RSA_ENCRYPTION,
     alg_id::RSA_PSS_SHA512,
-    pss::VerifyingKey<Sha512>,
-    pss::Signature
+    ::rsa::pss::VerifyingKey<Sha512>,
+    ::rsa::pss::Signature
 );

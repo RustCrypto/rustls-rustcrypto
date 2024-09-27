@@ -1,9 +1,8 @@
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 
-use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
-use rsa::pkcs1::DecodeRsaPrivateKey;
+
 use rsa::RsaPrivateKey;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{SignatureAlgorithm, SignatureScheme};
@@ -21,15 +20,24 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
 #[derive(Debug, Clone)]
 pub struct RsaSigningKey(RsaPrivateKey);
 
+#[cfg(feature = "der")]
 impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
     type Error = rustls::Error;
 
     fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         let pkey = match value {
-            PrivateKeyDer::Pkcs8(der) => RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
-                .map_err(|e| format!("failed to decrypt private key: {e}")),
-            PrivateKeyDer::Pkcs1(der) => RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
-                .map_err(|e| format!("failed to decrypt private key: {e}")),
+            #[cfg(feature = "pkcs8")]
+            PrivateKeyDer::Pkcs8(der) => {
+                use pkcs8::DecodePrivateKey;
+                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
+                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+            }
+            #[cfg(feature = "pkcs1")]
+            PrivateKeyDer::Pkcs1(der) => {
+                use pkcs1::DecodeRsaPrivateKey;
+                RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
+                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+            }
             PrivateKeyDer::Sec1(_) => Err("RSA does not support SEC-1 key".to_string()),
             _ => Err("not supported".into()),
         };
@@ -57,7 +65,7 @@ impl SigningKey for RsaSigningKey {
                 match scheme {
                     SignatureScheme::RSA_PSS_SHA512 => signer! {::rsa::pss::SigningKey::<Sha512>},
                     SignatureScheme::RSA_PSS_SHA384 => signer! {::rsa::pss::SigningKey::<Sha384>},
-                    SignatureScheme::RSA_PSS_SHA256 => signer! {rsa::pss::SigningKey::<Sha256>},
+                    SignatureScheme::RSA_PSS_SHA256 => signer! {::rsa::pss::SigningKey::<Sha256>},
                     SignatureScheme::RSA_PKCS1_SHA512 => {
                         signer! {::rsa::pkcs1v15::SigningKey::<Sha512>}
                     }
