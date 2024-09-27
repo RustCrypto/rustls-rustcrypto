@@ -41,7 +41,7 @@ impl From<TryFromSliceError> for Error {
     }
 }
 
-pub const ALL: &'static [&'static dyn SignatureVerificationAlgorithm] = const_concat_slices!(
+pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_slices!(
     &'static dyn SignatureVerificationAlgorithm,
     {
         #[cfg(feature = "ecdsa")]
@@ -95,9 +95,9 @@ pub const ALL: &'static [&'static dyn SignatureVerificationAlgorithm] = const_co
     },
 );
 
-pub const MAPPING: &'static [(
+pub const MAPPING: &[(
     SignatureScheme,
-    &'static [&'static dyn SignatureVerificationAlgorithm],
+    &[&'static dyn SignatureVerificationAlgorithm],
 )] = const_concat_slices!(
     (
         SignatureScheme,

@@ -60,8 +60,8 @@ macro_rules! impl_kx {
     };
 }
 
-#[cfg(feature = "p256")]
+#[cfg(feature = "kx-p256")]
 impl_kx! {SecP256R1, rustls::NamedGroup::secp256r1, ::p256::ecdh::EphemeralSecret, ::p256::PublicKey}
 
-#[cfg(feature = "p384")]
+#[cfg(feature = "kx-p384")]
 impl_kx! {SecP384R1, rustls::NamedGroup::secp384r1, ::p384::ecdh::EphemeralSecret, ::p384::PublicKey}
