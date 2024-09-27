@@ -36,6 +36,7 @@ extern crate alloc;
 #[cfg(feature = "alloc")]
 use alloc::sync::Arc;
 
+use pki_types::PrivateKeyDer;
 use rustls::crypto::{CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom};
 use rustls::sign::SigningKey;
 use rustls::SupportedCipherSuite;
@@ -54,20 +55,35 @@ pub fn provider() -> CryptoProvider {
 }
 
 impl SecureRandom for Provider {
-    fn fill(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
-        use rand_core::RngCore;
-        rand_core::OsRng
-            .try_fill_bytes(bytes)
-            .map_err(|_| GetRandomFailed)
+    fn fill(&self, #[allow(unused_variables)] bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
+        #[cfg(feature = "rand")]
+        {
+            use rand_core::RngCore;
+            rand_core::OsRng
+                .try_fill_bytes(bytes)
+                .map_err(|_| GetRandomFailed)
+        }
+
+        #[cfg(not(feature = "rand"))]
+        {
+            Err(GetRandomFailed)
+        }
     }
 }
 
 impl KeyProvider for Provider {
     fn load_private_key(
         &self,
-        key_der: pki_types::PrivateKeyDer<'static>,
+        #[allow(unused_variables)] key_der: PrivateKeyDer<'static>,
     ) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-        sign::any_supported_type(&key_der)
+        #[cfg(feature = "signature")]
+        {
+            sign::any_supported_type(&key_der)
+        }
+        #[cfg(not(feature = "signature"))]
+        {
+            Err(rustls::Error::General("not key providers supported".into()))
+        }
     }
 }
 
@@ -90,6 +106,7 @@ pub mod hmac;
 pub mod kx;
 
 pub mod misc;
+#[cfg(feature = "signature")]
 pub mod sign;
 pub mod verify;
 

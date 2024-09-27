@@ -1,12 +1,14 @@
-use crate::sign::GenericRandomizedSigner;
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, format, sync::Arc};
+
+use crate::sign::rand::GenericRandomizedSigner;
 use core::marker::PhantomData;
 use paste::paste;
-#[cfg(feature = "der")]
-use pki_types::PrivateKeyDer;
 use rustls::sign::SigningKey;
 use rustls::{SignatureAlgorithm, SignatureScheme};
+
+#[cfg(feature = "der")]
+use pki_types::PrivateKeyDer;
 
 macro_rules! impl_ecdsa {
 ($name: ident, $scheme: expr, $signing_key: ty, $signature: ty) => {

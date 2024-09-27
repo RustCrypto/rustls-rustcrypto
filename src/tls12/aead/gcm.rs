@@ -2,7 +2,7 @@
 use alloc::boxed::Box;
 
 use crate::aead::{Aes128Gcm, Aes256Gcm};
-use aead::{AeadCore, AeadInPlace};
+use ::aead::{AeadCore, AeadInPlace};
 use crypto_common::typenum::Unsigned;
 use crypto_common::{KeyInit, KeySizeUser};
 use paste::paste;

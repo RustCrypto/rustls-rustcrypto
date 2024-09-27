@@ -60,7 +60,7 @@ impl SigningKey for RsaSigningKey {
             .and_then(|&scheme| {
                 macro_rules! signer {
                     ($key:ty) => {{
-                        Some(Box::new(super::GenericRandomizedSigner {
+                        Some(Box::new(super::rand::GenericRandomizedSigner {
                             _marker: Default::default(),
                             key: Arc::new(<$key>::new(self.0.clone())),
                             scheme,

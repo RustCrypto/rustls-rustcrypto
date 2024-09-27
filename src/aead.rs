@@ -1,10 +1,15 @@
 use aead::Buffer;
 use rustls::crypto::cipher::{BorrowedPayload, PrefixedPayload};
 
+#[cfg(feature = "chacha20poly1305")]
 pub const CHACHAPOLY1305_OVERHEAD: usize = 16;
 
+#[cfg(feature = "chacha20poly1305")]
 pub struct ChaCha20Poly1305;
+#[cfg(feature = "aes-gcm")]
 pub struct Aes128Gcm;
+
+#[cfg(feature = "aes-gcm")]
 pub struct Aes256Gcm;
 
 pub(crate) struct EncryptBufferAdapter<'a>(pub(crate) &'a mut PrefixedPayload);

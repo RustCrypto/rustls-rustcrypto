@@ -1,10 +1,12 @@
-use crate::sign::GenericSigner;
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, format, string::ToString, sync::Arc};
+
+use crate::sign::GenericSigner;
 use core::marker::PhantomData;
 use ed25519_dalek::SigningKey;
 use pki_types::PrivateKeyDer;
 use rustls::{sign::Signer, SignatureAlgorithm, SignatureScheme};
+
 #[derive(Debug)]
 pub struct Ed25519SigningKey(Arc<SigningKey>);
 

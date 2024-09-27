@@ -7,6 +7,7 @@ use rustls::crypto::WebPkiSupportedAlgorithms;
 use rustls::SignatureScheme;
 
 pub(crate) enum Error {
+    #[cfg(feature = "signature")]
     Signature,
     TryFromSlice,
     #[cfg(feature = "der")]
@@ -15,6 +16,7 @@ pub(crate) enum Error {
     Pkcs1,
 }
 
+#[cfg(feature = "signature")]
 impl From<signature::Error> for Error {
     fn from(_: signature::Error) -> Self {
         Self::Signature
@@ -47,13 +49,13 @@ pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_sli
         #[cfg(feature = "ecdsa")]
         {
             &[
-                #[cfg(feature = "p256")]
+                #[cfg(feature = "ecdsa-p256")]
                 ecdsa::nist::ECDSA_P256_SHA256,
-                #[cfg(feature = "p256")]
+                #[cfg(feature = "ecdsa-p256")]
                 ecdsa::nist::ECDSA_P256_SHA384,
-                #[cfg(feature = "p384")]
+                #[cfg(feature = "ecdsa-p384")]
                 ecdsa::nist::ECDSA_P384_SHA256,
-                #[cfg(feature = "p384")]
+                #[cfg(feature = "ecdsa-p384")]
                 ecdsa::nist::ECDSA_P384_SHA384,
             ]
         }
@@ -107,7 +109,7 @@ pub const MAPPING: &[(
         #[cfg(feature = "ecdsa")]
         {
             &[
-                #[cfg(feature = "p384")]
+                #[cfg(feature = "ecdsa-p384")]
                 (
                     SignatureScheme::ECDSA_NISTP384_SHA384,
                     &[
@@ -116,12 +118,12 @@ pub const MAPPING: &[(
                         ecdsa::nist::ECDSA_P256_SHA384,
                     ],
                 ),
+                #[cfg(feature = "ecdsa-p256")]
                 (
-                    #[cfg(feature = "p256")]
                     SignatureScheme::ECDSA_NISTP256_SHA256,
                     &[
                         ecdsa::nist::ECDSA_P256_SHA256,
-                        #[cfg(feature = "p384")]
+                        #[cfg(feature = "ecdsa-p384")]
                         ecdsa::nist::ECDSA_P384_SHA256,
                     ],
                 ),
@@ -170,7 +172,7 @@ pub const ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
         #[cfg(feature = "eddsa")]
         {
             &[
-                #[cfg(feature = "ed25519")]
+                #[cfg(feature = "eddsa-ed25519")]
                 eddsa::ed25519::ED25519,
             ]
         }
@@ -190,7 +192,7 @@ pub const ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
             #[cfg(feature = "eddsa")]
             {
                 &[
-                    #[cfg(feature = "ed25519")]
+                    #[cfg(feature = "eddsa-ed25519")]
                     (SignatureScheme::ED25519, &[eddsa::ed25519::ED25519]),
                 ]
             }

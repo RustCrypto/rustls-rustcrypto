@@ -1,10 +1,16 @@
-#[cfg(feature = "alloc")]
+#[cfg(all(feature = "alloc", any(feature = "kx-p256", feature = "kx-p384")))]
 use alloc::boxed::Box;
 
+#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
 use crypto::{SharedSecret, SupportedKxGroup};
+
+#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
 use paste::paste;
+
+#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
 use rustls::crypto;
 
+#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
 macro_rules! impl_kx {
     ($name:ident, $kx_name:ty, $secret:ty, $public_key:ty) => {
         paste! {

@@ -24,13 +24,14 @@ aes-gcm = { version = "0.10.3", default-features = false, features = [
 ], optional = true }
 chacha20poly1305 = { version = "0.10.1", default-features = false, optional = true }
 crypto-common = { version = "0.1.6", default-features = false }
-der = { version = "0.7.9", default-features = false }
+der = { version = "0.7.9", default-features = false, optional = true }
 digest = { version = "0.10.7", default-features = false }
 ecdsa = { version = "0.16.9", default-features = false, optional = true }
 ed25519-dalek = { version = "2", default-features = false, optional = true }
 hmac = { version = "0.12.1", default-features = false }
 p256 = { version = "0.13.2", default-features = false, optional = true }
 p384 = { version = "0.13.0", default-features = false, optional = true }
+p521 = { version = "0.13.3", default-features = false, optional = true }
 pkcs1 = { version = "0.7.5", default-features = false, optional = true }
 pkcs8 = { version = "0.10.2", default-features = false, features = [
     "pkcs5",
@@ -40,19 +41,16 @@ rsa = { version = "0.9.6", default-features = false, features = [
 ], optional = true }
 sec1 = { version = "0.7.3", default-features = false, optional = true }
 sha2 = { version = "0.10.8", default-features = false }
-signature = { version = "2.2.0", features = [
-    "rand_core",
-], default-features = false }
+signature = { version = "2.2.0", default-features = false, optional = true }
 x25519-dalek = { version = "2", default-features = false, optional = true }
 
 paste = { version = "1.0.15", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1.8.0", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = [
     "getrandom",
-] }
+], optional = true }
 rustls = { version = "0.23.13", default-features = false }
-webpki = { package = "rustls-webpki", version = "0.102.8", default-features = false }
-p521 = { version = "0.13.3", default-features = false, optional = true }
+webpki = { package = "rustls-webpki", version = "0.102.8", default-features = false, optional = true }
 
 
 [dev-dependencies]
@@ -80,13 +78,13 @@ tls12 = ["rustls/tls12"]
 # TODO: go through all of these that what gets exposed re: std error type
 std = [
     "alloc",
-    "webpki/std",
+    "webpki?/std",
     "pki-types/std",
     "rustls/std",
     "ed25519-dalek?/std",
     "pkcs1?/std",
 ]
-alloc = ["webpki/alloc", "ecdsa?/alloc", "signature/alloc"]
+alloc = ["webpki?/alloc", "ecdsa?/alloc", "signature?/alloc"]
 zeroize = ["ed25519-dalek?/zeroize", "x25519-dalek?/zeroize"]
 
 nist = []
@@ -95,38 +93,26 @@ p384 = ["dep:p384", "nist"]
 p521 = ["dep:p521", "nist"]
 ed25519 = ["dep:ed25519-dalek"]
 
-sec1 = ["dep:sec1", "der"]
-pem = ["sec1?/pem", "pkcs8?/pem", "p256?/pem", "p384?/pem", "p521?/pem", "der"]
+verify = ["dep:webpki"]
 
-pkcs1 = ["dep:pkcs1", "der"]
-pkcs8 = [
-    "dep:pkcs8",
-    "ed25519-dalek?/pkcs8",
-    "sec1?/pkcs8",
-    "p256?/pkcs8",
-    "p384?/pkcs8",
-    "p521?/pkcs8",
-    "der"
-]
-
-ecdsa = ["dep:ecdsa"]
+ecdsa = ["dep:ecdsa", "verify", "signature", "rand"]
 ecdsa-p256 = ["p256", "p256/ecdsa", "ecdsa"]
 ecdsa-p384 = ["p384", "p384/ecdsa", "ecdsa"]
 ecdsa-p521 = ["p521", "p521/ecdsa", "ecdsa"]
 ecdsa-full = ["ecdsa-p256", "ecdsa-p384", "ecdsa-p521"]
 
-eddsa = []
+eddsa = ["verify", "signature"]
 eddsa-ed25519 = ["ed25519", "eddsa"]
 eddsa-full = ["eddsa-ed25519"]
 
-kx = []
+kx = ["rand"]
 kx-x25519 = ["dep:x25519-dalek", "kx"]
 kx-p256 = ["p256", "p256/ecdh", "kx"]
 kx-p384 = ["p384", "p384/ecdh", "kx"]
 kx-p521 = ["p521", "p521/ecdh", "kx"]
 kx-full = ["kx-x25519", "kx-p256", "kx-p384", "kx-p521"]
 
-rsa = ["dep:rsa"]
+rsa = ["dep:rsa", "rsa/sha2"]
 rsa-pkcs1 = ["rsa", "pkcs1"]
 rsa-pss = ["rsa"]
 rsa-full = ["rsa-pkcs1", "rsa-pss"]
@@ -136,4 +122,27 @@ aes-gcm = ["dep:aes-gcm", "aead"]
 chacha20poly1305 = ["dep:chacha20poly1305", "aead"]
 aead-full = ["aes-gcm", "chacha20poly1305"]
 
-der = []
+# TODO
+hash = []
+hash-sha256 = ["hash"]
+hash-sha384 = ["hash"]
+hash-sha512 = ["hash"]
+hash-full = ["hash-sha256", "hash-sha384", "hash-sha512"]
+
+# Formats
+der = ["dep:der"]
+sec1 = ["dep:sec1", "der"]
+pem = ["sec1?/pem", "pkcs8?/pem", "p256?/pem", "p384?/pem", "p521?/pem", "der"]
+pkcs1 = ["dep:pkcs1", "der"]
+pkcs8 = [
+    "dep:pkcs8",
+    "ed25519-dalek?/pkcs8",
+    "sec1?/pkcs8",
+    "p256?/pkcs8",
+    "p384?/pkcs8",
+    "p521?/pkcs8",
+    "der",
+]
+
+signature = ["dep:signature"]
+rand = ["dep:rand_core", "signature?/rand_core"]
