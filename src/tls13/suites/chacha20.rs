@@ -1,4 +1,4 @@
-use crate::aead::chacha20::ChaCha20Poly1305;
+use crate::aead::ChaCha20Poly1305;
 use crate::{hash, hmac};
 use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};

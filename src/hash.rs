@@ -10,7 +10,7 @@ macro_rules! impl_hash {
     ($name:ident, $ty:ty, $algo:ty) => {
         paste! {
             #[allow(non_camel_case_types)]
-            struct [<Hash_ $ty>];
+            pub struct [<Hash_ $ty>];
 
             impl hash::Hash for [<Hash_ $ty>] {
                 fn start(&self) -> Box<dyn hash::Context> {
@@ -31,7 +31,7 @@ macro_rules! impl_hash {
             }
 
             #[allow(non_camel_case_types)]
-            struct [<HashContent_ $ty>]($ty);
+            pub struct [<HashContent_ $ty>]($ty);
 
             impl hash::Context for [<HashContent_ $ty>] {
                 fn fork_finish(&self) -> hash::Output {

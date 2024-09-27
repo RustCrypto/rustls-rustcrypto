@@ -1,7 +1,9 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use crate::aead::{DecryptBufferAdapter, EncryptBufferAdapter};
+use crate::aead::{
+    ChaCha20Poly1305, DecryptBufferAdapter, EncryptBufferAdapter, CHACHAPOLY1305_OVERHEAD,
+};
 use chacha20poly1305::{AeadInPlace, KeyInit};
 use rustls::crypto::cipher::{
     self, make_tls12_aad, AeadKey, InboundOpaqueMessage, InboundPlainMessage, Iv, MessageDecrypter,
@@ -11,9 +13,7 @@ use rustls::crypto::cipher::{
 use rustls::crypto::cipher::{KeyBlockShape, Tls12AeadAlgorithm, NONCE_LEN};
 use rustls::ConnectionTrafficSecrets;
 
-use super::{ChaCha20Poly1305, CHACHAPOLY1305_OVERHEAD};
-
-struct CipherAdapter(chacha20poly1305::ChaCha20Poly1305, Iv);
+pub struct CipherAdapter(chacha20poly1305::ChaCha20Poly1305, Iv);
 
 impl Tls12AeadAlgorithm for ChaCha20Poly1305 {
     fn encrypter(&self, key: AeadKey, iv: &[u8], _: &[u8]) -> Box<dyn MessageEncrypter> {

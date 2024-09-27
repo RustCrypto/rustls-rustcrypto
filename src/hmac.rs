@@ -14,7 +14,7 @@ macro_rules! impl_hmac {
     ) => {
         paste! {
             #[allow(non_camel_case_types)]
-            struct [<Hmac_ $ty>];
+            pub struct [<Hmac_ $ty>];
 
             impl crypto::hmac::Hmac for [<Hmac_ $ty>] {
                 fn with_key(&self, key: &[u8]) -> Box<dyn crypto::hmac::Key> {
@@ -29,7 +29,7 @@ macro_rules! impl_hmac {
             }
 
             #[allow(non_camel_case_types)]
-            struct [<HmacKey_ $ty>](hmac::Hmac<$ty>);
+            pub struct [<HmacKey_ $ty>](hmac::Hmac<$ty>);
 
             impl crypto::hmac::Key for [<HmacKey_ $ty>] {
                 fn sign_concat(&self, first: &[u8], middle: &[&[u8]], last: &[u8]) -> crypto::hmac::Tag {

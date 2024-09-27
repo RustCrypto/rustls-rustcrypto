@@ -1,2 +1,1 @@
-mod nist;
-pub use nist::*;
+pub mod nist;

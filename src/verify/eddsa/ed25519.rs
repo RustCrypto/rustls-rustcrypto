@@ -4,7 +4,7 @@ use signature::Verifier;
 use webpki::alg_id;
 
 #[derive(Debug)]
-struct Ed25519Verify;
+pub struct Ed25519Verify;
 
 impl Ed25519Verify {
     fn verify_inner(

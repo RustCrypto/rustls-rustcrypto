@@ -1,4 +1,4 @@
-use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
+use crate::aead::{Aes128Gcm, Aes256Gcm};
 use crate::{hash, hmac};
 use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};

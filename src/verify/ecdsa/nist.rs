@@ -17,7 +17,7 @@ macro_rules! impl_generic_ecdsa_verifer {
     paste! {
         #[allow(non_camel_case_types)]
         #[derive(Debug)]
-        struct [<EcdsaVerifier_ $name>];
+        pub struct [<EcdsaVerifier_ $name>];
 
         impl [<EcdsaVerifier_ $name>] {
             fn verify_inner(public_key: &[u8], message: &[u8], signature: &[u8]) -> Result<(), crate::verify::Error> {

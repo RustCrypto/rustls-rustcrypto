@@ -17,7 +17,7 @@ macro_rules! impl_generic_rsa_verifer {
         paste! {
             #[allow(non_camel_case_types)]
             #[derive(Debug)]
-            struct [<RsaVerifier_ $name>];
+            pub struct [<RsaVerifier_ $name>];
 
             impl [<RsaVerifier_ $name>] {
                 fn verify_inner(

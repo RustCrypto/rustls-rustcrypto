@@ -1,5 +1,4 @@
-use crate::aead::chacha20::ChaCha20Poly1305;
-use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
+use crate::aead::{Aes128Gcm, Aes256Gcm, ChaCha20Poly1305};
 use crate::{hash, hmac};
 use rustls::crypto::{tls12::PrfUsingHmac, CipherSuiteCommon, KeyExchangeAlgorithm};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls12CipherSuite};
