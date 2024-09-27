@@ -1,7 +1,6 @@
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 
-use derive_more::{Debug, Deref};
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rsa::pkcs1::DecodeRsaPrivateKey;
@@ -19,7 +18,7 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
     SignatureScheme::RSA_PKCS1_SHA256,
 ];
 
-#[derive(Debug, Deref, Clone)]
+#[derive(Debug, Clone)]
 pub struct RsaSigningKey(RsaPrivateKey);
 
 impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {

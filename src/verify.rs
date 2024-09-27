@@ -8,14 +8,12 @@ use self::rsa::{
     RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512, RSA_PSS_SHA256, RSA_PSS_SHA384,
     RSA_PSS_SHA512,
 };
-use derive_more::From;
 use rustls::crypto::WebPkiSupportedAlgorithms;
 use rustls::SignatureScheme;
 
-#[derive(From)]
 pub(crate) enum Error {
     Signature,
-    TryFromSlice(TryFromSliceError),
+    TryFromSlice,
     Der,
     Pkcs1,
 }
@@ -35,6 +33,12 @@ impl From<der::Error> for Error {
 impl From<pkcs1::Error> for Error {
     fn from(_: pkcs1::Error) -> Self {
         Self::Pkcs1
+    }
+}
+
+impl From<TryFromSliceError> for Error {
+    fn from(_: TryFromSliceError) -> Self {
+        Self::TryFromSlice
     }
 }
 
