@@ -1,6 +1,7 @@
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 
+use derive_more::{Debug, Deref};
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rsa::pkcs1::DecodeRsaPrivateKey;
@@ -18,7 +19,7 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
     SignatureScheme::RSA_PKCS1_SHA256,
 ];
 
-#[derive(Debug)]
+#[derive(Debug, Deref, Clone)]
 pub struct RsaSigningKey(RsaPrivateKey);
 
 impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
@@ -55,17 +56,17 @@ impl SigningKey for RsaSigningKey {
                 }
 
                 match scheme {
-                    SignatureScheme::RSA_PSS_SHA512 => signer! {rsa::pss::SigningKey::<Sha512>},
-                    SignatureScheme::RSA_PSS_SHA384 => signer! {rsa::pss::SigningKey::<Sha384>},
+                    SignatureScheme::RSA_PSS_SHA512 => signer! {::rsa::pss::SigningKey::<Sha512>},
+                    SignatureScheme::RSA_PSS_SHA384 => signer! {::rsa::pss::SigningKey::<Sha384>},
                     SignatureScheme::RSA_PSS_SHA256 => signer! {rsa::pss::SigningKey::<Sha256>},
                     SignatureScheme::RSA_PKCS1_SHA512 => {
-                        signer! {rsa::pkcs1v15::SigningKey::<Sha512>}
+                        signer! {::rsa::pkcs1v15::SigningKey::<Sha512>}
                     }
                     SignatureScheme::RSA_PKCS1_SHA384 => {
-                        signer! {rsa::pkcs1v15::SigningKey::<Sha384>}
+                        signer! {::rsa::pkcs1v15::SigningKey::<Sha384>}
                     }
                     SignatureScheme::RSA_PKCS1_SHA256 => {
-                        signer! {rsa::pkcs1v15::SigningKey::<Sha256>}
+                        signer! {::rsa::pkcs1v15::SigningKey::<Sha256>}
                     }
                     _ => None,
                 }

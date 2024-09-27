@@ -1,5 +1,4 @@
-use rustls::crypto::WebPkiSupportedAlgorithms;
-use rustls::SignatureScheme;
+use core::array::TryFromSliceError;
 
 use self::ecdsa::{ECDSA_P256_SHA256, ECDSA_P256_SHA384, ECDSA_P384_SHA256, ECDSA_P384_SHA384};
 use self::eddsa::ED25519;
@@ -7,6 +6,35 @@ use self::rsa::{
     RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512, RSA_PSS_SHA256, RSA_PSS_SHA384,
     RSA_PSS_SHA512,
 };
+use derive_more::From;
+use rustls::crypto::WebPkiSupportedAlgorithms;
+use rustls::SignatureScheme;
+
+#[derive(From)]
+pub(crate) enum Error {
+    Signature,
+    TryFromSlice(TryFromSliceError),
+    Der,
+    Pkcs1,
+}
+
+impl From<signature::Error> for Error {
+    fn from(_: signature::Error) -> Self {
+        Self::Signature
+    }
+}
+
+impl From<der::Error> for Error {
+    fn from(_: der::Error) -> Self {
+        Self::Der
+    }
+}
+
+impl From<pkcs1::Error> for Error {
+    fn from(_: pkcs1::Error) -> Self {
+        Self::Pkcs1
+    }
+}
 
 pub static ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
     all: &[

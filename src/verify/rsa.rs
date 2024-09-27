@@ -19,6 +19,19 @@ macro_rules! impl_generic_rsa_verifer {
             #[derive(Debug)]
             struct [<RsaVerifier_ $name>];
 
+            impl [<RsaVerifier_ $name>] {
+                fn verify_inner(
+                    public_key: &[u8],
+                    message: &[u8],
+                    signature: &[u8],
+                ) -> Result<(), crate::verify::Error> {
+                    let public_key = RsaPublicKey::from_pkcs1_der(public_key)?;
+                    let signature = <$signature>::try_from(signature)?;
+                    <$verifying_key>::new(public_key).verify(message, &signature)?;
+                    Ok(())
+                }
+            }
+
             impl SignatureVerificationAlgorithm for [<RsaVerifier_ $name>] {
                 fn public_key_alg_id(&self) -> AlgorithmIdentifier {
                     $public_key_algo
@@ -34,11 +47,7 @@ macro_rules! impl_generic_rsa_verifer {
                     message: &[u8],
                     signature: &[u8],
                 ) -> Result<(), InvalidSignature> {
-                        let public_key = RsaPublicKey::from_pkcs1_der(public_key).map_err(|_| InvalidSignature)?;
-                        let signature = <$signature>::try_from(signature).map_err(|_| InvalidSignature)?;
-                        <$verifying_key>::new(public_key)
-                            .verify(message, &signature)
-                            .map_err(|_| InvalidSignature)
+                    Self::verify_inner(public_key, message, signature).map_err(|_| InvalidSignature)
                 }
             }
 
