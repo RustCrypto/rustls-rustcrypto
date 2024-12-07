@@ -38,7 +38,7 @@ impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
                 RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
-            #[cfg(feature = "pkcs1")]
+            #[cfg(all(feature = "pkcs8", feature = "pkcs1"))]
             PrivateKeyDer::Pkcs1(der) => {
                 use pkcs1::DecodeRsaPrivateKey;
                 RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
