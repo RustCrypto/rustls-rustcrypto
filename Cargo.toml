@@ -46,6 +46,9 @@ sha2 = { version = "0.10.8", default-features = false }
 signature = { version = "2.2.0", default-features = false, optional = true }
 x25519-dalek = { version = "2", default-features = false, optional = true }
 
+getrandom = { version = "0.2", default-features = false, features = [
+    "custom"
+] }
 paste = { version = "1.0.15", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1.10.0", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = [
@@ -61,10 +64,6 @@ getrandom = { version = "0.2", features = [
 
 [dev-dependencies]
 bytes = { version = "1.9.0", default-features = false }
-# workaround to build on no_std targets
-getrandom = { version = "0.2", features = [
-    "custom"
-] }
 itertools = "0.13.0"
 rsa = { version = "0.9.7", default-features = false, features = [
     "sha2",
@@ -101,6 +100,7 @@ std = [
     "rustls/std",
     "ed25519-dalek?/std",
     "pkcs1?/std",
+    "getrandom/std"
 ]
 alloc = ["webpki?/alloc", "ecdsa?/alloc", "signature?/alloc", "ccm?/alloc"]
 zeroize = ["ed25519-dalek?/zeroize", "x25519-dalek?/zeroize"]
