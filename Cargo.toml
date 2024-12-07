@@ -112,8 +112,8 @@ kx-p384 = ["p384", "p384/ecdh", "kx"]
 kx-p521 = ["p521", "p521/ecdh", "kx"]
 kx-full = ["kx-x25519", "kx-p256", "kx-p384", "kx-p521"]
 
-rsa = ["dep:rsa", "rsa/sha2"]
-rsa-pkcs1 = ["rsa", "pkcs1"]
+rsa = ["dep:rsa", "rsa/sha2", "verify", "signature", "pkcs1"]
+rsa-pkcs1 = ["rsa"]
 rsa-pss = ["rsa"]
 rsa-full = ["rsa-pkcs1", "rsa-pss"]
 

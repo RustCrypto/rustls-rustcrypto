@@ -24,7 +24,7 @@ macro_rules! impl_generic_rsa_verifer {
                     signature: &[u8],
                 ) -> Result<(), crate::verify::Error> {
                     use rsa::RsaPublicKey;
-                    use rsa::pkcs1::DecodeRsaPublicKey;
+                    use pkcs1::DecodeRsaPublicKey;
 
                     let public_key = RsaPublicKey::from_pkcs1_der(public_key)?;
                     let signature = <$signature>::try_from(signature)?;
