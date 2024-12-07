@@ -94,8 +94,13 @@ pub const ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices
         {
             tls12::suites::TLS12_SUITES
         }
+
+        #[cfg(not(feature = "tls12"))]
+        {
+            &[]
+        }
     },
-    tls13::suites::TLS13_SUITES,
+    tls13::suites::TLS13_SUITES
 );
 
 #[cfg(feature = "aead")]
