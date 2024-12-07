@@ -36,7 +36,7 @@ pkcs1 = { version = "0.7.5", default-features = false, optional = true }
 pkcs8 = { version = "0.10.2", default-features = false, features = [
     "pkcs5",
 ], optional = true }
-rsa = { version = "0.9.6", default-features = false, features = [
+rsa = { version = "0.9.7", default-features = false, features = [
     "sha2",
 ], optional = true }
 sec1 = { version = "0.7.3", default-features = false, optional = true }
@@ -45,11 +45,11 @@ signature = { version = "2.2.0", default-features = false, optional = true }
 x25519-dalek = { version = "2", default-features = false, optional = true }
 
 paste = { version = "1.0.15", default-features = false }
-pki-types = { package = "rustls-pki-types", version = "1.8.0", default-features = false }
+pki-types = { package = "rustls-pki-types", version = "1.10.0", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = [
     "getrandom",
 ], optional = true }
-rustls = { version = "0.23.13", default-features = false }
+rustls = { version = "0.23.19", default-features = false }
 webpki = { package = "rustls-webpki", version = "0.102.8", default-features = false, optional = true }
 
 
