@@ -63,7 +63,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
-      - run: cargo build --no-default-features --features tls12,alloc --release --target ${{ matrix.target }}
+      - run: cargo build --no-default-features --features tls12,full,alloc --release --target ${{ matrix.target }}
 
   test:
     strategy:
@@ -80,7 +80,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
       - run: cargo test --features tls12
       - name: Test no_std with alloc
-        run: cargo test --no-default-features --features tls12,alloc
+        run: cargo test --no-default-features --features tls12,full,alloc
 
   cross:
     strategy:
