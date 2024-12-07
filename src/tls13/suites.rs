@@ -4,12 +4,12 @@ use rustls::SupportedCipherSuite;
 pub const TLS13_SUITES: &[SupportedCipherSuite] = const_concat_slices!(
     SupportedCipherSuite,
     {
-        #[cfg(feature = "aes-gcm")]
+        #[cfg(feature = "aes")]
         {
             aes::TLS13_AES_SUITES
         }
 
-        #[cfg(not(feature = "aes-gcm"))]
+        #[cfg(not(feature = "aes"))]
         {
             &[]
         }
@@ -28,7 +28,7 @@ pub const TLS13_SUITES: &[SupportedCipherSuite] = const_concat_slices!(
     &[]
 );
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(feature = "aes")]
 pub mod aes;
 
 #[cfg(feature = "chacha20poly1305")]

@@ -1,22 +1,21 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use crate::aead::{Aes128Gcm, Aes256Gcm};
+use crate::aead::{Aes128Ccm, Aes128Ccm8, Aes256Ccm, Aes256Ccm8};
 use ::aead::{AeadCore, AeadInPlace};
 use crypto_common::typenum::Unsigned;
 use crypto_common::{KeyInit, KeySizeUser};
 use paste::paste;
 use rustls::crypto::cipher::{
-    self, make_tls12_aad, AeadKey, InboundOpaqueMessage, InboundPlainMessage, Iv, KeyBlockShape,
+    self, make_tls12_aad, AeadKey, InboundOpaqueMessage, InboundPlainMessage, KeyBlockShape,
     MessageDecrypter, MessageEncrypter, OutboundOpaqueMessage, OutboundPlainMessage,
     PrefixedPayload, Tls12AeadAlgorithm,
 };
 use rustls::ConnectionTrafficSecrets;
 
 const EXPLICIT_NONCE_LEN: usize = 8;
-const OVERHEAD: usize = EXPLICIT_NONCE_LEN + 16;
 
-macro_rules! impl_gcm {
+macro_rules! impl_ccm {
 ($name: ident, $aead: ty, $nonce_pos: expr, $overhead: expr) => {
     paste! {
         impl Tls12AeadAlgorithm for $name {
@@ -49,14 +48,11 @@ macro_rules! impl_gcm {
 
             fn extract_keys(
                 &self,
-                key: AeadKey,
-                iv: &[u8],
+                _: AeadKey,
+                _: &[u8],
                 _explicit: &[u8],
             ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
-                Ok(ConnectionTrafficSecrets::$name {
-                    key,
-                    iv: Iv::new(iv[..].try_into().unwrap()),
-                })
+                Err(cipher::UnsupportedOperationError)
             }
         }
 
@@ -110,7 +106,7 @@ macro_rules! impl_gcm {
                     let tag_pos = payload.len() - TagSize::to_usize();
                     let (msg, tag) = payload.split_at_mut(tag_pos);
 
-                    let tag = aes_gcm::Tag::<TagSize>::from_slice(tag);
+                    let tag = ccm::Tag::<TagSize>::from_slice(tag);
                     self.0
                         .decrypt_in_place_detached(&nonce, &aad, msg, tag)
                         .map_err(|_| rustls::Error::DecryptError)?;
@@ -130,5 +126,7 @@ macro_rules! impl_gcm {
 };
 }
 
-impl_gcm! {Aes128Gcm, crate::aead::aes::Aes128Gcm, EXPLICIT_NONCE_LEN, OVERHEAD}
-impl_gcm! {Aes256Gcm, crate::aead::aes::Aes256Gcm, EXPLICIT_NONCE_LEN, OVERHEAD}
+impl_ccm! {Aes128Ccm, crate::aead::aes::Aes128Ccm, EXPLICIT_NONCE_LEN, EXPLICIT_NONCE_LEN + 16}
+impl_ccm! {Aes256Ccm, crate::aead::aes::Aes256Ccm, EXPLICIT_NONCE_LEN, EXPLICIT_NONCE_LEN + 16}
+impl_ccm! {Aes128Ccm8, crate::aead::aes::Aes128Ccm8, EXPLICIT_NONCE_LEN, EXPLICIT_NONCE_LEN + 8}
+impl_ccm! {Aes256Ccm8, crate::aead::aes::Aes256Ccm8, EXPLICIT_NONCE_LEN, EXPLICIT_NONCE_LEN + 8}

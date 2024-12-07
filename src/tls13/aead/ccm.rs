@@ -1,18 +1,18 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use crate::aead::{Aes128Gcm, Aes256Gcm, DecryptBufferAdapter, EncryptBufferAdapter};
+use crate::aead::{Aes128Ccm, Aes128Ccm8, DecryptBufferAdapter, EncryptBufferAdapter};
 use aead::AeadInPlace;
 use crypto_common::{KeyInit, KeySizeUser};
 use paste::paste;
 use rustls::crypto::cipher::{
     self, make_tls13_aad, AeadKey, InboundOpaqueMessage, InboundPlainMessage, MessageDecrypter,
     MessageEncrypter, OutboundOpaqueMessage, OutboundPlainMessage, PrefixedPayload,
-    Tls13AeadAlgorithm,
+    Tls13AeadAlgorithm, UnsupportedOperationError,
 };
 use rustls::{ConnectionTrafficSecrets, ContentType, ProtocolVersion};
 
-macro_rules! impl_gcm {
+macro_rules! impl_ccm {
 ($name: ident, $aead: ty, $overhead: expr) => {
     paste! {
         impl Tls13AeadAlgorithm for $name {
@@ -35,10 +35,10 @@ macro_rules! impl_gcm {
             }
             fn extract_keys(
                 &self,
-                key: AeadKey,
-                iv: cipher::Iv,
+                _: AeadKey,
+                _: cipher::Iv,
             ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
-                Ok(ConnectionTrafficSecrets::$name { key, iv })
+                Err(UnsupportedOperationError)
             }
         }
 
@@ -87,5 +87,5 @@ macro_rules! impl_gcm {
 };
 }
 
-impl_gcm! {Aes128Gcm, crate::aead::aes::Aes128Gcm, 16}
-impl_gcm! {Aes256Gcm, crate::aead::aes::Aes256Gcm, 16}
+impl_ccm! {Aes128Ccm, crate::aead::aes::Aes128Ccm, 16}
+impl_ccm! {Aes128Ccm8, crate::aead::aes::Aes128Ccm8, 16}

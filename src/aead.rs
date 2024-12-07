@@ -12,6 +12,18 @@ pub struct Aes128Gcm;
 #[cfg(feature = "aes-gcm")]
 pub struct Aes256Gcm;
 
+#[cfg(feature = "aes-ccm")]
+pub struct Aes128Ccm;
+
+#[cfg(feature = "aes-ccm")]
+pub struct Aes256Ccm;
+
+#[cfg(feature = "aes-ccm")]
+pub struct Aes128Ccm8;
+
+#[cfg(feature = "aes-ccm")]
+pub struct Aes256Ccm8;
+
 pub(crate) struct EncryptBufferAdapter<'a>(pub(crate) &'a mut PrefixedPayload);
 
 impl AsRef<[u8]> for EncryptBufferAdapter<'_> {
@@ -60,3 +72,6 @@ impl Buffer for DecryptBufferAdapter<'_, '_> {
         self.0.truncate(len)
     }
 }
+
+#[cfg(feature = "aes")]
+pub mod aes;
