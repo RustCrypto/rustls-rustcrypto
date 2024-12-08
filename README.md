@@ -9,9 +9,9 @@
 
 [RustCrypto]-based provider implementation for version 0.23 of [rustls], maintained by the RustCrypto organization.
 
-## ⚠️USE THIS AT YOUR OWN RISK! DO NOT USE THIS IN PRODUCTION⚠️
+## ⚠️CAUTION⚠️
 
-Not only that this is incomplete that only few selected TLS suites implemented (it should be well enough to cover 70% of the usage), but the elephant in the room is that neither did rustls nor RustCrypto packages were formally verified and certified with FIPS compliance.
+While a basic test suite that tests all available cipher suites and key exchange combinations passes, and it is cross-validated with OpenSSL, and is also running in ESP32 for experimental (but near-production) secure communication, please be reminded that (as of 2024) not all RustCrypto packages are formally verified and optimized for specific architecture, and none of the packages in RustCrypto are certified with FIPS compliance.
 
 Note that RustCrypto performance is generally inferior than ring, but in exchange you got a pure Rust implementation that theoretically compiles everywhere Rust was ported to. In our case, we need to have `std` but foundational support for future `no_std` expansion is already here.
 
