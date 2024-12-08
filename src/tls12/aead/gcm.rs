@@ -43,7 +43,7 @@ macro_rules! impl_gcm {
                 KeyBlockShape {
                     enc_key_len:        $aead::key_size(),
                     fixed_iv_len:       4,
-                    explicit_nonce_len: 8,
+                    explicit_nonce_len: EXPLICIT_NONCE_LEN,
                 }
             }
 

@@ -88,4 +88,4 @@ macro_rules! impl_ccm {
 }
 
 impl_ccm! {Aes128Ccm, crate::aead::aes::Aes128Ccm, 16}
-impl_ccm! {Aes128Ccm8, crate::aead::aes::Aes128Ccm8, 16}
+impl_ccm! {Aes128Ccm8, crate::aead::aes::Aes128Ccm8, 8}
