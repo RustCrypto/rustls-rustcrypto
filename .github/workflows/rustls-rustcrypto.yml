@@ -82,6 +82,22 @@ jobs:
       - name: Test no_std with alloc
         run: cargo test --no-default-features --features tls12,alloc
 
+  test-critical-section:
+    strategy:
+      matrix:
+        toolchain:
+          - nightly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: RustCrypto/actions/cargo-cache@master
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - run: cargo test --features critical-section
+        env:
+          RUSTFLAGS: --cfg portable_atomic_unstable_coerce_unsized
+
   cross:
     strategy:
       matrix:
