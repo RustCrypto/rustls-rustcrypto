@@ -1,5 +1,8 @@
-#[cfg(feature = "alloc")]
-use alloc::{boxed::Box, format, sync::Arc};
+//XXX XXX
+//#[cfg(feature = "alloc")]
+//use alloc::{boxed::Box, format, sync::Arc};
+use crate::Arc;
+use alloc::{boxed::Box, format};
 use core::marker::PhantomData;
 
 use paste::paste;

@@ -1,5 +1,8 @@
-#[cfg(feature = "alloc")]
-use alloc::{boxed::Box, format, string::ToString, sync::Arc};
+// XXX XXX
+// #[cfg(feature = "alloc")]
+//use alloc::{boxed::Box, format, string::ToString, sync::Arc};
+use crate::Arc;
+use alloc::{boxed::Box, format, string::ToString};
 use core::marker::PhantomData;
 
 use pkcs8::DecodePrivateKey;

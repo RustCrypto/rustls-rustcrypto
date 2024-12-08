@@ -34,6 +34,7 @@ pkcs8 = { version = "0.10.2", default-features = false, features = ["pem", "pkcs
 pki-types = { package = "rustls-pki-types", version = "1.10.0", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = ["getrandom"] }
 rsa = { version = "0.9.2", default-features = false, features = ["sha2"] }
+# XXX TODO WAIT FOR RUSTLS PR 2200 TO BE ACCEPTED / MERGED / PUBLISHED
 rustls = { version = "0.23.19", default-features = false, git = "https://github.com/brodycj/rustls", branch = "portable-atomic-arc-option" }
 sec1 = { version = "0.7.3", default-features = false, features = ["pkcs8", "pem"] }
 sha2 = { version = "0.10.7", default-features = false }
@@ -57,3 +58,6 @@ std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"
 # TODO: go through all of these to ensure to_vec etc. impls are exposed
 alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
+
+# XXX TBD ???
+critical-section = [ "rustls/critical-section"]
