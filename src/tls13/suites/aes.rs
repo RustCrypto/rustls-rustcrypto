@@ -1,7 +1,7 @@
 #[cfg(feature = "aes-ccm")]
 use crate::aead::Aes128Ccm;
 #[cfg(feature = "aes-gcm")]
-use crate::aead::{Aes128Gcm, Aes256Gcm};
+use crate::aead::{Aes128Gcm, Aes256Gcm, Aes128Ccm8};
 use crate::const_concat_slices;
 use crate::{hash, hmac};
 use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};
@@ -55,7 +55,7 @@ pub const TLS13_AES_128_CCM_8_SHA256: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: &Aes128Ccm,
+        aead_alg: &Aes128Ccm8,
         quic: None,
     });
 
