@@ -74,7 +74,6 @@ mod test {
     }
 
     #[test]
-    #[should_panic] // no_shared_cipher
     fn vs_openssl_as_client_ccm_sha256() {
         let cipher_suites = OpenSslCipherSuites {
             TLS_AES_128_GCM_SHA256: false,
@@ -87,7 +86,6 @@ mod test {
     }
 
     #[test]
-    #[should_panic] // no_shared_cipher
     fn vs_openssl_as_client_ccm8_sha256() {
         let cipher_suites = OpenSslCipherSuites {
             TLS_AES_128_GCM_SHA256: false,
