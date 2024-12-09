@@ -71,6 +71,10 @@ const SERVER_MAGIC: &[u8; 18] = b"Hello from Server!";
 fn test_basic_round_trip() {
     std::thread::scope(move |s| {
         for provider in generate_providers() {
+            let base_name = format!(
+                "{:?}-{:?}",
+                provider.cipher_suites[0], provider.kx_groups[0]
+            );
             // Creates a pair of sockets that interconnect from client to server, and server to client
             let (socket_c2s, socket_s2c) = MemorySocket::new_pair();
 
@@ -78,10 +82,7 @@ fn test_basic_round_trip() {
             OsRng.fill_bytes(&mut random_data);
 
             std::thread::Builder::new()
-                .name(format!(
-                    "{:?}-{:?}-server",
-                    provider.cipher_suites[0], provider.kx_groups[0]
-                ))
+                .name(format!("{base_name}-server"))
                 .spawn_scoped(s, {
                     let provider: CryptoProvider = provider.clone();
                     move || {
@@ -109,10 +110,7 @@ fn test_basic_round_trip() {
                 .unwrap();
 
             std::thread::Builder::new()
-                .name(format!(
-                    "{:?}-{:?}-client",
-                    provider.cipher_suites[0], provider.kx_groups[0]
-                ))
+                .name(format!("{base_name}-client"))
                 .spawn_scoped(s, move || {
                     let mut sock = socket_c2s;
                     let server_name = "acme.com".try_into().expect("failed to get server name");
