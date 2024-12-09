@@ -7,9 +7,11 @@ pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[
     &nist::SecP256R1,
     #[cfg(feature = "kx-p384")]
     &nist::SecP384R1,
+    #[cfg(feature = "kx-p521")]
+    &nist::SecP521R1,
 ];
 
-#[cfg(feature = "nist")]
+#[cfg(feature = "kx-nist")]
 pub mod nist;
 
 #[cfg(feature = "kx-x25519")]

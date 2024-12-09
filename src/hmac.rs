@@ -51,6 +51,9 @@ macro_rules! impl_hmac {
     };
 }
 
+#[cfg(feature = "hash-sha256")]
 impl_hmac! {SHA256, ::sha2::Sha256}
+#[cfg(feature = "hash-sha384")]
 impl_hmac! {SHA384, ::sha2::Sha384}
-// impl_hmac! {SHA512, Sha512}
+#[cfg(feature = "hash-sha512")]
+impl_hmac! {SHA512, ::sha2::Sha512}

@@ -1,13 +1,13 @@
-#[cfg(feature = "aes-ccm")]
+#[cfg(feature = "ccm")]
 use crate::aead::ccm::{Aes128Ccm, Aes128Ccm8};
-#[cfg(feature = "aes-gcm")]
+#[cfg(feature = "gcm")]
 use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
 use crate::const_concat_slices;
 use crate::{hash, hmac};
 use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(all(feature = "gcm", feature = "hash-sha256"))]
 pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -20,7 +20,7 @@ pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
         quic: None,
     });
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(all(feature = "gcm", feature = "hash-sha384"))]
 pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -33,7 +33,7 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
         quic: None,
     });
 
-#[cfg(feature = "aes-ccm")]
+#[cfg(all(feature = "ccm", feature = "hash-sha256"))]
 pub const TLS13_AES_128_CCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -46,7 +46,7 @@ pub const TLS13_AES_128_CCM_SHA256: SupportedCipherSuite =
         quic: None,
     });
 
-#[cfg(feature = "aes-ccm")]
+#[cfg(all(feature = "ccm", feature = "hash-sha256"))]
 pub const TLS13_AES_128_CCM_8_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -62,23 +62,33 @@ pub const TLS13_AES_128_CCM_8_SHA256: SupportedCipherSuite =
 pub const TLS13_AES_SUITES: &[SupportedCipherSuite] = const_concat_slices!(
     SupportedCipherSuite,
     {
-        #[cfg(feature = "aes-gcm")]
+        #[cfg(feature = "gcm")]
         {
-            &[TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384]
+            &[
+                #[cfg(feature = "hash-sha256")]
+                TLS13_AES_128_GCM_SHA256,
+                #[cfg(feature = "hash-sha384")]
+                TLS13_AES_256_GCM_SHA384,
+            ]
         }
 
-        #[cfg(not(feature = "aes-gcm"))]
+        #[cfg(not(feature = "gcm"))]
         {
             &[]
         }
     },
     {
-        #[cfg(feature = "aes-ccm")]
+        #[cfg(feature = "ccm")]
         {
-            &[TLS13_AES_128_CCM_SHA256, TLS13_AES_128_CCM_8_SHA256]
+            &[
+                #[cfg(feature = "hash-sha256")]
+                TLS13_AES_128_CCM_SHA256,
+                #[cfg(feature = "hash-sha256")]
+                TLS13_AES_128_CCM_8_SHA256,
+            ]
         }
 
-        #[cfg(not(feature = "aes-ccm"))]
+        #[cfg(not(feature = "ccm"))]
         {
             &[]
         }

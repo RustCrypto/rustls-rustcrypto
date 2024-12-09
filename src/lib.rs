@@ -76,11 +76,11 @@ impl KeyProvider for Provider {
         &self,
         #[allow(unused_variables)] key_der: PrivateKeyDer<'static>,
     ) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-        #[cfg(feature = "signature")]
+        #[cfg(feature = "sign")]
         {
             sign::any_supported_type(&key_der)
         }
-        #[cfg(not(feature = "signature"))]
+        #[cfg(not(feature = "sign"))]
         {
             Err(rustls::Error::General("not key providers supported".into()))
         }
@@ -105,21 +105,27 @@ pub const ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices
 
 #[cfg(feature = "aead")]
 pub mod aead;
+#[cfg(feature = "hash")]
 pub mod hash;
+#[cfg(feature = "hash")]
 pub mod hmac;
-
+#[cfg(feature = "kx")]
 pub mod kx;
-
 pub mod misc;
-#[cfg(feature = "signature")]
+#[cfg(feature = "sign")]
 pub mod sign;
-pub mod verify;
-
 #[cfg(feature = "tls12")]
 pub mod tls12;
 pub mod tls13;
+#[cfg(feature = "verify")]
+pub mod verify;
 
 const _: () = assert!(
-    ALL_CIPHER_SUITES.len() != 0,
+    !ALL_CIPHER_SUITES.is_empty(),
     "At least one cipher suite should be enabled"
+);
+
+const _: () = assert!(
+    !kx::ALL_KX_GROUPS.is_empty(),
+    "At least one key exchange algorithm should be enabled"
 );

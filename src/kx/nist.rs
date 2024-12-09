@@ -1,16 +1,16 @@
-#[cfg(all(feature = "alloc", any(feature = "kx-p256", feature = "kx-p384")))]
+#[cfg(all(feature = "alloc", feature = "kx-nist"))]
 use alloc::boxed::Box;
 
-#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
+#[cfg(feature = "kx-nist")]
 use crypto::{SharedSecret, SupportedKxGroup};
 
-#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
+#[cfg(feature = "kx-nist")]
 use paste::paste;
 
-#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
+#[cfg(feature = "kx-nist")]
 use rustls::crypto;
 
-#[cfg(any(feature = "kx-p256", feature = "kx-p384"))]
+#[cfg(feature = "kx-nist")]
 macro_rules! impl_kx {
     ($name:ident, $kx_name:ty, $secret:ty, $public_key:ty) => {
         paste! {
@@ -71,3 +71,6 @@ impl_kx! {SecP256R1, rustls::NamedGroup::secp256r1, ::p256::ecdh::EphemeralSecre
 
 #[cfg(feature = "kx-p384")]
 impl_kx! {SecP384R1, rustls::NamedGroup::secp384r1, ::p384::ecdh::EphemeralSecret, ::p384::PublicKey}
+
+#[cfg(feature = "kx-p521")]
+impl_kx! {SecP521R1, rustls::NamedGroup::secp521r1, ::p521::ecdh::EphemeralSecret, ::p521::PublicKey}

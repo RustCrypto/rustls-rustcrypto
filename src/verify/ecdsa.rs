@@ -1,2 +1,2 @@
-#[cfg(feature = "nist")]
+#[cfg(feature = "verify-ecdsa-nist")]
 pub mod nist;

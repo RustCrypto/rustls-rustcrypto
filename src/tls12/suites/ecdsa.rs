@@ -18,7 +18,7 @@ use crate::aead::ccm::{Aes128Ccm, Aes128Ccm8, Aes256Ccm, Aes256Ccm8};
 #[cfg(feature = "chacha20poly1305")]
 use crate::aead::ChaCha20Poly1305;
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(all(feature = "aes-gcm", feature = "hash-sha256"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
@@ -31,7 +31,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: Tls12CipherSuite = Tls12Ciphe
     prf_provider: &PrfUsingHmac(hmac::SHA256),
 };
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(all(feature = "aes-gcm", feature = "hash-sha384"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
@@ -45,7 +45,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: Tls12CipherSuite = Tls12Ciphe
 };
 
 // https://ciphersuite.info/cs/TLS_ECDHE_ECDSA_WITH_AES_128_CCM/
-#[cfg(feature = "aes-ccm")]
+#[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_128_CCM: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_CCM,
@@ -59,7 +59,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_CCM: Tls12CipherSuite = Tls12CipherSuite 
 };
 
 // https://ciphersuite.info/cs/TLS_ECDHE_ECDSA_WITH_AES_256_CCM/
-#[cfg(feature = "aes-ccm")]
+#[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_256_CCM: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_CCM,
@@ -73,7 +73,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_CCM: Tls12CipherSuite = Tls12CipherSuite 
 };
 
 // https://ciphersuite.info/cs/TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8/
-#[cfg(feature = "aes-ccm")]
+#[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8,
@@ -87,7 +87,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8: Tls12CipherSuite = Tls12CipherSuit
 };
 
 // https://ciphersuite.info/cs/TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8/
-#[cfg(feature = "aes-ccm")]
+#[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8,
@@ -100,7 +100,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8: Tls12CipherSuite = Tls12CipherSuit
     prf_provider: &PrfUsingHmac(hmac::SHA256),
 };
 
-#[cfg(feature = "chacha20poly1305")]
+#[cfg(all(feature = "chacha20poly1305", feature = "hash-sha256"))]
 pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
@@ -114,18 +114,18 @@ pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: Tls12CipherSuite = Tls1
 };
 
 pub const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
-    #[cfg(feature = "aes-gcm")]
+    #[cfg(all(feature = "aes-gcm", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256),
-    #[cfg(feature = "aes-gcm")]
+    #[cfg(all(feature = "aes-gcm", feature = "hash-sha384"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384),
-    #[cfg(feature = "aes-ccm")]
+    #[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_ECDSA_WITH_AES_128_CCM),
-    #[cfg(feature = "aes-ccm")]
+    #[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_ECDSA_WITH_AES_256_CCM),
-    #[cfg(feature = "aes-ccm")]
+    #[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8),
-    #[cfg(feature = "aes-ccm")]
+    #[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8),
-    #[cfg(feature = "chacha20poly1305")]
+    #[cfg(all(feature = "chacha20poly1305", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256),
 ];

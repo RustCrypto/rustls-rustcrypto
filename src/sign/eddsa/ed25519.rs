@@ -1,11 +1,15 @@
 #[cfg(feature = "alloc")]
-use alloc::{boxed::Box, format, string::ToString, sync::Arc};
+use alloc::{boxed::Box, sync::Arc};
+#[cfg(all(feature = "alloc", feature = "der"))]
+use alloc::{format, string::ToString};
 
 use crate::sign::GenericSigner;
 use core::marker::PhantomData;
 use ed25519_dalek::SigningKey;
-use pki_types::PrivateKeyDer;
 use rustls::{sign::Signer, SignatureAlgorithm, SignatureScheme};
+
+#[cfg(feature = "der")]
+use pki_types::PrivateKeyDer;
 
 #[derive(Debug)]
 pub struct Ed25519SigningKey(Arc<SigningKey>);

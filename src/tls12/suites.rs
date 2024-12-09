@@ -15,12 +15,12 @@ pub const TLS12_SUITES: &[SupportedCipherSuite] = const_concat_slices!(
         }
     },
     {
-        #[cfg(feature = "rsa")]
+        #[cfg(any(feature = "rsa-pss", feature = "rsa-pkcs1"))]
         {
             rsa::TLS_ECDHE_RSA_SUITES
         }
 
-        #[cfg(not(feature = "rsa"))]
+        #[cfg(not(any(feature = "rsa-pss", feature = "rsa-pkcs1")))]
         {
             &[]
         }
@@ -29,6 +29,6 @@ pub const TLS12_SUITES: &[SupportedCipherSuite] = const_concat_slices!(
 
 #[cfg(feature = "ecdsa")]
 pub mod ecdsa;
-#[cfg(feature = "rsa")]
+#[cfg(any(feature = "rsa-pss", feature = "rsa-pkcs1"))]
 pub mod rsa;
 pub mod schemes;

@@ -49,13 +49,13 @@ pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_sli
         #[cfg(feature = "ecdsa")]
         {
             &[
-                #[cfg(feature = "ecdsa-p256")]
+                #[cfg(all(feature = "ecdsa-p256", feature = "hash-sha256"))]
                 ecdsa::nist::ECDSA_P256_SHA256,
-                #[cfg(feature = "ecdsa-p256")]
+                #[cfg(all(feature = "ecdsa-p256", feature = "hash-sha384"))]
                 ecdsa::nist::ECDSA_P256_SHA384,
-                #[cfg(feature = "ecdsa-p384")]
+                #[cfg(all(feature = "ecdsa-p384", feature = "hash-sha256"))]
                 ecdsa::nist::ECDSA_P384_SHA256,
-                #[cfg(feature = "ecdsa-p384")]
+                #[cfg(all(feature = "ecdsa-p384", feature = "hash-sha384"))]
                 ecdsa::nist::ECDSA_P384_SHA384,
             ]
         }
@@ -69,8 +69,11 @@ pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_sli
         #[cfg(feature = "rsa-pkcs1")]
         {
             &[
+                #[cfg(feature = "hash-sha256")]
                 rsa::RSA_PKCS1_SHA256,
+                #[cfg(feature = "hash-sha384")]
                 rsa::RSA_PKCS1_SHA384,
+                #[cfg(feature = "hash-sha512")]
                 rsa::RSA_PKCS1_SHA512,
             ]
         }
@@ -84,8 +87,11 @@ pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_sli
         #[cfg(feature = "rsa-pss")]
         {
             &[
+                #[cfg(feature = "hash-sha256")]
                 rsa::RSA_PSS_SHA256,
+                #[cfg(feature = "hash-sha384")]
                 rsa::RSA_PSS_SHA384,
+                #[cfg(feature = "hash-sha512")]
                 rsa::RSA_PSS_SHA512,
             ]
         }
@@ -109,7 +115,7 @@ pub const MAPPING: &[(
         #[cfg(feature = "ecdsa")]
         {
             &[
-                #[cfg(feature = "ecdsa-p384")]
+                #[cfg(all(feature = "ecdsa-p384", feature = "hash-sha384"))]
                 (
                     SignatureScheme::ECDSA_NISTP384_SHA384,
                     &[
@@ -118,7 +124,7 @@ pub const MAPPING: &[(
                         ecdsa::nist::ECDSA_P256_SHA384,
                     ],
                 ),
-                #[cfg(feature = "ecdsa-p256")]
+                #[cfg(all(feature = "ecdsa-p256", feature = "hash-sha256"))]
                 (
                     SignatureScheme::ECDSA_NISTP256_SHA256,
                     &[
@@ -139,8 +145,11 @@ pub const MAPPING: &[(
         #[cfg(feature = "rsa-pkcs1")]
         {
             &[
+                #[cfg(feature = "hash-sha256")]
                 (SignatureScheme::RSA_PKCS1_SHA256, &[rsa::RSA_PKCS1_SHA256]),
+                #[cfg(feature = "hash-sha384")]
                 (SignatureScheme::RSA_PKCS1_SHA384, &[rsa::RSA_PKCS1_SHA384]),
+                #[cfg(feature = "hash-sha512")]
                 (SignatureScheme::RSA_PKCS1_SHA512, &[rsa::RSA_PKCS1_SHA512]),
             ]
         }
@@ -154,8 +163,11 @@ pub const MAPPING: &[(
         #[cfg(feature = "rsa-pss")]
         {
             &[
+                #[cfg(feature = "hash-sha256")]
                 (SignatureScheme::RSA_PSS_SHA256, &[rsa::RSA_PSS_SHA256]),
+                #[cfg(feature = "hash-sha384")]
                 (SignatureScheme::RSA_PSS_SHA384, &[rsa::RSA_PSS_SHA384]),
+                #[cfg(feature = "hash-sha512")]
                 (SignatureScheme::RSA_PSS_SHA512, &[rsa::RSA_PSS_SHA512]),
             ]
         }

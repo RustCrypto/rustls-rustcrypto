@@ -3,6 +3,7 @@ use crate::{hash, hmac};
 use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
+#[cfg(feature = "hash-sha256")]
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {

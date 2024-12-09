@@ -21,6 +21,7 @@ dependencies = [
  "cfg-if",
  "cipher",
  "cpufeatures",
+ "zeroize",
 ]
 
 [[package]]
@@ -34,6 +35,7 @@ dependencies = [
  "ctr",
  "ghash",
  "subtle",
+ "zeroize",
 ]
 
 [[package]]
@@ -284,7 +286,6 @@ checksum = "4a3daa8e81a3963a60642bcc1f90a670680bd4a77535faa384e9d1c79d620871"
 dependencies = [
  "curve25519-dalek",
  "ed25519",
- "serde",
  "sha2",
  "subtle",
  "zeroize",
@@ -357,7 +358,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7"
 dependencies = [
  "cfg-if",
- "js-sys",
  "libc",
  "wasi",
  "wasm-bindgen",
@@ -421,16 +421,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "js-sys"
-version = "0.3.76"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6717b6b5b077764fb5966237269cb3c64edddde4b14ce42647430a78ced9e7b7"
-dependencies = [
- "once_cell",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -441,9 +431,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.167"
+version = "0.2.168"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09d6582e104315a817dff97f75133544b2e094ee22447d2acf4a74e189ba06fc"
+checksum = "5aaeb2981e0606ca11d79718f8bb01164f1d6ed75080182d3abf017e6d244b6d"
 
 [[package]]
 name = "libm"
@@ -580,24 +570,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "pkcs5"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e847e2c91a18bfa887dd028ec33f2fe6f25db77db3619024764914affe8b69a6"
-dependencies = [
- "der",
- "spki",
-]
-
-[[package]]
 name = "pkcs8"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f950b2377845cebe5cf8b5165cb3cc1a5e0fa5cfa3e1f7f55707d8fd82e0a7b7"
 dependencies = [
  "der",
- "pkcs5",
  "spki",
+ "subtle",
 ]
 
 [[package]]
@@ -778,6 +758,7 @@ dependencies = [
  "digest",
  "ecdsa",
  "ed25519-dalek",
+ "elliptic-curve",
  "getrandom",
  "hmac",
  "itertools",
@@ -796,6 +777,7 @@ dependencies = [
  "sha2",
  "signature",
  "spki",
+ "typenum",
  "x25519-dalek",
  "x509-cert",
 ]
@@ -830,26 +812,6 @@ name = "semver"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
-
-[[package]]
-name = "serde"
-version = "1.0.215"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6513c1ad0b11a9376da888e3e0baa0077f1aed55c17f50e7b2397136129fb88f"
-dependencies = [
- "serde_derive",
-]
-
-[[package]]
-name = "serde_derive"
-version = "1.0.215"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad1e866f866923f252f05c889987993144fb74e722403468a4ebd70c3cd756c0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
 
 [[package]]
 name = "sha1"

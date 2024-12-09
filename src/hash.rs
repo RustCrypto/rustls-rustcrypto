@@ -55,7 +55,11 @@ macro_rules! impl_hash {
     };
 }
 
-// impl_hash! {SHA224, Sha224, hash::HashAlgorithm::SHA224}
+#[cfg(feature = "hash-sha224")]
+impl_hash! {SHA224, ::sha2::Sha224, hash::HashAlgorithm::SHA224}
+#[cfg(feature = "hash-sha256")]
 impl_hash! {SHA256, ::sha2::Sha256, hash::HashAlgorithm::SHA256}
+#[cfg(feature = "hash-sha384")]
 impl_hash! {SHA384, ::sha2::Sha384, hash::HashAlgorithm::SHA384}
-// impl_hash! {SHA512, Sha512, hash::HashAlgorithm::SHA512}
+#[cfg(feature = "hash-sha512")]
+impl_hash! {SHA512, ::sha2::Sha512, hash::HashAlgorithm::SHA512}

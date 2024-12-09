@@ -18,35 +18,33 @@ resolver = "2"
 # Ensure all dependencies + feats are mapped to crate features for correct usage
 # default features often have std breaking no_std and potentially other unwanted
 [dependencies]
-aes = { version = "0.8.4", default-features = false, optional = true }
+# Cryptographic dependencies
 aead = { version = "0.5.2", default-features = false, optional = true }
+aes = { version = "0.8.4", default-features = false, optional = true }
 aes-gcm = { version = "0.10.3", default-features = false, optional = true }
-ccm = { version = "0.5.0", optional = true, default-features = false }
+ccm = { version = "0.5.0", default-features = false, optional = true }
 chacha20poly1305 = { version = "0.10.1", default-features = false, optional = true }
 crypto-common = { version = "0.1.6", default-features = false }
 der = { version = "0.7.9", default-features = false, optional = true }
 digest = { version = "0.10.7", default-features = false }
 ecdsa = { version = "0.16.9", default-features = false, optional = true }
 ed25519-dalek = { version = "2", default-features = false, optional = true }
+elliptic-curve = { version = "0.13.8", default-features = false, optional = true }
 hmac = { version = "0.12.1", default-features = false }
 p256 = { version = "0.13.2", default-features = false, optional = true }
 p384 = { version = "0.13.0", default-features = false, optional = true }
 p521 = { version = "0.13.3", default-features = false, optional = true }
 pkcs1 = { version = "0.7.5", default-features = false, optional = true }
-pkcs8 = { version = "0.10.2", default-features = false, features = [
-    "pkcs5",
-], optional = true }
-rsa = { version = "0.9.7", default-features = false, features = [
-    "sha2",
-], optional = true }
+pkcs8 = { version = "0.10.2", default-features = false, optional = true }
+rsa = { version = "0.9.7", default-features = false, optional = true }
 sec1 = { version = "0.7.3", default-features = false, optional = true }
 sha2 = { version = "0.10.8", default-features = false }
 signature = { version = "2.2.0", default-features = false, optional = true }
+typenum = { version = "1.17.0", features = ["no_std", "const-generics"] }
 x25519-dalek = { version = "2", default-features = false, optional = true }
 
-getrandom = { version = "0.2", default-features = false, features = [
-    "custom"
-] }
+# External groups
+getrandom = { version = "0.2", default-features = false, features = ["custom"] }
 paste = { version = "1.0.15", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1.10.0", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = [
@@ -56,32 +54,27 @@ rustls = { version = "0.23.19", default-features = false }
 webpki = { package = "rustls-webpki", version = "0.102.8", default-features = false, optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.2", features = [
-    "js"
-] }
+getrandom = { version = "0.2", features = ["wasm-bindgen"] }
 
 [dev-dependencies]
 bytes = { version = "1.9.0", default-features = false }
-itertools = "0.13.0"
-rsa = { version = "0.9.7", default-features = false, features = [
-    "sha2",
-] }
+itertools = { version = "0.13.0", default-features = false }
+rsa = { version = "0.9.7", default-features = false, features = ["sha2"] }
 rustls = { version = "0.23.19", default-features = false, features = ["std"] }
-sha2 = { version = "0.10.8", default-features = false, features = ["oid"] }
-spki = { version = "0.7.3", features = ["alloc"] }
+sha2 = { version = "0.10.8", default-features = false }
+spki = { version = "0.7.3", default-features = false, features = ["alloc"] }
 x509-cert = { version = "0.2.5", default-features = false, features = [
     "builder",
-    "pem"
 ] }
 
 [features]
-default = ["std", "tls12", "zeroize", "full"]
+default = ["std", "tls12", "zeroize", "full", "fast"]
 full = [
     "aead-full",
-    "ecdsa-full",
-    "eddsa-full",
+    "sign-full",
+    "verify-full",
     "kx-full",
-    "rsa-full",
+    "hash-full",
     "format",
 ]
 format = ["pem", "pkcs1", "pkcs8", "sec1"]
@@ -90,8 +83,29 @@ tls12 = ["rustls/tls12"]
 
 # RustCrypto is preparing to migrate to core::error::Error
 # and in before most of the use case for std is just std::error::Error 
-std = ["alloc"]
-alloc = ["ecdsa?/alloc", "signature?/alloc"]
+std = ["alloc", "rustls/std"]
+alloc = [
+    "ecdsa?/alloc",
+    "elliptic-curve?/alloc",
+    "pkcs8?/alloc",
+    "sec1?/alloc",
+    "signature?/alloc",
+]
+zeroize = [
+    "aes-gcm?/zeroize",
+    "aes?/zeroize",
+    "der?/zeroize",
+    "ed25519-dalek?/zeroize",
+    "pkcs1?/zeroize",
+    "sec1?/zeroize",
+    "x25519-dalek?/zeroize",
+]
+subtle = ["digest/subtle", "pkcs8?/subtle", "sec1?/subtle"]
+fast = [
+    "ed25519-dalek?/fast",
+    "rsa?/u64_digit",
+    "x25519-dalek?/precomputed-tables",
+]
 
 nist = []
 p256 = ["dep:p256", "nist"]
@@ -99,60 +113,113 @@ p384 = ["dep:p384", "nist"]
 p521 = ["dep:p521", "nist"]
 ed25519 = ["dep:ed25519-dalek"]
 
-verify = ["dep:webpki"]
-
-ecdsa = ["dep:ecdsa", "verify", "signature", "rand", "der"]
-ecdsa-p256 = ["p256", "p256/ecdsa", "ecdsa"]
-ecdsa-p384 = ["p384", "p384/ecdsa", "ecdsa"]
-ecdsa-p521 = ["p521", "p521/ecdsa", "ecdsa"]
+ecdsa = ["dep:ecdsa", "verify", "signature", "rand", "der", "elliptic-curve"]
+ecdsa-p256 = ["ecdsa", "p256", "p256/ecdsa"]
+ecdsa-p384 = ["ecdsa", "p384", "p384/ecdsa"]
+ecdsa-p521 = ["ecdsa", "p521", "p521/ecdsa"]
 ecdsa-full = ["ecdsa-p256", "ecdsa-p384", "ecdsa-p521"]
 
-eddsa = ["verify", "signature"]
-eddsa-ed25519 = ["ed25519", "eddsa"]
+eddsa = ["verify", "signature", "elliptic-curve"]
+eddsa-ed25519 = ["eddsa", "ed25519"]
 eddsa-full = ["eddsa-ed25519"]
 
-kx = ["rand"]
-kx-x25519 = ["dep:x25519-dalek", "kx"]
-kx-p256 = ["p256", "p256/ecdh", "kx"]
-kx-p384 = ["p384", "p384/ecdh", "kx"]
-kx-p521 = ["p521", "p521/ecdh", "kx"]
+kx = ["rand", "elliptic-curve"]
+kx-x25519 = ["kx", "dep:x25519-dalek"]
+kx-nist = ["sec1"]
+kx-p256 = ["kx", "p256", "kx-nist", "p256/ecdh"]
+kx-p384 = ["kx", "p384", "kx-nist", "p384/ecdh"]
+kx-p521 = ["kx", "p521", "kx-nist", "p521/ecdh"]
 kx-full = ["kx-x25519", "kx-p256", "kx-p384", "kx-p521"]
 
-rsa = ["dep:rsa", "rsa/sha2", "verify", "signature", "pkcs1"]
+rsa = ["dep:rsa", "rsa/sha2", "pkcs1"]
 rsa-pkcs1 = ["rsa", "pkcs1"]
 rsa-pss = ["rsa"]
-rsa-full = ["rsa-pkcs1", "rsa-pss"]
 
 aead = ["dep:aead"]
-aes-gcm = ["dep:aes-gcm", "aes", "gcm", "aead"]
-aes-ccm = ["aes", "ccm", "aead"]
-chacha20poly1305 = ["dep:chacha20poly1305", "aead"]
-aead-full = ["aes-gcm", "aes-ccm", "chacha20poly1305"]
+aead-aes-gcm = ["aead", "aes-gcm"]
+aead-aes-ccm = ["aead", "aes-ccm"]
+aead-chacha20poly1305 = ["aead", "chacha20poly1305"]
+aead-full = ["aead-aes-gcm", "aead-aes-ccm", "aead-chacha20poly1305"]
 
-# TODO
+sign = ["signature", "der"]
+sign-ecdsa-nist = ["sign"]
+sign-ecdsa-p256 = ["sign-ecdsa-nist", "ecdsa-p256"]
+sign-ecdsa-p384 = ["sign-ecdsa-nist", "ecdsa-p384"]
+sign-ecdsa-p521 = ["sign-ecdsa-nist", "ecdsa-p521"]
+sign-eddsa = ["sign"]
+sign-eddsa-ed25519 = ["sign-eddsa", "eddsa-ed25519"]
+sign-rsa = ["sign", "rsa"]
+sign-rsa-pkcs1 = ["sign-rsa", "rsa-pkcs1"]
+sign-rsa-pss = ["sign-rsa", "rsa-pss"]
+sign-full = [
+    "sign-ecdsa-p256",
+    "sign-ecdsa-p384",
+    "sign-ecdsa-p521",
+    "sign-eddsa-ed25519",
+    "sign-rsa-pkcs1",
+    "sign-rsa-pss",
+]
+
+verify = ["dep:webpki"]
+verify-ecdsa-nist = ["verify"]
+verify-ecdsa-p256 = ["verify-ecdsa-nist", "ecdsa-p256"]
+verify-ecdsa-p256-sha256 = ["verify-ecdsa-p256", "hash-sha256"]
+verify-ecdsa-p256-sha384 = ["verify-ecdsa-p256", "hash-sha384"]
+verify-ecdsa-p384 = ["verify-ecdsa-nist", "ecdsa-p384"]
+verify-ecdsa-p384-sha256 = ["verify-ecdsa-p384", "hash-sha256"]
+verify-ecdsa-p384-sha384 = ["verify-ecdsa-p384", "hash-sha384"]
+verify-eddsa-ed25519 = ["verify", "eddsa-ed25519"]
+verify-rsa-pkcs1 = ["verify", "rsa-pkcs1"]
+verify-rsa-pkcs1-sha256 = ["verify-rsa-pkcs1", "hash-sha256"]
+verify-rsa-pkcs1-sha384 = ["verify-rsa-pkcs1", "hash-sha384"]
+verify-rsa-pkcs1-sha512 = ["verify-rsa-pkcs1", "hash-sha512"]
+verify-rsa-pss = ["verify", "rsa-pss"]
+verify-rsa-pss-sha256 = ["verify-rsa-pss", "hash-sha256"]
+verify-rsa-pss-sha384 = ["verify-rsa-pss", "hash-sha384"]
+verify-rsa-pss-sha512 = ["verify-rsa-pss", "hash-sha512"]
+verify-full = [
+    "verify-ecdsa-p256-sha256",
+    "verify-ecdsa-p256-sha384",
+    "verify-ecdsa-p384-sha256",
+    "verify-ecdsa-p384-sha384",
+    "verify-eddsa-ed25519",
+    "verify-rsa-pkcs1-sha256",
+    "verify-rsa-pkcs1-sha384",
+    "verify-rsa-pkcs1-sha512",
+    "verify-rsa-pss-sha256",
+    "verify-rsa-pss-sha384",
+    "verify-rsa-pss-sha512",
+]
+
 hash = []
+hash-sha224 = ["hash"]
 hash-sha256 = ["hash"]
 hash-sha384 = ["hash"]
 hash-sha512 = ["hash"]
-hash-full = ["hash-sha256", "hash-sha384", "hash-sha512"]
+hash-full = ["hash-sha224", "hash-sha256", "hash-sha384", "hash-sha512"]
 
 # Formats
 der = ["dep:der"]
-sec1 = ["dep:sec1", "der"]
-pem = ["sec1?/pem", "pkcs8?/pem", "p256?/pem", "p384?/pem", "p521?/pem", "der"]
-pkcs1 = ["dep:pkcs1", "der"]
+sec1 = ["dep:sec1", "elliptic-curve?/sec1"]
+pem = ["elliptic-curve?/pem", "ecdsa?/pem"]
+pkcs1 = ["dep:pkcs1"]
 pkcs8 = [
     "dep:pkcs8",
+    "ecdsa?/pkcs8",
     "ed25519-dalek?/pkcs8",
-    "sec1?/pkcs8",
+    "elliptic-curve?/pkcs8",
     "p256?/pkcs8",
     "p384?/pkcs8",
     "p521?/pkcs8",
-    "der",
+    "sec1?/pkcs8",
 ]
 
-signature = ["dep:signature"]
-rand = ["dep:rand_core", "signature?/rand_core"]
 aes = ["dep:aes"]
+aes-ccm = ["aes", "ccm"]
+aes-gcm = ["dep:aes-gcm", "aes", "gcm"]
 ccm = ["dep:ccm"]
+chacha20poly1305 = ["dep:chacha20poly1305"]
+elliptic-curve = ["dep:elliptic-curve"]
 gcm = []
+rand = ["dep:rand_core", "signature?/rand_core"]
+signature = ["dep:signature"]

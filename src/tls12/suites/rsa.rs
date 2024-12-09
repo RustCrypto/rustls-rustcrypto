@@ -15,7 +15,7 @@ use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
 #[cfg(feature = "chacha20poly1305")]
 use crate::aead::ChaCha20Poly1305;
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(all(feature = "aes-gcm", feature = "hash-sha256"))]
 pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -28,7 +28,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: Tls12CipherSuite = Tls12CipherS
     prf_provider: &PrfUsingHmac(hmac::SHA256),
 };
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(all(feature = "aes-gcm", feature = "hash-sha384"))]
 pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
@@ -37,11 +37,11 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: Tls12CipherSuite = Tls12CipherS
     },
     kx: KeyExchangeAlgorithm::ECDHE,
     sign: TLS12_RSA_SCHEMES,
-    prf_provider: &PrfUsingHmac(hmac::SHA384),
     aead_alg: &Aes256Gcm,
+    prf_provider: &PrfUsingHmac(hmac::SHA384),
 };
 
-#[cfg(feature = "chacha20poly1305")]
+#[cfg(all(feature = "chacha20poly1305", feature = "hash-sha256"))]
 pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: Tls12CipherSuite = Tls12CipherSuite {
     common: CipherSuiteCommon {
         suite: CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
@@ -55,10 +55,10 @@ pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: Tls12CipherSuite = Tls12C
 };
 
 pub const TLS_ECDHE_RSA_SUITES: &[SupportedCipherSuite] = &[
-    #[cfg(feature = "aes-gcm")]
+    #[cfg(all(feature = "aes-gcm", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256),
-    #[cfg(feature = "aes-gcm")]
+    #[cfg(all(feature = "aes-gcm", feature = "hash-sha384"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384),
-    #[cfg(feature = "chacha20poly1305")]
+    #[cfg(all(feature = "chacha20poly1305", feature = "hash-sha256"))]
     SupportedCipherSuite::Tls12(&TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256),
 ];

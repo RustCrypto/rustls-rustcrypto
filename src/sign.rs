@@ -42,15 +42,17 @@ where
 /// Returns an error if the key couldn't be decoded.
 #[allow(unused_variables)]
 pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    #[cfg(all(feature = "der", feature = "rsa"))]
+    #[cfg(feature = "sign-rsa")]
     if let Ok(key) = rsa::RsaSigningKey::try_from(der) {
         return Ok(Arc::new(key) as _);
     }
 
+    #[cfg(feature = "sign-ecdsa-nist")]
     if let Ok(key) = any_ecdsa_type(der) {
         return Ok(key);
     }
 
+    #[cfg(feature = "sign-eddsa")]
     if let Ok(key) = any_eddsa_type(der) {
         return Ok(key);
     }
@@ -64,6 +66,7 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
 ///
 /// Returns an error if the key couldn't be decoded.
 #[allow(unused_variables)]
+#[cfg(feature = "sign-ecdsa-nist")]
 pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
     #[cfg(all(feature = "der", feature = "ecdsa-p256"))]
     if let Ok(key) = ecdsa::nist::EcdsaSigningKeyP256::try_from(der) {
@@ -83,6 +86,7 @@ pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, ru
 ///
 /// Returns an error if the key couldn't be decoded.
 #[allow(unused_variables)]
+#[cfg(feature = "sign-eddsa")]
 pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
     // TODO: Add support for Ed448
     #[cfg(all(feature = "der", feature = "eddsa-ed25519"))]

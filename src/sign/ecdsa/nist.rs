@@ -68,8 +68,11 @@ macro_rules! impl_ecdsa {
 };
 }
 
-#[cfg(feature = "ecdsa-p256")]
+#[cfg(all(feature = "ecdsa-p256", feature = "hash-sha256"))]
 impl_ecdsa! {P256, SignatureScheme::ECDSA_NISTP256_SHA256, ::p256::ecdsa::SigningKey, ::p256::ecdsa::DerSignature}
 
-#[cfg(feature = "ecdsa-p384")]
+#[cfg(all(feature = "ecdsa-p384", feature = "hash-sha384"))]
 impl_ecdsa! {P384, SignatureScheme::ECDSA_NISTP384_SHA384, ::p384::ecdsa::SigningKey, ::p384::ecdsa::DerSignature}
+
+// #[cfg(all(feature = "ecdsa-p521", feature = "hash-sha512"))]
+// impl_ecdsa! {P521, SignatureScheme::ECDSA_NISTP521_SHA512, ::p521::ecdsa::SigningKey, ::p521::ecdsa::DerSignature}

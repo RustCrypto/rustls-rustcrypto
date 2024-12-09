@@ -1,25 +1,34 @@
 #[cfg(feature = "alloc")]
-use alloc::{boxed::Box, format, string::ToString, sync::Arc};
-
-use pki_types::PrivateKeyDer;
+use alloc::{boxed::Box, sync::Arc};
+#[cfg(all(feature = "alloc", feature = "der"))]
+use alloc::{format, string::ToString};
 
 use rsa::RsaPrivateKey;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{SignatureAlgorithm, SignatureScheme};
-use sha2::{Sha256, Sha384, Sha512};
+
+#[cfg(feature = "hash-sha256")]
+use sha2::Sha256;
+#[cfg(feature = "hash-sha384")]
+use sha2::Sha384;
+#[cfg(feature = "hash-sha512")]
+use sha2::Sha512;
+
+#[cfg(feature = "der")]
+use pki_types::PrivateKeyDer;
 
 const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
-    #[cfg(feature = "rsa-pss")]
+    #[cfg(all(feature = "rsa-pss", feature = "hash-sha512"))]
     SignatureScheme::RSA_PSS_SHA512,
-    #[cfg(feature = "rsa-pss")]
+    #[cfg(all(feature = "rsa-pss", feature = "hash-sha384"))]
     SignatureScheme::RSA_PSS_SHA384,
-    #[cfg(feature = "rsa-pss")]
+    #[cfg(all(feature = "rsa-pss", feature = "hash-sha256"))]
     SignatureScheme::RSA_PSS_SHA256,
-    #[cfg(feature = "rsa-pkcs1")]
+    #[cfg(all(feature = "rsa-pkcs1", feature = "hash-sha512"))]
     SignatureScheme::RSA_PKCS1_SHA512,
-    #[cfg(feature = "rsa-pkcs1")]
+    #[cfg(all(feature = "rsa-pkcs1", feature = "hash-sha384"))]
     SignatureScheme::RSA_PKCS1_SHA384,
-    #[cfg(feature = "rsa-pkcs1")]
+    #[cfg(all(feature = "rsa-pkcs1", feature = "hash-sha256"))]
     SignatureScheme::RSA_PKCS1_SHA256,
 ];
 
@@ -69,21 +78,21 @@ impl SigningKey for RsaSigningKey {
                 }
 
                 match scheme {
-                    #[cfg(feature = "rsa-pss")]
+                    #[cfg(all(feature = "rsa-pss", feature = "hash-sha512"))]
                     SignatureScheme::RSA_PSS_SHA512 => signer! {::rsa::pss::SigningKey::<Sha512>},
-                    #[cfg(feature = "rsa-pss")]
+                    #[cfg(all(feature = "rsa-pss", feature = "hash-sha384"))]
                     SignatureScheme::RSA_PSS_SHA384 => signer! {::rsa::pss::SigningKey::<Sha384>},
-                    #[cfg(feature = "rsa-pss")]
+                    #[cfg(all(feature = "rsa-pss", feature = "hash-sha256"))]
                     SignatureScheme::RSA_PSS_SHA256 => signer! {::rsa::pss::SigningKey::<Sha256>},
-                    #[cfg(feature = "rsa-pkcs1")]
+                    #[cfg(all(feature = "rsa-pkcs1", feature = "hash-sha512"))]
                     SignatureScheme::RSA_PKCS1_SHA512 => {
                         signer! {::rsa::pkcs1v15::SigningKey::<Sha512>}
                     }
-                    #[cfg(feature = "rsa-pkcs1")]
+                    #[cfg(all(feature = "rsa-pkcs1", feature = "hash-sha384"))]
                     SignatureScheme::RSA_PKCS1_SHA384 => {
                         signer! {::rsa::pkcs1v15::SigningKey::<Sha384>}
                     }
-                    #[cfg(feature = "rsa-pkcs1")]
+                    #[cfg(all(feature = "rsa-pkcs1", feature = "hash-sha256"))]
                     SignatureScheme::RSA_PKCS1_SHA256 => {
                         signer! {::rsa::pkcs1v15::SigningKey::<Sha256>}
                     }
