@@ -6,23 +6,12 @@ pub const CHACHAPOLY1305_OVERHEAD: usize = 16;
 
 #[cfg(feature = "chacha20poly1305")]
 pub struct ChaCha20Poly1305;
-#[cfg(feature = "aes-gcm")]
-pub struct Aes128Gcm;
 
-#[cfg(feature = "aes-gcm")]
-pub struct Aes256Gcm;
+#[cfg(feature = "gcm")]
+pub mod gcm;
 
-#[cfg(feature = "aes-ccm")]
-pub struct Aes128Ccm;
-
-#[cfg(feature = "aes-ccm")]
-pub struct Aes256Ccm;
-
-#[cfg(feature = "aes-ccm")]
-pub struct Aes128Ccm8;
-
-#[cfg(feature = "aes-ccm")]
-pub struct Aes256Ccm8;
+#[cfg(feature = "ccm")]
+pub mod ccm;
 
 pub(crate) struct EncryptBufferAdapter<'a>(pub(crate) &'a mut PrefixedPayload);
 

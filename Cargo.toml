@@ -20,9 +20,7 @@ resolver = "2"
 [dependencies]
 aes = { version = "0.8.4", default-features = false, optional = true }
 aead = { version = "0.5.2", default-features = false, optional = true }
-aes-gcm = { version = "0.10.3", default-features = false, features = [
-    "aes",
-], optional = true }
+aes-gcm = { version = "0.10.3", default-features = false, optional = true }
 ccm = { version = "0.5.0", optional = true, default-features = false }
 chacha20poly1305 = { version = "0.10.1", default-features = false, optional = true }
 crypto-common = { version = "0.1.6", default-features = false }
@@ -136,8 +134,8 @@ rsa-pss = ["rsa"]
 rsa-full = ["rsa-pkcs1", "rsa-pss"]
 
 aead = ["dep:aead"]
-aes-gcm = ["aes", "dep:aes-gcm", "aead"]
-aes-ccm = ["aes", "dep:ccm", "aead"]
+aes-gcm = ["dep:aes-gcm", "aes", "gcm", "aead"]
+aes-ccm = ["aes", "ccm", "aead"]
 chacha20poly1305 = ["dep:chacha20poly1305", "aead"]
 aead-full = ["aes-gcm", "aes-ccm", "chacha20poly1305"]
 
@@ -166,3 +164,5 @@ pkcs8 = [
 signature = ["dep:signature"]
 rand = ["dep:rand_core", "signature?/rand_core"]
 aes = ["dep:aes"]
+ccm = ["dep:ccm"]
+gcm = []

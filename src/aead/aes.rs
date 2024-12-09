@@ -1,5 +1,7 @@
 #[cfg(feature = "aes-ccm")]
 use aes::{Aes128, Aes256};
+#[cfg(feature = "aes-gcm")]
+use aes_gcm::AesGcm;
 #[cfg(feature = "aes-ccm")]
 use ccm::{
     consts::{U12, U16, U8},
@@ -30,7 +32,7 @@ pub type Aes128Ccm8 = Ccm<Aes128, U8, U12>;
 pub type Aes256Ccm8 = Ccm<Aes256, U8, U12>;
 
 #[cfg(feature = "aes-gcm")]
-pub type Aes128Gcm = aes_gcm::Aes128Gcm;
+pub type Aes128Gcm = AesGcm<Aes128, U12>;
 
 #[cfg(feature = "aes-gcm")]
-pub type Aes256Gcm = aes_gcm::Aes256Gcm;
+pub type Aes256Gcm = AesGcm<Aes256, U12>;

@@ -1,7 +1,7 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use crate::aead::{Aes128Ccm, Aes128Ccm8, Aes256Ccm, Aes256Ccm8};
+use crate::aead::ccm::{Aes128Ccm, Aes128Ccm8, Aes256Ccm, Aes256Ccm8};
 use ::aead::{AeadCore, AeadInPlace};
 use crypto_common::typenum::Unsigned;
 use crypto_common::{KeyInit, KeySizeUser};

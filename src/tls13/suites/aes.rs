@@ -1,7 +1,7 @@
 #[cfg(feature = "aes-ccm")]
-use crate::aead::Aes128Ccm;
+use crate::aead::ccm::{Aes128Ccm, Aes128Ccm8};
 #[cfg(feature = "aes-gcm")]
-use crate::aead::{Aes128Ccm8, Aes128Gcm, Aes256Gcm};
+use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
 use crate::const_concat_slices;
 use crate::{hash, hmac};
 use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};

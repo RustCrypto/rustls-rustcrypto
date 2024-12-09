@@ -1,7 +1,8 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use crate::aead::{Aes128Gcm, Aes256Gcm, DecryptBufferAdapter, EncryptBufferAdapter};
+use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
+use crate::aead::{DecryptBufferAdapter, EncryptBufferAdapter};
 use aead::AeadInPlace;
 use crypto_common::{KeyInit, KeySizeUser};
 use paste::paste;

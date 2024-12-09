@@ -1,8 +1,8 @@
 #[cfg(feature = "chacha20poly1305")]
 pub mod chacha20;
 
-#[cfg(feature = "aes-gcm")]
+#[cfg(feature = "gcm")]
 pub mod gcm;
 
-#[cfg(feature = "aes-ccm")]
+#[cfg(feature = "ccm")]
 pub mod ccm;
