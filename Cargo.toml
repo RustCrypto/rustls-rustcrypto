@@ -68,6 +68,7 @@ rsa = { version = "0.9.7", default-features = false, features = [
 ] }
 rustls = { version = "0.23.19", default-features = false, features = ["std"] }
 sha2 = { version = "0.10.8", default-features = false, features = ["oid"] }
+spki = { version = "0.7.3", features = ["alloc"] }
 x509-cert = { version = "0.2.5", default-features = false, features = [
     "builder",
     "pem"
@@ -129,7 +130,7 @@ kx-p521 = ["p521", "p521/ecdh", "kx"]
 kx-full = ["kx-x25519", "kx-p256", "kx-p384", "kx-p521"]
 
 rsa = ["dep:rsa", "rsa/sha2", "verify", "signature", "pkcs1"]
-rsa-pkcs1 = ["rsa"]
+rsa-pkcs1 = ["rsa", "pkcs1"]
 rsa-pss = ["rsa"]
 rsa-full = ["rsa-pkcs1", "rsa-pss"]
 

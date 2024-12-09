@@ -5,11 +5,9 @@ use std::sync::Arc;
 use der::asn1::{GeneralizedTime, Ia5String};
 use der::Encode;
 use itertools::iproduct;
-use pkcs8::spki::{SignatureAlgorithmIdentifier, SubjectPublicKeyInfoOwned};
 use pkcs8::{EncodePrivateKey, EncodePublicKey};
 use pki_types::{CertificateDer, PrivateKeyDer};
 use rand_core::{OsRng, RngCore};
-use rsa::signature::Keypair;
 use rustls::server::{ClientHello, ResolvesServerCert};
 use rustls::sign::CertifiedKey;
 use rustls::CipherSuite::{
@@ -18,6 +16,8 @@ use rustls::CipherSuite::{
 };
 use rustls_rustcrypto::sign::any_supported_type;
 use sha2::Sha256;
+use signature::{Keypair, Signer};
+use spki::{SignatureAlgorithmIdentifier, SignatureBitStringEncoding, SubjectPublicKeyInfoOwned};
 use x509_cert::builder::{Builder, CertificateBuilder, Profile, RequestBuilder};
 use x509_cert::ext::pkix::name::GeneralName;
 use x509_cert::ext::pkix::SubjectAltName;
@@ -82,11 +82,8 @@ impl FakeServerCertResolver {
         key_fn: impl Fn() -> Key,
     ) -> (CertificateDer<'static>, Key)
     where
-        Key: signature::Signer<Signature>
-            + Keypair
-            + SignatureAlgorithmIdentifier
-            + EncodePrivateKey,
-        Signature: pkcs8::spki::SignatureBitStringEncoding,
+        Key: Signer<Signature> + Keypair + SignatureAlgorithmIdentifier + EncodePrivateKey,
+        Signature: SignatureBitStringEncoding,
         <Key as Keypair>::VerifyingKey: EncodePublicKey,
     {
         let signing_key = key_fn();
@@ -118,16 +115,9 @@ impl FakeServerCertResolver {
         ca_key: CaKey,
     ) -> (CertificateDer<'static>, PrivateKeyDer<'static>)
     where
-        Key: signature::Signer<Signature>
-            + Keypair
-            + SignatureAlgorithmIdentifier
-            + EncodePrivateKey,
-
-        CaKey: signature::Signer<Signature>
-            + Keypair
-            + SignatureAlgorithmIdentifier
-            + EncodePrivateKey,
-        Signature: pkcs8::spki::SignatureBitStringEncoding,
+        Key: Signer<Signature> + Keypair + SignatureAlgorithmIdentifier + EncodePrivateKey,
+        CaKey: Signer<Signature> + Keypair + SignatureAlgorithmIdentifier + EncodePrivateKey,
+        Signature: SignatureBitStringEncoding,
         <Key as Keypair>::VerifyingKey: EncodePublicKey,
         <CaKey as Keypair>::VerifyingKey: EncodePublicKey,
     {

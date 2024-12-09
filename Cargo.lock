@@ -795,6 +795,7 @@ dependencies = [
  "sec1",
  "sha2",
  "signature",
+ "spki",
  "x25519-dalek",
  "x509-cert",
 ]
