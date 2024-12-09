@@ -88,21 +88,10 @@ format = ["pem", "pkcs1", "pkcs8", "sec1"]
 logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
 
-# Only enable feature in upstream if there is an overall effect e.g. aead/alloc in-place
-# zeroize is another typical that can be turned off
-
-# TODO: go through all of these that what gets exposed re: std error type
-std = [
-    "alloc",
-    "webpki?/std",
-    "pki-types/std",
-    "rustls/std",
-    "ed25519-dalek?/std",
-    "pkcs1?/std",
-    "getrandom/std"
-]
-alloc = ["webpki?/alloc", "ecdsa?/alloc", "signature?/alloc", "ccm?/alloc"]
-zeroize = ["ed25519-dalek?/zeroize", "x25519-dalek?/zeroize"]
+# RustCrypto is preparing to migrate to core::error::Error
+# and in before most of the use case for std is just std::error::Error 
+std = ["alloc"]
+alloc = ["ecdsa?/alloc", "signature?/alloc"]
 
 nist = []
 p256 = ["dep:p256", "nist"]
