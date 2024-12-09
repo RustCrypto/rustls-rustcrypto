@@ -118,3 +118,8 @@ pub mod verify;
 #[cfg(feature = "tls12")]
 pub mod tls12;
 pub mod tls13;
+
+const _: () = assert!(
+    ALL_CIPHER_SUITES.len() != 0,
+    "At least one cipher suite should be enabled"
+);
