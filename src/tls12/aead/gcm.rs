@@ -3,7 +3,6 @@ use alloc::boxed::Box;
 
 use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
 use ::aead::{AeadCore, AeadInPlace};
-use crypto_common::typenum::Unsigned;
 use crypto_common::{KeyInit, KeySizeUser};
 use paste::paste;
 use rustls::crypto::cipher::{
@@ -12,6 +11,7 @@ use rustls::crypto::cipher::{
     PrefixedPayload, Tls12AeadAlgorithm,
 };
 use rustls::ConnectionTrafficSecrets;
+use typenum::Unsigned;
 
 const EXPLICIT_NONCE_LEN: usize = 8;
 const OVERHEAD: usize = EXPLICIT_NONCE_LEN + 16;
