@@ -163,8 +163,7 @@ dependencies = [
 [[package]]
 name = "crrl"
 version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca032663238726938d4ca23189575167143599eb219b591270c0d268ca9259b0"
+source = "git+https://github.com/stevefan1999-personal/crrl#7e502920ebedccce4aaa930d4c9a26787f157101"
 dependencies = [
  "rand_core",
  "sha2",
