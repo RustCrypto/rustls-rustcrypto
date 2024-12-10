@@ -60,11 +60,11 @@ impl FakeServerCertResolver {
             rsa_root_cert: rsa_root_cert.clone(),
             ecdsa_root_cert: ecdsa_root_cert.clone(),
             rsa_cert_key: Arc::new(CertifiedKey::new(
-                vec![rsa_cert, rsa_root_cert],
+                vec![rsa_cert],
                 any_supported_type(&rsa_key).unwrap(),
             )),
             ecdsa_cert_key: Arc::new(CertifiedKey::new(
-                vec![ecdsa_cert, ecdsa_root_cert],
+                vec![ecdsa_cert],
                 any_supported_type(&ecdsa_key).unwrap(),
             )),
         }
