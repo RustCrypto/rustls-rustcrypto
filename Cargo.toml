@@ -202,7 +202,7 @@ hash-full = ["hash-sha224", "hash-sha256", "hash-sha384", "hash-sha512"]
 
 # Formats
 der = ["dep:der"]
-sec1 = ["dep:sec1", "elliptic-curve?/sec1"]
+sec1 = ["dep:sec1", "elliptic-curve?/sec1", "sec1/pkcs8"]
 pem = ["elliptic-curve?/pem", "ecdsa?/pem"]
 pkcs1 = ["dep:pkcs1"]
 pkcs8 = [

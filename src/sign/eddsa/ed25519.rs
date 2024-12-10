@@ -26,7 +26,7 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                 SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
-            #[cfg(all(feature = "pkcs8", feature = "sec1"))]
+            #[cfg(feature = "sec1")]
             PrivateKeyDer::Sec1(sec1) => {
                 use sec1::DecodeEcPrivateKey;
                 SigningKey::from_sec1_der(sec1.secret_sec1_der())

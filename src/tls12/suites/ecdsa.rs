@@ -9,13 +9,16 @@ use rustls::crypto::{tls12::PrfUsingHmac, CipherSuiteCommon, KeyExchangeAlgorith
 #[cfg(feature = "aead")]
 use rustls::{CipherSuite, Tls12CipherSuite};
 
-#[cfg(feature = "aes-gcm")]
-use crate::aead::gcm::{Aes128Gcm, Aes256Gcm};
+#[cfg(all(feature = "aes-gcm", feature = "hash-sha256"))]
+use crate::aead::gcm::Aes128Gcm;
 
-#[cfg(feature = "aes-ccm")]
+#[cfg(all(feature = "aes-gcm", feature = "hash-sha384"))]
+use crate::aead::gcm::Aes256Gcm;
+
+#[cfg(all(feature = "aes-ccm", feature = "hash-sha256"))]
 use crate::aead::ccm::{Aes128Ccm, Aes128Ccm8, Aes256Ccm, Aes256Ccm8};
 
-#[cfg(feature = "chacha20poly1305")]
+#[cfg(all(feature = "chacha20poly1305", feature = "hash-sha256"))]
 use crate::aead::ChaCha20Poly1305;
 
 #[cfg(all(feature = "aes-gcm", feature = "hash-sha256"))]
