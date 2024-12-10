@@ -116,7 +116,6 @@ mod test {
         vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
     }
     #[test]
-    #[should_panic] // no support
     fn vs_openssl_as_client_group_p521() {
         let mut group_list = OpenSslGroupsList::all_false();
         group_list.P521 = true;
