@@ -46,7 +46,7 @@ impl From<TryFromSliceError> for Error {
 pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_slices!(
     &'static dyn SignatureVerificationAlgorithm,
     {
-        #[cfg(feature = "ecdsa")]
+        #[cfg(feature = "verify-ecdsa-nist")]
         {
             &[
                 #[cfg(all(feature = "ecdsa-p256", feature = "hash-sha256"))]
@@ -60,7 +60,7 @@ pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_sli
             ]
         }
 
-        #[cfg(not(feature = "ecdsa"))]
+        #[cfg(not(feature = "verify-ecdsa-nist"))]
         {
             &[]
         }
@@ -112,7 +112,7 @@ pub const MAPPING: &[(
         &'static [&'static dyn SignatureVerificationAlgorithm],
     ),
     {
-        #[cfg(feature = "ecdsa")]
+        #[cfg(feature = "verify-ecdsa-nist")]
         {
             &[
                 #[cfg(all(feature = "ecdsa-p384", feature = "hash-sha384"))]
@@ -136,13 +136,13 @@ pub const MAPPING: &[(
             ]
         }
 
-        #[cfg(not(feature = "ecdsa"))]
+        #[cfg(not(feature = "verify-ecdsa-nist"))]
         {
             &[]
         }
     },
     {
-        #[cfg(feature = "rsa-pkcs1")]
+        #[cfg(all(feature = "rsa-pkcs1", feature = "verify-rsa"))]
         {
             &[
                 #[cfg(feature = "hash-sha256")]
@@ -154,13 +154,13 @@ pub const MAPPING: &[(
             ]
         }
 
-        #[cfg(not(feature = "rsa-pkcs1"))]
+        #[cfg(not(all(feature = "rsa-pkcs1", feature = "verify-rsa")))]
         {
             &[]
         }
     },
     {
-        #[cfg(feature = "rsa-pss")]
+        #[cfg(all(feature = "rsa-pss", feature = "verify-rsa"))]
         {
             &[
                 #[cfg(feature = "hash-sha256")]
@@ -172,7 +172,7 @@ pub const MAPPING: &[(
             ]
         }
 
-        #[cfg(not(feature = "rsa-pss"))]
+        #[cfg(not(all(feature = "rsa-pss", feature = "verify-rsa")))]
         {
             &[]
         }

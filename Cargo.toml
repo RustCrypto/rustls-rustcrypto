@@ -26,43 +26,43 @@ ccm = { version = "0.5.0", default-features = false, optional = true }
 chacha20poly1305 = { version = "0.10.1", default-features = false, optional = true }
 crrl = { git = "https://github.com/stevefan1999-personal/crrl", version = "0.9.0", default-features = false, optional = true }
 crypto-common = { version = "0.1.6", default-features = false }
-der = { version = "0.7.9", default-features = false, optional = true }
+der = { version = "0.7.10", default-features = false, optional = true }
 digest = { version = "0.10.7", default-features = false }
 ecdsa = { version = "0.16.9", default-features = false, optional = true }
 ed25519-dalek = { version = "2", default-features = false, optional = true }
 elliptic-curve = { version = "0.13.8", default-features = false, optional = true }
 hmac = { version = "0.12.1", default-features = false }
 p256 = { version = "0.13.2", default-features = false, optional = true }
-p384 = { version = "0.13.0", default-features = false, optional = true }
+p384 = { version = "0.13.1", default-features = false, optional = true }
 p521 = { version = "0.13.3", default-features = false, optional = true }
 pkcs1 = { version = "0.7.5", default-features = false, optional = true }
 pkcs8 = { version = "0.10.2", default-features = false, optional = true }
-rsa = { version = "0.9.7", default-features = false, optional = true }
+rsa = { version = "0.9.8", default-features = false, optional = true }
 sec1 = { version = "0.7.3", default-features = false, optional = true }
-sha2 = { version = "0.10.8", default-features = false }
+sha2 = { version = "0.10.9", default-features = false }
 signature = { version = "2.2.0", default-features = false, optional = true }
-typenum = { version = "1.17.0", features = ["no_std", "const-generics"] }
+typenum = { version = "1.18.0", features = ["no_std", "const-generics"] }
 x25519-dalek = { version = "2", default-features = false, optional = true }
 
 # External groups
 getrandom = { version = "0.2", default-features = false, features = ["custom"] }
 paste = { version = "1.0.15", default-features = false }
-pki-types = { package = "rustls-pki-types", version = "1.10.0", default-features = false }
+pki-types = { package = "rustls-pki-types", version = "1.12.0", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = [
     "getrandom",
 ], optional = true }
-rustls = { version = "0.23.19", default-features = false }
+rustls = { version = "0.23.27", default-features = false }
 webpki = { package = "rustls-webpki", version = "0.102.8", default-features = false, optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["wasm-bindgen"] }
 
 [dev-dependencies]
-bytes = { version = "1.9.0", default-features = false }
+bytes = { version = "1.10.1", default-features = false }
 itertools = { version = "0.13.0", default-features = false }
-rsa = { version = "0.9.7", default-features = false, features = ["sha2"] }
-rustls = { version = "0.23.19", default-features = false, features = ["std"] }
-sha2 = { version = "0.10.8", default-features = false }
+rsa = { version = "0.9.8", default-features = false, features = ["sha2"] }
+rustls = { version = "0.23.27", default-features = false, features = ["std"] }
+sha2 = { version = "0.10.9", default-features = false }
 spki = { version = "0.7.3", default-features = false, features = ["alloc"] }
 x509-cert = { version = "0.2.5", default-features = false, features = [
     "builder",
@@ -170,12 +170,14 @@ verify-ecdsa-p256-sha384 = ["verify-ecdsa-p256", "hash-sha384"]
 verify-ecdsa-p384 = ["verify-ecdsa-nist", "ecdsa-p384"]
 verify-ecdsa-p384-sha256 = ["verify-ecdsa-p384", "hash-sha256"]
 verify-ecdsa-p384-sha384 = ["verify-ecdsa-p384", "hash-sha384"]
-verify-eddsa-ed25519 = ["verify", "eddsa-ed25519"]
-verify-rsa-pkcs1 = ["verify", "rsa-pkcs1"]
+verify-eddsa = ["verify"]
+verify-eddsa-ed25519 = ["verify-eddsa", "eddsa-ed25519"]
+verify-rsa = ["verify"]
+verify-rsa-pkcs1 = ["verify-rsa", "rsa-pkcs1"]
 verify-rsa-pkcs1-sha256 = ["verify-rsa-pkcs1", "hash-sha256"]
 verify-rsa-pkcs1-sha384 = ["verify-rsa-pkcs1", "hash-sha384"]
 verify-rsa-pkcs1-sha512 = ["verify-rsa-pkcs1", "hash-sha512"]
-verify-rsa-pss = ["verify", "rsa-pss"]
+verify-rsa-pss = ["verify-rsa", "rsa-pss"]
 verify-rsa-pss-sha256 = ["verify-rsa-pss", "hash-sha256"]
 verify-rsa-pss-sha384 = ["verify-rsa-pss", "hash-sha384"]
 verify-rsa-pss-sha512 = ["verify-rsa-pss", "hash-sha512"]
