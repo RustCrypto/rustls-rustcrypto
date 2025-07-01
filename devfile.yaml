@@ -1,0 +1,43 @@
+schemaVersion: 2.2.0
+metadata:
+  name: rust
+  displayName: Rust Runtime
+  description: Rust (version 1.75.x) is an open source programming language empowering everyone to build reliable and efficient software.
+  icon: https://www.rust-lang.org/static/images/rust-logo-blk.svg
+  tags:
+    - Rust
+  projectType: Rust
+  language: Rust
+  provider: fc7
+  version: 1.0.0
+components:
+  - container:
+      image: quay.io/devfile/universal-developer-image:ubi9-latest
+      memoryLimit: 65536Mi
+      mountSources: true
+    name: runtime
+commands:
+  - id: install-cargo-edit
+    exec:
+      component: runtime
+      commandLine: 'cargo install cargo-edit'
+      workingDir: $PROJECTS_ROOT
+  - id: install-cargo-binstall
+    exec:
+      component: runtime
+      commandLine: 'cargo install cargo-binstall'
+      workingDir: $PROJECTS_ROOT
+  - id: install-sccache
+    exec:
+      component: runtime
+      commandLine: 'cargo install sccache'
+      workingDir: $PROJECTS_ROOT
+  - id: pre-install
+    composite:
+      commands:
+        - install-cargo-edit
+        - install-cargo-binstall
+        - install-sccache
+events:
+  postStart:
+    - pre-install
