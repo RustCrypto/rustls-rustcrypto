@@ -6,11 +6,11 @@ pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[
     #[cfg(feature = "kx-x25519")]
     &x25519::X25519,
     #[cfg(feature = "kx-p256")]
-    &nist::SecP256R1,
+    &nist::SEC_P256_R1,
     #[cfg(feature = "kx-p384")]
-    &nist::SecP384R1,
+    &nist::SEC_P384_R1,
     #[cfg(feature = "kx-p521")]
-    &nist::SecP521R1,
+    &nist::SEC_P521_R1,
 ];
 
 #[cfg(feature = "kx-nist")]

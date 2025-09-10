@@ -2,77 +2,121 @@
 use alloc::boxed::Box;
 
 #[cfg(feature = "kx-nist")]
-use crypto::{SharedSecret, SupportedKxGroup};
+use core::marker::PhantomData;
 
 #[cfg(feature = "kx-nist")]
-use preinterpret::preinterpret;
+use rustls::{Error, NamedGroup, PeerMisbehaved, crypto};
 
 #[cfg(feature = "kx-nist")]
-use rustls::crypto;
+use crypto::{ActiveKeyExchange, SharedSecret, SupportedKxGroup};
 
 #[cfg(feature = "kx-nist")]
-macro_rules! impl_kx {
-    ($name:ident, $kx_name:ty, $secret:ty, $public_key:ty) => {
-        preinterpret! {
-            [!set! #key_exchange = [!ident! $name KeyExchange]]
+use elliptic_curve::{
+    Curve, CurveArithmetic, PublicKey,
+    ecdh::EphemeralSecret,
+    point::PointCompression,
+    sec1::{FromEncodedPoint, ToEncodedPoint},
+};
 
-            #[derive(Debug)]
-            #[allow(non_camel_case_types)]
-            pub struct $name;
+#[cfg(feature = "kx-nist")]
+use rand_core::OsRng;
 
-            impl crypto::SupportedKxGroup for $name {
-                fn name(&self) -> rustls::NamedGroup {
-                    $kx_name
-                }
+#[cfg(feature = "kx-nist")]
+use sec1::point::ModulusSize;
 
-                fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::Error> {
-                    let priv_key = $secret::try_from_rng(&mut rand_core::OsRng).map_err(|_| rustls::Error::General("Failed to generate private key".into()))?;
-                    let pub_key: $public_key = (&priv_key).into();
-                    Ok(Box::new(#key_exchange {
-                        priv_key,
-                        pub_key: pub_key.to_sec1_bytes(),
-                    }))
-                }
-            }
+#[cfg(feature = "kx-nist")]
+use core::fmt::Debug;
 
-            #[allow(non_camel_case_types)]
-            pub struct #key_exchange {
-                priv_key: $secret,
-                pub_key:  Box<[u8]>,
-            }
+#[cfg(feature = "kx-nist")]
+pub trait NistCurve: Curve + CurveArithmetic + PointCompression {
+    const NAMED_GROUP: NamedGroup;
+}
 
-            impl crypto::ActiveKeyExchange for #key_exchange {
-                fn complete(
-                    self: Box<#key_exchange>,
-                    peer: &[u8],
-                ) -> Result<SharedSecret, rustls::Error> {
-                    let their_pub = $public_key::from_sec1_bytes(peer)
-                        .map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
-                    Ok(self
-                        .priv_key
-                        .diffie_hellman(&their_pub)
-                        .raw_secret_bytes()
-                        .as_slice()
-                        .into())
-                }
+#[cfg(all(feature = "kx-nist", feature = "kx-p256"))]
+impl NistCurve for ::p256::NistP256 {
+    const NAMED_GROUP: NamedGroup = NamedGroup::secp256r1;
+}
 
-                fn pub_key(&self) -> &[u8] {
-                    &self.pub_key
-                }
+#[cfg(all(feature = "kx-nist", feature = "kx-p384"))]
+impl NistCurve for ::p384::NistP384 {
+    const NAMED_GROUP: NamedGroup = NamedGroup::secp384r1;
+}
 
-                fn group(&self) -> rustls::NamedGroup {
-                    $name.name()
-                }
-            }
-        }
-    };
+#[cfg(all(feature = "kx-nist", feature = "kx-p521"))]
+impl NistCurve for ::p521::NistP521 {
+    const NAMED_GROUP: NamedGroup = NamedGroup::secp521r1;
+}
+
+#[cfg(feature = "kx-nist")]
+#[derive(Debug)]
+pub struct NistKxGroup<C>(PhantomData<C>)
+where
+    C: NistCurve;
+
+#[cfg(feature = "kx-nist")]
+impl<C> SupportedKxGroup for NistKxGroup<C>
+where
+    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C> + ToEncodedPoint<C>,
+    <C as elliptic_curve::Curve>::FieldBytesSize: ModulusSize,
+    C: NistCurve,
+{
+    fn name(&self) -> NamedGroup {
+        C::NAMED_GROUP
+    }
+
+    fn start(&self) -> Result<Box<dyn ActiveKeyExchange>, Error> {
+        let priv_key = EphemeralSecret::<C>::try_from_rng(&mut OsRng)
+            .map_err(|_| Error::General("Failed to generate private key".into()))?;
+
+        Ok(Box::new(NistKeyExchange::<C> {
+            pub_key: priv_key.public_key().to_sec1_bytes().into(),
+            priv_key,
+        }))
+    }
+}
+
+#[cfg(feature = "kx-nist")]
+#[allow(non_camel_case_types)]
+pub struct NistKeyExchange<C>
+where
+    C: NistCurve,
+{
+    priv_key: EphemeralSecret<C>,
+    pub_key: Box<[u8]>,
+}
+
+#[cfg(feature = "kx-nist")]
+impl<C: NistCurve> ActiveKeyExchange for NistKeyExchange<C>
+where
+    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C>,
+    <C as elliptic_curve::Curve>::FieldBytesSize: ModulusSize,
+    <C as CurveArithmetic>::AffinePoint: ToEncodedPoint<C>,
+{
+    fn complete(self: Box<Self>, peer: &[u8]) -> Result<SharedSecret, Error> {
+        let their_pub = PublicKey::<C>::from_sec1_bytes(peer)
+            .map_err(|_| Error::from(PeerMisbehaved::InvalidKeyShare))?;
+        Ok(self
+            .priv_key
+            .diffie_hellman(&their_pub)
+            .raw_secret_bytes()
+            .as_slice()
+            .into())
+    }
+
+    fn pub_key(&self) -> &[u8] {
+        &self.pub_key
+    }
+
+    fn group(&self) -> NamedGroup {
+        C::NAMED_GROUP
+    }
 }
 
 #[cfg(feature = "kx-p256")]
-impl_kx! {SecP256R1, rustls::NamedGroup::secp256r1, ::p256::ecdh::EphemeralSecret, ::p256::PublicKey}
+pub const SEC_P256_R1: NistKxGroup<::p256::NistP256> = NistKxGroup(PhantomData);
 
 #[cfg(feature = "kx-p384")]
-impl_kx! {SecP384R1, rustls::NamedGroup::secp384r1, ::p384::ecdh::EphemeralSecret, ::p384::PublicKey}
+pub const SEC_P384_R1: NistKxGroup<::p384::NistP384> = NistKxGroup(PhantomData);
 
 #[cfg(feature = "kx-p521")]
-impl_kx! {SecP521R1, rustls::NamedGroup::secp521r1, ::p521::ecdh::EphemeralSecret, ::p521::PublicKey}
+pub const SEC_P521_R1: NistKxGroup<::p521::NistP521> = NistKxGroup(PhantomData);

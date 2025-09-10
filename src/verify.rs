@@ -53,10 +53,20 @@ pub const ALL: &[&'static dyn SignatureVerificationAlgorithm] = const_concat_sli
                 ecdsa::nist::ECDSA_P256_SHA256,
                 #[cfg(all(feature = "ecdsa-p256", feature = "hash-sha384"))]
                 ecdsa::nist::ECDSA_P256_SHA384,
+                #[cfg(all(feature = "ecdsa-p256", feature = "hash-sha512"))]
+                ecdsa::nist::ECDSA_P256_SHA512,
                 #[cfg(all(feature = "ecdsa-p384", feature = "hash-sha256"))]
                 ecdsa::nist::ECDSA_P384_SHA256,
                 #[cfg(all(feature = "ecdsa-p384", feature = "hash-sha384"))]
                 ecdsa::nist::ECDSA_P384_SHA384,
+                #[cfg(all(feature = "ecdsa-p384", feature = "hash-sha512"))]
+                ecdsa::nist::ECDSA_P384_SHA512,
+                #[cfg(all(feature = "ecdsa-p521", feature = "hash-sha256"))]
+                ecdsa::nist::ECDSA_P521_SHA256,
+                #[cfg(all(feature = "ecdsa-p521", feature = "hash-sha384"))]
+                ecdsa::nist::ECDSA_P521_SHA384,
+                #[cfg(all(feature = "ecdsa-p521", feature = "hash-sha512"))]
+                ecdsa::nist::ECDSA_P521_SHA512,
             ]
         }
 
@@ -120,8 +130,21 @@ pub const MAPPING: &[(
                     SignatureScheme::ECDSA_NISTP384_SHA384,
                     &[
                         ecdsa::nist::ECDSA_P384_SHA384,
-                        #[cfg(feature = "p256")]
+                        #[cfg(feature = "ecdsa-p256")]
                         ecdsa::nist::ECDSA_P256_SHA384,
+                        #[cfg(feature = "ecdsa-p521")]
+                        ecdsa::nist::ECDSA_P521_SHA384,
+                    ],
+                ),
+                #[cfg(all(feature = "ecdsa-p521", feature = "hash-sha512"))]
+                (
+                    SignatureScheme::ECDSA_NISTP521_SHA512,
+                    &[
+                        ecdsa::nist::ECDSA_P521_SHA512,
+                        #[cfg(feature = "ecdsa-p256")]
+                        ecdsa::nist::ECDSA_P256_SHA512,
+                        #[cfg(feature = "ecdsa-p384")]
+                        ecdsa::nist::ECDSA_P384_SHA512,
                     ],
                 ),
                 #[cfg(all(feature = "ecdsa-p256", feature = "hash-sha256"))]
@@ -131,6 +154,8 @@ pub const MAPPING: &[(
                         ecdsa::nist::ECDSA_P256_SHA256,
                         #[cfg(feature = "ecdsa-p384")]
                         ecdsa::nist::ECDSA_P384_SHA256,
+                        #[cfg(feature = "ecdsa-p521")]
+                        ecdsa::nist::ECDSA_P521_SHA256,
                     ],
                 ),
             ]

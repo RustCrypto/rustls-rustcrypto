@@ -1,68 +1,97 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
+use const_default::ConstDefault;
 
+use core::marker::PhantomData;
 use digest::{Digest, OutputSizeUser};
-use preinterpret::preinterpret;
 use rustls::crypto::{self, hash};
 
-macro_rules! impl_hash {
-    ($name:ident, $ty:ty, $algo:ty) => {
-        preinterpret! {
-            [!set! #hash_name = [!ident! Hash_ $name]]
-            [!set! #hash_content_name = [!ident! HashContent_ $name]]
+/// Trait to provide hash algorithm for different hash types
+pub trait HashAlgorithm {
+    const ALGORITHM: hash::HashAlgorithm;
+}
 
-            #[allow(non_camel_case_types)]
-            pub struct #hash_name;
+// Generic hash implementation
+#[derive(ConstDefault)]
+pub struct GenericHash<H> {
+    _phantom: PhantomData<H>,
+}
 
-            impl hash::Hash for #hash_name {
-                fn start(&self) -> Box<dyn hash::Context> {
-                    Box::new(#hash_content_name($ty::new()))
-                }
+impl<H> hash::Hash for GenericHash<H>
+where
+    H: Digest + OutputSizeUser + Clone + Send + Sync + 'static + HashAlgorithm,
+{
+    fn start(&self) -> Box<dyn hash::Context> {
+        Box::new(GenericHashContext(H::new()))
+    }
 
-                fn hash(&self, data: &[u8]) -> hash::Output {
-                    hash::Output::new(&$ty::digest(data)[..])
-                }
+    fn hash(&self, data: &[u8]) -> hash::Output {
+        hash::Output::new(&H::digest(data)[..])
+    }
 
-                fn output_len(&self) -> usize {
-                    <$ty as OutputSizeUser>::output_size()
-                }
+    fn output_len(&self) -> usize {
+        <H as OutputSizeUser>::output_size()
+    }
 
-                fn algorithm(&self) -> hash::HashAlgorithm {
-                    $algo
-                }
-            }
+    fn algorithm(&self) -> hash::HashAlgorithm {
+        H::ALGORITHM
+    }
+}
 
-            #[allow(non_camel_case_types)]
-            pub struct #hash_content_name($ty);
+// Implement HashAlgorithm trait for each hash type
+#[cfg(feature = "hash-sha224")]
+impl HashAlgorithm for ::sha2::Sha224 {
+    const ALGORITHM: hash::HashAlgorithm = hash::HashAlgorithm::SHA224;
+}
 
-            impl hash::Context for #hash_content_name {
-                fn fork_finish(&self) -> hash::Output {
-                    hash::Output::new(&self.0.clone().finalize()[..])
-                }
+#[cfg(feature = "hash-sha256")]
+impl HashAlgorithm for ::sha2::Sha256 {
+    const ALGORITHM: hash::HashAlgorithm = hash::HashAlgorithm::SHA256;
+}
 
-                fn fork(&self) -> Box<dyn hash::Context> {
-                    Box::new(#hash_content_name(self.0.clone()))
-                }
+#[cfg(feature = "hash-sha384")]
+impl HashAlgorithm for ::sha2::Sha384 {
+    const ALGORITHM: hash::HashAlgorithm = hash::HashAlgorithm::SHA384;
+}
 
-                fn finish(self: Box<Self>) -> hash::Output {
-                    hash::Output::new(&self.0.finalize()[..])
-                }
+#[cfg(feature = "hash-sha512")]
+impl HashAlgorithm for ::sha2::Sha512 {
+    const ALGORITHM: hash::HashAlgorithm = hash::HashAlgorithm::SHA512;
+}
 
-                fn update(&mut self, data: &[u8]) {
-                    self.0.update(data);
-                }
-            }
+pub struct GenericHashContext<H>(H);
 
-            pub const $name: &dyn crypto::hash::Hash = &#hash_name;
-        }
+impl<H> hash::Context for GenericHashContext<H>
+where
+    H: Digest + Clone + Send + Sync + 'static,
+{
+    fn fork_finish(&self) -> hash::Output {
+        hash::Output::new(&self.0.clone().finalize()[..])
+    }
+
+    fn fork(&self) -> Box<dyn hash::Context> {
+        Box::new(GenericHashContext(self.0.clone()))
+    }
+
+    fn finish(self: Box<Self>) -> hash::Output {
+        hash::Output::new(&self.0.finalize()[..])
+    }
+
+    fn update(&mut self, data: &[u8]) {
+        self.0.update(data);
+    }
+}
+
+/// Macro to generate hash constants
+macro_rules! hash_const {
+    ($name:ident, $hash:ty, $feature:literal) => {
+        #[cfg(feature = $feature)]
+        pub const $name: &dyn crypto::hash::Hash = &GenericHash::<$hash>::DEFAULT;
     };
 }
 
-#[cfg(feature = "hash-sha224")]
-impl_hash! {SHA224, ::sha2::Sha224, hash::HashAlgorithm::SHA224}
-#[cfg(feature = "hash-sha256")]
-impl_hash! {SHA256, ::sha2::Sha256, hash::HashAlgorithm::SHA256}
-#[cfg(feature = "hash-sha384")]
-impl_hash! {SHA384, ::sha2::Sha384, hash::HashAlgorithm::SHA384}
-#[cfg(feature = "hash-sha512")]
-impl_hash! {SHA512, ::sha2::Sha512, hash::HashAlgorithm::SHA512}
+// Generate hash constants using macro
+hash_const!(SHA224, ::sha2::Sha224, "hash-sha224");
+hash_const!(SHA256, ::sha2::Sha256, "hash-sha256");
+hash_const!(SHA384, ::sha2::Sha384, "hash-sha384");
+hash_const!(SHA512, ::sha2::Sha512, "hash-sha512");
