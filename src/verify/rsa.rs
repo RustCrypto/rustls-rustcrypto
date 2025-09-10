@@ -1,7 +1,7 @@
-use paste::paste;
+use pki_types::alg_id;
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
+use preinterpret::preinterpret;
 use signature::Verifier;
-use webpki::alg_id;
 
 #[cfg(feature = "hash-sha256")]
 use sha2::Sha256;
@@ -18,12 +18,14 @@ macro_rules! impl_generic_rsa_verifer {
         $verifying_key:ty,
         $signature:ty
     ) => {
-        paste! {
+        preinterpret! {
+            [!set! #verifier_name = [!ident! RsaVerifier_ $name]]
+
             #[allow(non_camel_case_types)]
             #[derive(Debug)]
-            pub struct [<RsaVerifier_ $name>];
+            pub struct #verifier_name;
 
-            impl [<RsaVerifier_ $name>] {
+            impl #verifier_name {
                 fn verify_inner(
                     public_key: &[u8],
                     message: &[u8],
@@ -39,7 +41,7 @@ macro_rules! impl_generic_rsa_verifer {
                 }
             }
 
-            impl SignatureVerificationAlgorithm for [<RsaVerifier_ $name>] {
+            impl SignatureVerificationAlgorithm for #verifier_name {
                 fn public_key_alg_id(&self) -> AlgorithmIdentifier {
                     $public_key_algo
                 }
@@ -58,7 +60,7 @@ macro_rules! impl_generic_rsa_verifer {
                 }
             }
 
-            pub const $name: &dyn SignatureVerificationAlgorithm = &[<RsaVerifier_ $name>];
+            pub const $name: &dyn SignatureVerificationAlgorithm = &#verifier_name;
         }
     };
 }

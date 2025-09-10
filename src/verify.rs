@@ -3,8 +3,8 @@ use core::array::TryFromSliceError;
 use crate::const_concat_slices;
 
 use pki_types::SignatureVerificationAlgorithm;
-use rustls::crypto::WebPkiSupportedAlgorithms;
 use rustls::SignatureScheme;
+use rustls::crypto::WebPkiSupportedAlgorithms;
 
 pub(crate) enum Error {
     #[cfg(feature = "signature")]

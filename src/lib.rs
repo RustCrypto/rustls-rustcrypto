@@ -37,9 +37,9 @@ extern crate alloc;
 use alloc::sync::Arc;
 
 use pki_types::PrivateKeyDer;
+use rustls::SupportedCipherSuite;
 use rustls::crypto::{CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom};
 use rustls::sign::SigningKey;
-use rustls::SupportedCipherSuite;
 
 #[derive(Debug)]
 pub struct Provider;
@@ -58,7 +58,7 @@ impl SecureRandom for Provider {
     fn fill(&self, #[allow(unused_variables)] bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
         #[cfg(feature = "rand")]
         {
-            use rand_core::RngCore;
+            use rand_core::TryRngCore;
             rand_core::OsRng
                 .try_fill_bytes(bytes)
                 .map_err(|_| GetRandomFailed)

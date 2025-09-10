@@ -5,12 +5,12 @@ use fake_cert_server_resolver::FakeServerCertResolver;
 use fake_time::FakeTime;
 use itertools::iproduct;
 use mem_socket::MemorySocket;
-use rand_core::{OsRng, RngCore};
+use rand_core::{OsRng, RngCore, TryRngCore};
 use rustls::crypto::CryptoProvider;
 use rustls::{
     ClientConfig as RusTlsClientConfig, RootCertStore, ServerConfig as RusTlsServerConfig,
 };
-use rustls_rustcrypto::{provider as rustcrypto_provider, verify, Provider};
+use rustls_rustcrypto::{Provider, provider as rustcrypto_provider, verify};
 
 mod fake_cert_server_resolver;
 mod fake_time;
@@ -78,8 +78,8 @@ fn test_basic_round_trip() {
             // Creates a pair of sockets that interconnect from client to server, and server to client
             let (socket_c2s, socket_s2c) = MemorySocket::new_pair();
 
-            let mut random_data: [u8; 8192] = [0; 8192];
-            OsRng.fill_bytes(&mut random_data);
+            let mut random_data: [u8; 64 * 1024] = [0; 64 * 1024];
+            OsRng.try_fill_bytes(&mut random_data).unwrap();
 
             std::thread::Builder::new()
                 .name(format!("{base_name}-server"))

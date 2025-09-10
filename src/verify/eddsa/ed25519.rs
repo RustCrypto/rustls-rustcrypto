@@ -1,7 +1,7 @@
 use ed25519_dalek::{Signature, VerifyingKey};
+use pki_types::alg_id;
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
 use signature::Verifier;
-use webpki::alg_id;
 
 #[derive(Debug)]
 pub struct Ed25519Verify;

@@ -11,61 +11,62 @@ readme = "README.md"
 repository = "https://github.com/RustCrypto/rustls-rustcrypto"
 categories = ["cryptography", "no-std"]
 keywords = ["rustls", "tls"]
-edition = "2021"
-rust-version = "1.75"
+edition = "2024"
+rust-version = "1.85"
 resolver = "2"
 
 # Ensure all dependencies + feats are mapped to crate features for correct usage
 # default features often have std breaking no_std and potentially other unwanted
 [dependencies]
 # Cryptographic dependencies
-aead = { version = "0.5.2", default-features = false, optional = true }
-aes = { version = "0.8.4", default-features = false, optional = true }
-aes-gcm = { version = "0.10.3", default-features = false, optional = true }
-ccm = { version = "0.5.0", default-features = false, optional = true }
-chacha20poly1305 = { version = "0.10.1", default-features = false, optional = true }
-crrl = { git = "https://github.com/stevefan1999-personal/crrl", version = "0.9.0", default-features = false, optional = true }
-crypto-common = { version = "0.1.6", default-features = false }
-der = { version = "0.7.10", default-features = false, optional = true }
-digest = { version = "0.10.7", default-features = false }
-ecdsa = { version = "0.16.9", default-features = false, optional = true }
-ed25519-dalek = { version = "2", default-features = false, optional = true }
-elliptic-curve = { version = "0.13.8", default-features = false, optional = true }
-hmac = { version = "0.12.1", default-features = false }
-p256 = { version = "0.13.2", default-features = false, optional = true }
-p384 = { version = "0.13.1", default-features = false, optional = true }
-p521 = { version = "0.13.3", default-features = false, optional = true }
-pkcs1 = { version = "0.7.5", default-features = false, optional = true }
-pkcs8 = { version = "0.10.2", default-features = false, optional = true }
-rsa = { version = "0.9.8", default-features = false, optional = true }
-sec1 = { version = "0.7.3", default-features = false, optional = true }
-sha2 = { version = "0.10.9", default-features = false }
-signature = { version = "2.2.0", default-features = false, optional = true }
+aead = { version = "0.6.0-rc.2", default-features = false, optional = true }
+aes = { version = "0.9.0-rc.1", default-features = false, optional = true }
+aes-gcm = { version = "0.11.0-rc.1", default-features = false, optional = true }
+ccm = { version = "0.6.0-pre", default-features = false, optional = true, git = "https://github.com/RustCrypto/AEADs/" }
+chacha20poly1305 = { version = "0.11.0-rc.1", default-features = false, optional = true }
+cipher = "0.5.0-rc.1"
+# crrl = { git = "https://github.com/stevefan1999-personal/crrl", version = "0.9.0", default-features = false, optional = true }
+crypto-common = { version = "0.2.0-rc.4", default-features = false }
+der = { version = "0.8.0-rc.8", default-features = false, optional = true }
+digest = { version = "0.11.0-rc.1", default-features = false }
+ecdsa = { version = "0.17.0-rc.6", default-features = false, optional = true }
+ed25519-dalek = { version = "3.0.0-pre.1", default-features = false, optional = true }
+elliptic-curve = { version = "0.14.0-rc.13", default-features = false, optional = true }
+hmac = { version = "0.13.0-rc.1", default-features = false }
+p256 = { version = "0.14.0-pre.10", default-features = false, optional = true }
+p384 = { version = "0.14.0-pre.10", default-features = false, optional = true }
+p521 = { version = "0.14.0-pre.10", default-features = false, optional = true }
+pkcs1 = { version = "0.8.0-rc.3", default-features = false, optional = true }
+pkcs8 = { version = "0.11.0-rc.6", default-features = false, optional = true }
+rsa = { version = "0.10.0-rc.6", default-features = false, optional = true }
+sec1 = { version = "0.8.0-rc.9", default-features = false, optional = true }
+sha2 = { version = "0.11.0-rc.2", default-features = false }
+signature = { version = "3.0.0-rc.3", default-features = false, optional = true }
 typenum = { version = "1.18.0", features = ["no_std", "const-generics"] }
-x25519-dalek = { version = "2", default-features = false, optional = true }
+x25519-dalek = { version = "3.0.0-pre.1", default-features = false, optional = true }
+x448 = { version = "0.14.0-pre.0", default-features = false, optional = true }
 
 # External groups
-getrandom = { version = "0.2", default-features = false, features = ["custom"] }
-paste = { version = "1.0.15", default-features = false }
+const-default = { version = "1.0.0", features = ["derive"] }
+getrandom = { version = "0.3", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1.12.0", default-features = false }
-rand_core = { version = "0.6.4", default-features = false, features = [
-    "getrandom",
+preinterpret = "0.2.0"
+rand_core = { version = "0.9.3", default-features = false, features = [
+    "os_rng"
 ], optional = true }
-rustls = { version = "0.23.27", default-features = false }
-webpki = { package = "rustls-webpki", version = "0.102.8", default-features = false, optional = true }
+rustls = { version = "0.23.31", default-features = false }
+webpki = { package = "rustls-webpki", version = "0.103.4", default-features = false, optional = true }
+paste = "1.0.15"
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.2", features = ["wasm-bindgen"] }
 
 [dev-dependencies]
 bytes = { version = "1.10.1", default-features = false }
-itertools = { version = "0.13.0", default-features = false }
-rsa = { version = "0.9.8", default-features = false, features = ["sha2"] }
-rustls = { version = "0.23.27", default-features = false, features = ["std"] }
-sha2 = { version = "0.10.9", default-features = false }
-spki = { version = "0.7.3", default-features = false, features = ["alloc"] }
+itertools = { version = "0.14.0", default-features = false }
+rsa = { version = "0.10.0-rc.6", default-features = false, features = ["sha2"] }
+rustls = { version = "0.23.31", default-features = false, features = ["std"] }
+spki = { version = "0.8.0-rc.4", default-features = false, features = ["alloc"] }
 x509-cert = { version = "0.2.5", default-features = false, features = [
-    "builder",
+    "builder", "hazmat"
 ] }
 
 [features]
@@ -104,13 +105,13 @@ zeroize = [
 subtle = ["digest/subtle", "pkcs8?/subtle", "sec1?/subtle"]
 fast = [
     "ed25519-dalek?/fast",
-    "rsa?/u64_digit",
+    # "rsa?/u64_digit",
     "x25519-dalek?/precomputed-tables",
 ]
 
 nist = []
-p256 = ["dep:p256", "nist"]
-p384 = ["dep:p384", "nist"]
+p256 = ["dep:p256", "nist", "p256/pkcs8"]
+p384 = ["dep:p384", "nist", "p384/pkcs8"]
 p521 = ["dep:p521", "nist"]
 ed25519 = ["dep:ed25519-dalek"]
 
@@ -203,10 +204,10 @@ hash-sha512 = ["hash"]
 hash-full = ["hash-sha224", "hash-sha256", "hash-sha384", "hash-sha512"]
 
 # Formats
-der = ["dep:der"]
-sec1 = ["dep:sec1", "elliptic-curve?/sec1", "sec1/pkcs8"]
+der = ["dep:der", "sec1?/der"]
+sec1 = ["dep:sec1", "elliptic-curve?/sec1"]
 pem = ["elliptic-curve?/pem", "ecdsa?/pem"]
-pkcs1 = ["dep:pkcs1"]
+pkcs1 = ["dep:pkcs1", "rsa?/encoding"]
 pkcs8 = [
     "dep:pkcs8",
     "ecdsa?/pkcs8",
@@ -215,7 +216,6 @@ pkcs8 = [
     "p256?/pkcs8",
     "p384?/pkcs8",
     "p521?/pkcs8",
-    "sec1?/pkcs8",
 ]
 
 aes = ["dep:aes"]
@@ -225,6 +225,6 @@ ccm = ["dep:ccm"]
 chacha20poly1305 = ["dep:chacha20poly1305"]
 elliptic-curve = ["dep:elliptic-curve"]
 gcm = []
-rand = ["dep:rand_core", "signature?/rand_core"]
+rand = ["dep:rand_core", "signature?/rand_core", "x25519-dalek?/os_rng"]
 signature = ["dep:signature"]
-x448 = ["dep:crrl", "crrl/x448"]
+x448 = ["dep:x448"]

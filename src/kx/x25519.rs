@@ -14,7 +14,7 @@ impl crypto::SupportedKxGroup for X25519 {
     }
 
     fn start(&self) -> Result<Box<dyn ActiveKeyExchange>, rustls::Error> {
-        let priv_key = EphemeralSecret::random_from_rng(rand_core::OsRng);
+        let priv_key = EphemeralSecret::random();
         let pub_key = PublicKey::from(&priv_key);
         Ok(Box::new(X25519KeyExchange { priv_key, pub_key }))
     }

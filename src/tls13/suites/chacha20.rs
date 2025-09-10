@@ -1,6 +1,7 @@
-use crate::aead::ChaCha20Poly1305;
+#[cfg(feature = "hash-sha256")]
+use crate::tls13::aead::CHACHA20_POLY1305;
 use crate::{hash, hmac};
-use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};
+use rustls::crypto::{CipherSuiteCommon, tls13::HkdfUsingHmac};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
 #[cfg(feature = "hash-sha256")]
@@ -12,6 +13,6 @@ pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: &ChaCha20Poly1305,
+        aead_alg: CHACHA20_POLY1305,
         quic: None,
     });

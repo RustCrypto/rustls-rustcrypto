@@ -1,18 +1,14 @@
 use aead::Buffer;
 use rustls::crypto::cipher::{BorrowedPayload, PrefixedPayload};
 
-#[cfg(feature = "chacha20poly1305")]
-pub const CHACHAPOLY1305_OVERHEAD: usize = 16;
-
-#[cfg(feature = "chacha20poly1305")]
-pub struct ChaCha20Poly1305;
-
 #[cfg(feature = "gcm")]
 pub mod gcm;
 
 #[cfg(feature = "ccm")]
 pub mod ccm;
 
+#[macro_use]
+pub(crate) mod common;
 pub(crate) struct EncryptBufferAdapter<'a>(pub(crate) &'a mut PrefixedPayload);
 
 impl AsRef<[u8]> for EncryptBufferAdapter<'_> {

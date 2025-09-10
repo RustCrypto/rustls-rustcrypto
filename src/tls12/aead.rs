@@ -6,3 +6,5 @@ pub mod gcm;
 
 #[cfg(feature = "ccm")]
 pub mod ccm;
+
+pub(crate) mod common;

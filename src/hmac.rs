@@ -1,8 +1,9 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
+use crypto_common::KeyInit;
 use crypto_common::OutputSizeUser;
-use paste::paste;
+use preinterpret::preinterpret;
 use rustls::crypto::hmac::{Hmac, Key, Tag};
 
 macro_rules! impl_hmac {
@@ -10,14 +11,16 @@ macro_rules! impl_hmac {
         $name: ident,
         $ty: ty
     ) => {
-        paste! {
-            #[allow(non_camel_case_types)]
-            pub struct [<Hmac_ $name>];
+        preinterpret! {
+            [!set! #hmac_type_name = [!ident! Hmac_ $name]]
+            [!set! #hmac_key_type_name = [!ident! HmacKey_ $name]]
 
-            impl Hmac for [<Hmac_ $name>] {
+            #[allow(non_camel_case_types)]
+            pub struct #hmac_type_name;
+
+            impl Hmac for #hmac_type_name {
                 fn with_key(&self, key: &[u8]) -> Box<dyn Key> {
-                    use ::hmac::Mac;
-                    Box::new([<HmacKey_ $name>](
+                    Box::new(#hmac_key_type_name(
                         ::hmac::Hmac::<$ty>::new_from_slice(key).unwrap(),
                     ))
                 }
@@ -28,9 +31,9 @@ macro_rules! impl_hmac {
             }
 
             #[allow(non_camel_case_types)]
-            pub struct [<HmacKey_ $name>](::hmac::Hmac<$ty>);
+            pub struct #hmac_key_type_name(::hmac::Hmac<$ty>);
 
-            impl Key for [<HmacKey_ $name>] {
+            impl Key for #hmac_key_type_name {
                 fn sign_concat(&self, first: &[u8], middle: &[&[u8]], last: &[u8]) -> Tag {
                     use ::hmac::Mac;
                     let mut ctx = self.0.clone();
@@ -46,7 +49,7 @@ macro_rules! impl_hmac {
                     $ty::output_size()
                 }
             }
-            pub const $name: &dyn Hmac = &[<Hmac_ $name>];
+            pub const $name: &dyn Hmac = &#hmac_type_name;
         }
     };
 }

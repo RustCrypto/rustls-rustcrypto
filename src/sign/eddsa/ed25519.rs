@@ -6,7 +6,7 @@ use alloc::{format, string::ToString};
 use crate::sign::GenericSigner;
 use core::marker::PhantomData;
 use ed25519_dalek::SigningKey;
-use rustls::{sign::Signer, SignatureAlgorithm, SignatureScheme};
+use rustls::{SignatureAlgorithm, SignatureScheme, sign::Signer};
 
 #[cfg(feature = "der")]
 use pki_types::PrivateKeyDer;
@@ -26,12 +26,12 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                 SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
-            #[cfg(feature = "sec1")]
-            PrivateKeyDer::Sec1(sec1) => {
-                use sec1::DecodeEcPrivateKey;
-                SigningKey::from_sec1_der(sec1.secret_sec1_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
-            }
+            // #[cfg(feature = "sec1")]
+            // PrivateKeyDer::Sec1(sec1) => {
+            //     use sec1::DecodeEcPrivateKey;
+            //     SigningKey::from_sec1_der(sec1.secret_sec1_der())
+            //         .map_err(|e| format!("failed to decrypt private key: {e}"))
+            // }
             PrivateKeyDer::Pkcs1(_) => Err("ED25519 does not support PKCS#1 key".to_string()),
             _ => Err("not supported".into()),
         };

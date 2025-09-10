@@ -1,8 +1,8 @@
 use digest::Digest;
-use paste::paste;
+use pki_types::alg_id;
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
+use preinterpret::preinterpret;
 use signature::hazmat::PrehashVerifier;
-use webpki::alg_id;
 
 macro_rules! impl_generic_ecdsa_verifer {
 (
@@ -13,12 +13,14 @@ macro_rules! impl_generic_ecdsa_verifer {
     $signature:ty,
     $hash:ty
 ) => {
-    paste! {
+    preinterpret! {
+        [!set! #verifier_name = [!ident! EcdsaVerifier_ $name]]
+
         #[allow(non_camel_case_types)]
         #[derive(Debug)]
-        pub struct [<EcdsaVerifier_ $name>];
+        pub struct #verifier_name;
 
-        impl [<EcdsaVerifier_ $name>] {
+        impl #verifier_name {
             fn verify_inner(public_key: &[u8], message: &[u8], signature: &[u8]) -> Result<(), crate::verify::Error> {
                 use der::Decode;
 
@@ -30,7 +32,7 @@ macro_rules! impl_generic_ecdsa_verifer {
             }
         }
 
-        impl SignatureVerificationAlgorithm for [<EcdsaVerifier_ $name>] {
+        impl SignatureVerificationAlgorithm for #verifier_name {
             fn public_key_alg_id(&self) -> AlgorithmIdentifier {
                 $public_key_algo
             }
@@ -49,7 +51,7 @@ macro_rules! impl_generic_ecdsa_verifer {
             }
         }
 
-        pub const $name: &dyn SignatureVerificationAlgorithm = &[<EcdsaVerifier_ $name>];
+        pub const $name: &dyn SignatureVerificationAlgorithm = &#verifier_name;
     }
 };
 }

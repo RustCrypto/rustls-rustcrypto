@@ -1,12 +1,12 @@
-#[cfg(all(feature = "ccm", feature = "hash-sha256"))]
-use crate::aead::ccm::{Aes128Ccm, Aes128Ccm8};
-#[cfg(all(feature = "gcm", feature = "hash-sha256"))]
-use crate::aead::gcm::Aes128Gcm;
-#[cfg(all(feature = "gcm", feature = "hash-sha384"))]
-use crate::aead::gcm::Aes256Gcm;
 use crate::const_concat_slices;
+#[cfg(all(feature = "ccm", feature = "hash-sha256"))]
+use crate::tls13::aead::ccm::{AES_128_CCM, AES_128_CCM_8};
+#[cfg(all(feature = "gcm", feature = "hash-sha256"))]
+use crate::tls13::aead::gcm::AES_128_GCM;
+#[cfg(all(feature = "gcm", feature = "hash-sha384"))]
+use crate::tls13::aead::gcm::AES_256_GCM;
 use crate::{hash, hmac};
-use rustls::crypto::{tls13::HkdfUsingHmac, CipherSuiteCommon};
+use rustls::crypto::{CipherSuiteCommon, tls13::HkdfUsingHmac};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
 #[cfg(all(feature = "gcm", feature = "hash-sha256"))]
@@ -18,7 +18,7 @@ pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: &Aes128Gcm,
+        aead_alg: AES_128_GCM,
         quic: None,
     });
 
@@ -31,7 +31,7 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         hkdf_provider: &HkdfUsingHmac(hmac::SHA384),
-        aead_alg: &Aes256Gcm,
+        aead_alg: AES_256_GCM,
         quic: None,
     });
 
@@ -44,7 +44,7 @@ pub const TLS13_AES_128_CCM_SHA256: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: &Aes128Ccm,
+        aead_alg: AES_128_CCM,
         quic: None,
     });
 
@@ -57,7 +57,7 @@ pub const TLS13_AES_128_CCM_8_SHA256: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: &Aes128Ccm8,
+        aead_alg: AES_128_CCM_8,
         quic: None,
     });
 

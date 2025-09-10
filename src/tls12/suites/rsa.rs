@@ -5,18 +5,15 @@ use crate::tls12::suites::schemes::TLS12_RSA_SCHEMES;
 #[cfg(feature = "aead")]
 use crate::{hash, hmac};
 #[cfg(feature = "aead")]
-use rustls::crypto::{tls12::PrfUsingHmac, CipherSuiteCommon, KeyExchangeAlgorithm};
+use rustls::crypto::{CipherSuiteCommon, KeyExchangeAlgorithm, tls12::PrfUsingHmac};
 #[cfg(feature = "aead")]
 use rustls::{CipherSuite, Tls12CipherSuite};
 
-#[cfg(all(feature = "gcm", feature = "hash-sha256"))]
-use crate::aead::gcm::Aes128Gcm;
-
-#[cfg(all(feature = "gcm", feature = "hash-sha384"))]
-use crate::aead::gcm::Aes256Gcm;
+#[cfg(feature = "gcm")]
+use crate::tls12::aead::gcm::{AES_128_GCM, AES_256_GCM};
 
 #[cfg(feature = "chacha20poly1305")]
-use crate::aead::ChaCha20Poly1305;
+use crate::tls12::aead::chacha20::ChaCha20Poly1305;
 
 #[cfg(all(feature = "aes-gcm", feature = "hash-sha256"))]
 pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: Tls12CipherSuite = Tls12CipherSuite {
@@ -27,7 +24,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: Tls12CipherSuite = Tls12CipherS
     },
     kx: KeyExchangeAlgorithm::ECDHE,
     sign: TLS12_RSA_SCHEMES,
-    aead_alg: &Aes128Gcm,
+    aead_alg: AES_128_GCM,
     prf_provider: &PrfUsingHmac(hmac::SHA256),
 };
 
@@ -40,7 +37,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: Tls12CipherSuite = Tls12CipherS
     },
     kx: KeyExchangeAlgorithm::ECDHE,
     sign: TLS12_RSA_SCHEMES,
-    aead_alg: &Aes256Gcm,
+    aead_alg: AES_256_GCM,
     prf_provider: &PrfUsingHmac(hmac::SHA384),
 };
 

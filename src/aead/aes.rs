@@ -1,4 +1,4 @@
-use aes::{Aes128, Aes256};
+use ::aes::{Aes128, Aes256};
 
 #[cfg(feature = "gcm")]
 use aes_gcm::AesGcm;
@@ -6,7 +6,7 @@ use aes_gcm::AesGcm;
 #[cfg(feature = "ccm")]
 use {
     ccm::Ccm,
-    typenum::{U16, U8},
+    typenum::{U8, U16},
 };
 
 #[cfg(any(feature = "gcm", feature = "ccm"))]

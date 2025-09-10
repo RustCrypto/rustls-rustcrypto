@@ -2,18 +2,21 @@
 use alloc::boxed::Box;
 
 use digest::{Digest, OutputSizeUser};
-use paste::paste;
+use preinterpret::preinterpret;
 use rustls::crypto::{self, hash};
 
 macro_rules! impl_hash {
     ($name:ident, $ty:ty, $algo:ty) => {
-        paste! {
-            #[allow(non_camel_case_types)]
-            pub struct [<Hash_ $name>];
+        preinterpret! {
+            [!set! #hash_name = [!ident! Hash_ $name]]
+            [!set! #hash_content_name = [!ident! HashContent_ $name]]
 
-            impl hash::Hash for [<Hash_ $name>] {
+            #[allow(non_camel_case_types)]
+            pub struct #hash_name;
+
+            impl hash::Hash for #hash_name {
                 fn start(&self) -> Box<dyn hash::Context> {
-                    Box::new([<HashContent_ $name>]($ty::new()))
+                    Box::new(#hash_content_name($ty::new()))
                 }
 
                 fn hash(&self, data: &[u8]) -> hash::Output {
@@ -30,15 +33,15 @@ macro_rules! impl_hash {
             }
 
             #[allow(non_camel_case_types)]
-            pub struct [<HashContent_ $name>]($ty);
+            pub struct #hash_content_name($ty);
 
-            impl hash::Context for [<HashContent_ $name>] {
+            impl hash::Context for #hash_content_name {
                 fn fork_finish(&self) -> hash::Output {
                     hash::Output::new(&self.0.clone().finalize()[..])
                 }
 
                 fn fork(&self) -> Box<dyn hash::Context> {
-                    Box::new([<HashContent_ $name>](self.0.clone()))
+                    Box::new(#hash_content_name(self.0.clone()))
                 }
 
                 fn finish(self: Box<Self>) -> hash::Output {
@@ -50,7 +53,7 @@ macro_rules! impl_hash {
                 }
             }
 
-            pub const $name: &dyn crypto::hash::Hash = &[<Hash_ $name>];
+            pub const $name: &dyn crypto::hash::Hash = &#hash_name;
         }
     };
 }

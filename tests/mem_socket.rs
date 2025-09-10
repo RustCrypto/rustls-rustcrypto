@@ -1,6 +1,6 @@
 use std::{
     io::{self, ErrorKind, Read, Write},
-    sync::mpsc::{channel, Receiver, Sender},
+    sync::mpsc::{Receiver, Sender, channel},
 };
 
 use bytes::{Buf, Bytes, BytesMut};

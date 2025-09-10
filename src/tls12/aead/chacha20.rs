@@ -1,31 +1,35 @@
+use aead::AeadInOut;
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use crate::aead::{
-    ChaCha20Poly1305, DecryptBufferAdapter, EncryptBufferAdapter, CHACHAPOLY1305_OVERHEAD,
-};
-use chacha20poly1305::{AeadInPlace, KeyInit};
-use rustls::crypto::cipher::{
-    self, make_tls12_aad, AeadKey, InboundOpaqueMessage, InboundPlainMessage, Iv, MessageDecrypter,
-    MessageEncrypter, OutboundOpaqueMessage, OutboundPlainMessage, PrefixedPayload,
-    UnsupportedOperationError,
-};
-use rustls::crypto::cipher::{KeyBlockShape, Tls12AeadAlgorithm, NONCE_LEN};
-use rustls::ConnectionTrafficSecrets;
+use crate::aead::{DecryptBufferAdapter, EncryptBufferAdapter};
 
-pub struct CipherAdapter(chacha20poly1305::ChaCha20Poly1305, Iv);
+use ::chacha20poly1305::KeyInit;
+use rustls::{
+    ConnectionTrafficSecrets,
+    crypto::cipher::{
+        self, AeadKey, InboundOpaqueMessage, InboundPlainMessage, Iv, KeyBlockShape,
+        MessageDecrypter, MessageEncrypter, OutboundOpaqueMessage, OutboundPlainMessage,
+        PrefixedPayload, Tls12AeadAlgorithm, UnsupportedOperationError, make_tls12_aad,
+    },
+};
+
+pub const CHACHAPOLY1305_OVERHEAD: usize = 16;
+pub struct ChaCha20Poly1305;
+
+pub struct Tls12AeadAlgorithmChacha20Poly1305Adapter(chacha20poly1305::ChaCha20Poly1305, Iv);
 
 impl Tls12AeadAlgorithm for ChaCha20Poly1305 {
     fn encrypter(&self, key: AeadKey, iv: &[u8], _: &[u8]) -> Box<dyn MessageEncrypter> {
-        Box::new(CipherAdapter(
-            chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
+        Box::new(Tls12AeadAlgorithmChacha20Poly1305Adapter(
+            ::chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
                 .expect("key should be valid"),
             Iv::copy(iv),
         ))
     }
 
     fn decrypter(&self, key: AeadKey, iv: &[u8]) -> Box<dyn MessageDecrypter> {
-        Box::new(CipherAdapter(
+        Box::new(Tls12AeadAlgorithmChacha20Poly1305Adapter(
             chacha20poly1305::ChaCha20Poly1305::new_from_slice(key.as_ref())
                 .expect("key should be valid"),
             Iv::copy(iv),
@@ -46,34 +50,32 @@ impl Tls12AeadAlgorithm for ChaCha20Poly1305 {
         iv: &[u8],
         _explicit: &[u8],
     ) -> Result<ConnectionTrafficSecrets, UnsupportedOperationError> {
-        // This should always be true because KeyBlockShape and the Iv nonce len are in
-        // agreement.
-        debug_assert_eq!(NONCE_LEN, iv.len());
         Ok(ConnectionTrafficSecrets::Chacha20Poly1305 {
             key,
-            iv: Iv::new(iv[..].try_into().expect("conversion should succeed")),
+            iv: Iv::copy(iv),
         })
     }
 }
 
-impl MessageEncrypter for CipherAdapter {
+impl MessageEncrypter for Tls12AeadAlgorithmChacha20Poly1305Adapter {
     fn encrypt(
         &mut self,
         m: OutboundPlainMessage<'_>,
         seq: u64,
     ) -> Result<OutboundOpaqueMessage, rustls::Error> {
-        let total_len = self.encrypted_payload_len(m.payload.len());
-        let mut payload = PrefixedPayload::with_capacity(total_len);
+        let mut payload =
+            PrefixedPayload::with_capacity(self.encrypted_payload_len(m.payload.len()));
 
         payload.extend_from_chunks(&m.payload);
 
-        let nonce: chacha20poly1305::Nonce = cipher::Nonce::new(&self.1, seq).0.into();
-        let aad = make_tls12_aad(seq, m.typ, m.version, m.payload.len());
-
         self.0
-            .encrypt_in_place(&nonce, &aad, &mut EncryptBufferAdapter(&mut payload))
-            .map_err(|_| rustls::Error::EncryptError)
+            .encrypt_in_place(
+                &cipher::Nonce::new(&self.1, seq).0.into(),
+                &make_tls12_aad(seq, m.typ, m.version, m.payload.len()),
+                &mut EncryptBufferAdapter(&mut payload),
+            )
             .map(|_| OutboundOpaqueMessage::new(m.typ, m.version, payload))
+            .map_err(|_| rustls::Error::EncryptError)
     }
 
     fn encrypted_payload_len(&self, payload_len: usize) -> usize {
@@ -81,24 +83,23 @@ impl MessageEncrypter for CipherAdapter {
     }
 }
 
-impl MessageDecrypter for CipherAdapter {
+impl MessageDecrypter for Tls12AeadAlgorithmChacha20Poly1305Adapter {
     fn decrypt<'a>(
         &mut self,
         mut m: InboundOpaqueMessage<'a>,
         seq: u64,
     ) -> Result<InboundPlainMessage<'a>, rustls::Error> {
-        let payload = &m.payload;
-        let nonce: chacha20poly1305::Nonce = cipher::Nonce::new(&self.1, seq).0.into();
-        let aad = make_tls12_aad(
-            seq,
-            m.typ,
-            m.version,
-            payload.len() - CHACHAPOLY1305_OVERHEAD,
-        );
-
-        let payload = &mut m.payload;
         self.0
-            .decrypt_in_place(&nonce, &aad, &mut DecryptBufferAdapter(payload))
+            .decrypt_in_place(
+                &cipher::Nonce::new(&self.1, seq).0.into(),
+                &make_tls12_aad(
+                    seq,
+                    m.typ,
+                    m.version,
+                    m.payload.len() - CHACHAPOLY1305_OVERHEAD,
+                ),
+                &mut DecryptBufferAdapter(&mut m.payload),
+            )
             .map_err(|_| rustls::Error::DecryptError)?;
 
         Ok(m.into_plain_message())
