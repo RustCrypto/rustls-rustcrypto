@@ -2,27 +2,29 @@ use core::time::Duration;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use der::asn1::{GeneralizedTime, Ia5String};
-use der::Encode;
 use itertools::iproduct;
-use pkcs8::{EncodePrivateKey, EncodePublicKey};
 use pki_types::{CertificateDer, PrivateKeyDer};
-use rand_core::{OsRng, RngCore};
-use rustls::server::{ClientHello, ResolvesServerCert};
-use rustls::sign::CertifiedKey;
+use rand_core_064::{OsRng, RngCore};
+use rsa_098::pkcs8::{EncodePrivateKey, EncodePublicKey};
 use rustls::CipherSuite::{
     TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
     TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
 };
+use rustls::server::{ClientHello, ResolvesServerCert};
+use rustls::sign::CertifiedKey;
 use rustls_rustcrypto::sign::any_supported_type;
-use sha2::Sha256;
-use signature::{Keypair, Signer};
-use spki::{SignatureAlgorithmIdentifier, SignatureBitStringEncoding, SubjectPublicKeyInfoOwned};
+use signature_220::{Keypair, Signer};
 use x509_cert::builder::{Builder, CertificateBuilder, Profile, RequestBuilder};
-use x509_cert::ext::pkix::name::GeneralName;
-use x509_cert::ext::pkix::SubjectAltName;
+use x509_cert::der::{
+    Encode,
+    asn1::{GeneralizedTime, Ia5String},
+};
+use x509_cert::ext::pkix::{SubjectAltName, name::GeneralName};
 use x509_cert::name::Name;
 use x509_cert::serial_number::SerialNumber;
+use x509_cert::spki::{
+    SignatureAlgorithmIdentifier, SignatureBitStringEncoding, SubjectPublicKeyInfoOwned,
+};
 use x509_cert::time::{Time, Validity};
 
 #[derive(Debug)]
@@ -37,22 +39,24 @@ impl FakeServerCertResolver {
     pub fn new() -> Self {
         let (rsa_root_cert, rsa_root_key) = Self::generate_root_cert(|| {
             // by running a binary search between 1024 bit and 2048 bit, 1034 bit is the first possible bit size after 1024 bit
-            rsa::pkcs1v15::SigningKey::<Sha256>::random(&mut OsRng, 1034).unwrap()
+            rsa_098::pkcs1v15::SigningKey::<rsa_098::sha2::Sha256>::random(&mut OsRng, 1034)
+                .unwrap()
         });
         let (ecdsa_root_cert, ecdsa_root_key) =
-            Self::generate_root_cert::<_, p256::ecdsa::DerSignature>(|| {
-                p256::ecdsa::SigningKey::random(&mut OsRng)
+            Self::generate_root_cert::<_, p256_0132::ecdsa::DerSignature>(|| {
+                p256_0132::ecdsa::SigningKey::random(&mut OsRng)
             });
 
         let (rsa_cert, rsa_key) = Self::generate_cert(
             || {
                 // by running a binary search between 1024 bit and 2048 bit, 1034 bit is the first possible bit size after 1024 bit
-                rsa::pkcs1v15::SigningKey::<Sha256>::random(&mut OsRng, 1034).unwrap()
+                rsa_098::pkcs1v15::SigningKey::<rsa_098::sha2::Sha256>::random(&mut OsRng, 1034)
+                    .unwrap()
             },
             rsa_root_key,
         );
-        let (ecdsa_cert, ecdsa_key) = Self::generate_cert::<_, _, p256::ecdsa::DerSignature>(
-            || p256::ecdsa::SigningKey::random(&mut OsRng),
+        let (ecdsa_cert, ecdsa_key) = Self::generate_cert::<_, _, p256_0132::ecdsa::DerSignature>(
+            || p256_0132::ecdsa::SigningKey::random(&mut OsRng),
             ecdsa_root_key,
         );
 

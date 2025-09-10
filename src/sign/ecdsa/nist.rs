@@ -2,8 +2,9 @@
 use alloc::{boxed::Box, format, sync::Arc};
 use core::fmt::Debug;
 use core::marker::PhantomData;
-#[cfg(feature = "ecdsa-p256")]
-use sec1::DecodeEcPrivateKey;
+
+// #[cfg(feature = "sec1")]
+// use sec1::DecodeEcPrivateKey;
 
 use crate::sign::rand::GenericRandomizedSigner;
 use rustls::sign::SigningKey;
@@ -16,25 +17,19 @@ trait EcdsaKey: Sized {
     const SCHEME: SignatureScheme;
 }
 
-#[cfg(all(feature = "pkcs8", not(feature = "sec1")))]
-trait DecodePrivateKey: ::pkcs8::DecodePrivateKey {}
+// #[cfg(all(feature = "pkcs8", not(feature = "sec1")))]
+// trait DecodePrivateKey: ::pkcs8::DecodePrivateKey {}
 
-#[cfg(all(feature = "sec1", not(feature = "pkcs8")))]
-trait DecodePrivateKey: ::sec1::DecodeEcPrivateKey {}
+// #[cfg(all(feature = "sec1", not(feature = "pkcs8")))]
+// trait DecodePrivateKey: ::sec1::DecodeEcPrivateKey {}
 
-#[cfg(all(feature = "pkcs8", feature = "sec1"))]
-trait DecodePrivateKey: ::pkcs8::DecodePrivateKey + ::sec1::DecodeEcPrivateKey {}
+// #[cfg(all(feature = "pkcs8", feature = "sec1"))]
+// trait DecodePrivateKey: ::pkcs8::DecodePrivateKey + ::sec1::DecodeEcPrivateKey {}
 
 #[cfg(feature = "der")]
 impl<SK, SIG> TryFrom<&PrivateKeyDer<'_>> for EcdsaSigningKey<SK, SIG>
 where
-    SK: EcdsaKey
-        + ::pkcs8::DecodePrivateKey
-        +
-        // ::sec1::DecodeEcPrivateKey +
-        Send
-        + Sync
-        + 'static,
+    SK: EcdsaKey + ::pkcs8::DecodePrivateKey + Send + Sync + 'static,
     SIG: Send + Sync + 'static,
 {
     type Error = rustls::Error;
@@ -45,11 +40,8 @@ where
             PrivateKeyDer::Pkcs8(der) => SK::from_pkcs8_der(der.secret_pkcs8_der())
                 .map_err(|e| format!("failed to decrypt private key: {e}")),
             // #[cfg(feature = "sec1")]
-            // PrivateKeyDer::Sec1(sec1) => {
-            //     SK::from_sec1_der(sec1.secret_sec1_der()).map_err(|e|
-            //         format!("failed to decrypt private key: {e}")
-            //     )
-            // }
+            // PrivateKeyDer::Sec1(sec1) => SK::from_sec1_der(sec1.secret_sec1_der())
+            //     .map_err(|e| format!("failed to decrypt private key: {e}")),
             PrivateKeyDer::Pkcs1(_) => Err(format!("ECDSA does not support PKCS#1 key")),
             _ => Err("not supported".into()),
         };

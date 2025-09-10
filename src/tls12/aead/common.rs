@@ -6,13 +6,11 @@ use alloc::boxed::Box;
 use ::aead::{AeadInOut, Nonce, Tag};
 use ::crypto_common::KeyInit;
 use const_default::ConstDefault;
-use rustls::{
-    ConnectionTrafficSecrets,
-    crypto::cipher::{
-        self, AeadKey, InboundOpaqueMessage, InboundPlainMessage, KeyBlockShape, MessageDecrypter,
-        MessageEncrypter, OutboundOpaqueMessage, OutboundPlainMessage, PrefixedPayload,
-        Tls12AeadAlgorithm, make_tls12_aad,
-    },
+use rustls::ConnectionTrafficSecrets;
+use rustls::crypto::cipher::{
+    self, AeadKey, InboundOpaqueMessage, InboundPlainMessage, KeyBlockShape, MessageDecrypter,
+    MessageEncrypter, OutboundOpaqueMessage, OutboundPlainMessage, PrefixedPayload,
+    Tls12AeadAlgorithm, make_tls12_aad,
 };
 use typenum::Unsigned;
 
@@ -48,7 +46,7 @@ where
         let tag = self
             .aead
             .encrypt_inout_detached(
-                Nonce::<A>::from_slice(&nonce),
+                &Nonce::<A>::try_from(&nonce[..]).map_err(|_| rustls::Error::EncryptError)?,
                 &aad,
                 (&mut payload.as_mut()[EXPLICIT_NONCE_LEN..]).into(),
             )
@@ -100,7 +98,7 @@ where
                     &Nonce::<A>::from_iter([self.dec_iv.as_ref(), nonce].concat()),
                     &make_tls12_aad(seq, m.typ, m.version, plaintext_len),
                     ciphertext.into(),
-                    Tag::<A>::from_slice(tag),
+                    &Tag::<A>::try_from(&tag[..]).map_err(|_| rustls::Error::DecryptError)?,
                 )
                 .map_err(|_| rustls::Error::DecryptError)?;
 

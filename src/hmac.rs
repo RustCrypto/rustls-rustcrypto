@@ -21,7 +21,7 @@ macro_rules! impl_hmac {
             impl Hmac for #hmac_type_name {
                 fn with_key(&self, key: &[u8]) -> Box<dyn Key> {
                     Box::new(#hmac_key_type_name(
-                        ::hmac::Hmac::<$ty>::new_from_slice(key).unwrap(),
+                        ::hmac::Hmac::<$ty>::new_from_slice(key).expect("Invalid key length for HMAC"),
                     ))
                 }
 

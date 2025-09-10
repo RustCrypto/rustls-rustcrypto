@@ -3,7 +3,7 @@ use core::marker::PhantomData;
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use aead::{AeadInPlace, KeyInit, Nonce};
+use aead::{AeadInOut, KeyInit, Nonce};
 use const_default::ConstDefault;
 use rustls::{
     ConnectionTrafficSecrets, ContentType, ProtocolVersion,
@@ -24,7 +24,7 @@ pub struct Tls13AeadEncrypter<A> {
 
 impl<A> MessageEncrypter for Tls13AeadEncrypter<A>
 where
-    A: AeadInPlace + Send + Sync,
+    A: AeadInOut + Send + Sync,
 {
     fn encrypt(
         &mut self,
@@ -39,7 +39,8 @@ where
 
         self.aead
             .encrypt_in_place(
-                Nonce::<A>::from_slice(&cipher::Nonce::new(&self.iv, seq).0),
+                &Nonce::<A>::try_from(&cipher::Nonce::new(&self.iv, seq).0[..])
+                    .map_err(|_| rustls::Error::EncryptError)?,
                 &make_tls13_aad(total_len),
                 &mut EncryptBufferAdapter(&mut payload),
             )
@@ -65,7 +66,7 @@ pub struct Tls13AeadDecrypter<A> {
 
 impl<A> MessageDecrypter for Tls13AeadDecrypter<A>
 where
-    A: AeadInPlace + Send + Sync,
+    A: AeadInOut + Send + Sync,
 {
     fn decrypt<'a>(
         &mut self,
@@ -74,7 +75,8 @@ where
     ) -> Result<InboundPlainMessage<'a>, rustls::Error> {
         self.aead
             .decrypt_in_place(
-                Nonce::<A>::from_slice(&cipher::Nonce::new(&self.iv, seq).0),
+                &Nonce::<A>::try_from(&cipher::Nonce::new(&self.iv, seq).0[..])
+                    .map_err(|_| rustls::Error::DecryptError)?,
                 &make_tls13_aad(m.payload.len()),
                 &mut DecryptBufferAdapter(&mut m.payload),
             )
@@ -103,19 +105,19 @@ pub struct Tls13AeadAlgorithmCommon<A, E = ()> {
 
 impl<A, E> Tls13AeadAlgorithm for Tls13AeadAlgorithmCommon<A, E>
 where
-    A: KeyInit + AeadInPlace + Send + Sync + 'static,
+    A: KeyInit + AeadInOut + Send + Sync + 'static,
     E: Extractor + Send + Sync + 'static,
 {
     fn encrypter(&self, key: AeadKey, iv: Iv) -> Box<dyn MessageEncrypter> {
         Box::new(Tls13AeadEncrypter::<A> {
-            aead: A::new_from_slice(key.as_ref()).unwrap(),
+            aead: A::new_from_slice(key.as_ref()).expect("Invalid key length for AEAD algorithm"),
             iv,
         })
     }
 
     fn decrypter(&self, key: AeadKey, iv: Iv) -> Box<dyn MessageDecrypter> {
         Box::new(Tls13AeadDecrypter::<A> {
-            aead: A::new_from_slice(key.as_ref()).unwrap(),
+            aead: A::new_from_slice(key.as_ref()).expect("Invalid key length for AEAD algorithm"),
             iv,
         })
     }
