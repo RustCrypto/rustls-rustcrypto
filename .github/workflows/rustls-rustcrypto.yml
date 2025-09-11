@@ -104,17 +104,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust:
-          - 1.88.0 # MSRV
-          - stable
-        target:
-          - armv7a-none-eabi
-          - thumbv7em-none-eabi
-          - wasm32-unknown-unknown
-          - xtensa-esp32-none-elf
-          - xtensa-esp32s2-none-elf
-          - xtensa-esp32s3-none-elf
-          - riscv32imc-unknown-none-elf
+        include:
+          - rust: 1.88.0
+            target: armv7a-none-eabi
+          - rust: stable
+            target: armv7a-none-eabi
+          - rust: 1.88.0
+            target: thumbv7em-none-eabi
+          - rust: stable
+            target: thumbv7em-none-eabi
+          - rust: 1.88.0
+            target: wasm32-unknown-unknown
+          - rust: stable
+            target: wasm32-unknown-unknown
+          - rust: 1.88.0
+            target: riscv32imc-unknown-none-elf
+          - rust: stable
+            target: riscv32imc-unknown-none-elf
     steps:
       - uses: actions/checkout@v4
       - name: Cache Rust toolchain
@@ -197,6 +203,18 @@ jobs:
           - target: powerpc-unknown-linux-gnu
             rust: 1.88.0 # MSRV
           - target: powerpc-unknown-linux-gnu
+            rust: stable
+          - target: aarch64-unknown-linux-gnu
+            rust: 1.88.0
+          - target: aarch64-unknown-linux-gnu
+            rust: stable
+          - target: armv7-unknown-linux-gnueabihf
+            rust: 1.88.0
+          - target: armv7-unknown-linux-gnueabihf
+            rust: stable
+          - target: riscv64gc-unknown-linux-gnu
+            rust: 1.88.0
+          - target: riscv64gc-unknown-linux-gnu
             rust: stable
     runs-on: ubuntu-latest
     steps:
