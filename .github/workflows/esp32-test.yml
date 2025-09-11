@@ -64,7 +64,7 @@ jobs:
     - name: Build ESP32 test
       working-directory: validation/esp32-test
       run: |
-        cargo build
+        cargo build --release
       env:
         SCCACHE_GHA_ENABLED: "true"
         RUSTC_WRAPPER: "sccache"
@@ -74,5 +74,5 @@ jobs:
       with:
         name: esp32-test-build
         path: |
-          validation/esp32-test/build/
+          validation/esp32-test/target/release/
         retention-days: 30
