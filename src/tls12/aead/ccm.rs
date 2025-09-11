@@ -1,4 +1,4 @@
-use super::common::Tls12AeadAlgorithmWithExplicitNonce;
+use super::explicit_nonce::Tls12AeadAlgorithmWithExplicitNonce;
 
 pub const AES_128_CCM: &Tls12AeadAlgorithmWithExplicitNonce<crate::aead::aes::Aes128Ccm> =
     &Tls12AeadAlgorithmWithExplicitNonce::DEFAULT;

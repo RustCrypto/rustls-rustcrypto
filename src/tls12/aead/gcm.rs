@@ -1,7 +1,7 @@
 use rustls::ConnectionTrafficSecrets;
 use rustls::crypto::cipher::{self, AeadKey, Iv};
 
-use super::common::{Extractor, Tls12AeadAlgorithmWithExplicitNonce};
+use super::explicit_nonce::{Extractor, Tls12AeadAlgorithmWithExplicitNonce};
 
 pub struct Aes128Extractor;
 impl Extractor for Aes128Extractor {

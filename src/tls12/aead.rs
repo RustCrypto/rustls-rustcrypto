@@ -7,4 +7,5 @@ pub mod gcm;
 #[cfg(feature = "ccm")]
 pub mod ccm;
 
-pub(crate) mod common;
+#[cfg(any(feature = "aes-gcm", feature = "aes-ccm"))]
+pub(crate) mod explicit_nonce;
