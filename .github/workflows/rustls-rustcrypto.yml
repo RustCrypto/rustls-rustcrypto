@@ -24,8 +24,12 @@ jobs:
         with:
           toolchain: 1.88.0
           components: clippy
+      - uses: mozilla-actions/sccache-action@v0.0.9
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --all --all-features -- -D warnings
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
   doc:
     runs-on: ubuntu-latest
@@ -34,8 +38,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
+      - uses: mozilla-actions/sccache-action@v0.0.9
       - uses: Swatinem/rust-cache@v2
       - run: cargo doc --all-features --no-deps
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -74,11 +82,14 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
+      - uses: mozilla-actions/sccache-action@v0.0.9
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.target }}
       - run: cargo build --no-default-features --features tls12,full,alloc --release --target ${{ matrix.target }}
         env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
           RUSTFLAGS: --cfg getrandom_backend="custom"
   test:
     strategy:
@@ -92,12 +103,21 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
+      - uses: mozilla-actions/sccache-action@v0.0.9
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.toolchain }}
       - run: cargo test --features tls12
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
       - name: Test no_std with alloc
         run: cargo test --no-default-features --features tls12,full,alloc
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
+      - name: Show sccache stats
+        run: ${SCCACHE_PATH} --show-stats
 
   cross:
     strategy:
