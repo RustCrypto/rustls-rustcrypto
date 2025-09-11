@@ -101,5 +101,3 @@ jobs:
           targets: ${{ matrix.target }}
       - uses: RustCrypto/actions/cross-install@master
       - run: cross test --release --target ${{ matrix.target }} --all-features
-        env: 
-          RUSTFLAGS: --cfg getrandom_backend="custom"
