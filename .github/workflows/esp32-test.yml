@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ESP_IDF_VERSION: v5.5.1
+      ESP_IDF_VERSION: v5.4.2
       ESP_IDF_TOOLS_INSTALL_DIR: custom:/opt/esp
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: "sccache"
