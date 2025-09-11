@@ -26,12 +26,12 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                 SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
-            // #[cfg(feature = "sec1")]
-            // PrivateKeyDer::Sec1(sec1) => {
-            //     use sec1::DecodeEcPrivateKey;
-            //     SigningKey::from_sec1_der(sec1.secret_sec1_der())
-            //         .map_err(|e| format!("failed to decrypt private key: {e}"))
-            // }
+            
+            // (chat log from tony in zulip)
+            // Per RFC 8410, only PKCS#8 is supported for ED25519 keys
+            // https://datatracker.ietf.org/doc/html/rfc8410#section-7
+            // So no SEC 1 support for ED25519 (despite we do have it compile before?!)
+            PrivateKeyDer::Sec1(_) => Err("ED25519 does not support SEC 1 key".to_string()),
             PrivateKeyDer::Pkcs1(_) => Err("ED25519 does not support PKCS#1 key".to_string()),
             _ => Err("not supported".into()),
         };
