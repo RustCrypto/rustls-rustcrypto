@@ -18,6 +18,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      ESP_IDF_VERSION: v5.5.1
+      ESP_IDF_TOOLS_INSTALL_DIR: /opt/esp
+      ESP_IDF_PATH: /opt/esp/idf
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -28,19 +35,10 @@ jobs:
         path: |
           ~/.espressif
           /opt/esp
-        key: ${{ runner.os }}-espidf-${{ hashFiles('validation/esp32-test/sdkconfig.defaults') }}
+        key: ${{ runner.os }}-espidf-${{ env.ESP_IDF_VERSION }}-
         restore-keys: |
+          ${{ runner.os }}-espidf-${{ env.ESP_IDF_VERSION }}-
           ${{ runner.os }}-espidf-
-
-    - name: Install ESP-IDF
-      uses: espressif/install-esp-idf-action@v1
-      with:
-        version: "v5.5.1"
-
-    - name: Set ESP-IDF environment
-      run: |
-        echo "ESP_IDF_TOOLS_INSTALL_DIR=/opt/esp" >> $GITHUB_ENV
-        echo "ESP_IDF_PATH=/opt/esp/idf" >> $GITHUB_ENV
 
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@master
@@ -56,7 +54,7 @@ jobs:
       with:
         workspaces: "validation/esp32-test"
 
-    - name: Setup | ldproxy
+    - name: Setup ldproxy
       uses: taiki-e/cache-cargo-install-action@v2
       with:
         tool: ldproxy
@@ -65,9 +63,6 @@ jobs:
       working-directory: validation/esp32-test
       run: |
         cargo build --release
-      env:
-        SCCACHE_GHA_ENABLED: "true"
-        RUSTC_WRAPPER: "sccache"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
