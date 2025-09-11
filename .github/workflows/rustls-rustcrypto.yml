@@ -219,35 +219,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Cache Rust toolchain
-        uses: actions/cache@v4
+      - name: Cross-compile library
+        uses: houseabsolute/actions-rust-cross@v1
         with:
-          path: |
-            ~/.rustup/toolchains
-            ~/.rustup/downloads
-          key: rust-toolchain-${{ runner.os }}-${{ matrix.rust }}-${{ matrix.target }}
-          restore-keys: |
-            rust-toolchain-${{ runner.os }}-${{ matrix.rust }}
-      - run: ${{ matrix.deps }}
-      - uses: dtolnay/rust-toolchain@master
-        with:
+          command: build
+          target: ${{ matrix.target }}
           toolchain: ${{ matrix.rust }}
-          targets: ${{ matrix.target }}
-      - uses: RustCrypto/actions/cross-install@master
-      - name: Cache Cargo registry and index
-        uses: actions/cache@v4
+          args: "--release --all-features"
+      - name: Cross-test library
+        uses: houseabsolute/actions-rust-cross@v1
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            cargo-${{ runner.os }}-
-      - name: Cache target directory
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: cargo-cross-${{ runner.os }}-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            cargo-cross-${{ runner.os }}-${{ matrix.target }}-
-      - run: cross test --release --target ${{ matrix.target }} --all-features
+          command: test
+          target: ${{ matrix.target }}
+          toolchain: ${{ matrix.rust }}
+          args: "--release --all-features"
