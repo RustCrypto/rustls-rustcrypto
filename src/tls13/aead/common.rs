@@ -4,7 +4,6 @@ use core::marker::PhantomData;
 use alloc::boxed::Box;
 
 use aead::{AeadInOut, KeyInit, Nonce};
-use const_default::ConstDefault;
 use rustls::{
     ConnectionTrafficSecrets, ContentType, ProtocolVersion,
     crypto::cipher::{
@@ -97,10 +96,17 @@ pub trait Extractor {
 
 impl Extractor for () {}
 
-#[derive(ConstDefault)]
+#[derive(Default)]
 pub struct Tls13AeadAlgorithmCommon<A, E = ()> {
     _aead: PhantomData<A>,
     _extractor: PhantomData<E>,
+}
+
+impl<A, E> Tls13AeadAlgorithmCommon<A, E> {
+    pub const DEFAULT: Self = Self {
+        _aead: PhantomData,
+        _extractor: PhantomData,
+    };
 }
 
 impl<A, E> Tls13AeadAlgorithm for Tls13AeadAlgorithmCommon<A, E>

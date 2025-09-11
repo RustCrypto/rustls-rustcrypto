@@ -5,7 +5,6 @@ use alloc::boxed::Box;
 
 use ::aead::{AeadInOut, Nonce, Tag};
 use ::crypto_common::KeyInit;
-use const_default::ConstDefault;
 use rustls::ConnectionTrafficSecrets;
 use rustls::crypto::cipher::{
     self, AeadKey, InboundOpaqueMessage, InboundPlainMessage, KeyBlockShape, MessageDecrypter,
@@ -127,10 +126,17 @@ pub trait Extractor {
 
 impl Extractor for () {}
 
-#[derive(ConstDefault)]
+#[derive(Default)]
 pub struct Tls12AeadAlgorithmWithExplicitNonce<A, E = ()> {
     _aead: PhantomData<A>,
     _extractor: PhantomData<E>,
+}
+
+impl<A, E> Tls12AeadAlgorithmWithExplicitNonce<A, E> {
+    pub const DEFAULT: Self = Self {
+        _aead: PhantomData,
+        _extractor: PhantomData,
+    };
 }
 
 impl<A, E> Tls12AeadAlgorithm for Tls12AeadAlgorithmWithExplicitNonce<A, E>

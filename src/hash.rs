@@ -1,6 +1,5 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
-use const_default::ConstDefault;
 
 use core::marker::PhantomData;
 use digest::{Digest, OutputSizeUser};
@@ -12,9 +11,15 @@ pub trait HashAlgorithm {
 }
 
 // Generic hash implementation
-#[derive(ConstDefault)]
+#[derive(Default)]
 pub struct GenericHash<H> {
     _phantom: PhantomData<H>,
+}
+
+impl<H> GenericHash<H> {
+    pub const DEFAULT: Self = Self {
+        _phantom: PhantomData,
+    };
 }
 
 impl<H> hash::Hash for GenericHash<H>

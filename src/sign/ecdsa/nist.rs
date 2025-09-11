@@ -42,7 +42,7 @@ where
             // #[cfg(feature = "sec1")]
             // PrivateKeyDer::Sec1(sec1) => SK::from_sec1_der(sec1.secret_sec1_der())
             //     .map_err(|e| format!("failed to decrypt private key: {e}")),
-            PrivateKeyDer::Pkcs1(_) => Err(format!("ECDSA does not support PKCS#1 key")),
+            PrivateKeyDer::Pkcs1(_) => Err("ECDSA does not support PKCS#1 key".into()),
             _ => Err("not supported".into()),
         };
         pkey.map(|kp| Self {

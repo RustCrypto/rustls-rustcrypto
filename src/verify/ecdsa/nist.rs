@@ -11,7 +11,6 @@ use ::elliptic_curve::{Curve, CurveArithmetic, FieldBytesSize};
 use ::pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm, alg_id};
 use ::sec1::point::ModulusSize;
 use ::signature::hazmat::PrehashVerifier;
-use const_default::ConstDefault;
 use core::fmt::Debug;
 
 /// Trait for ECDSA curve algorithm identifiers.
@@ -38,7 +37,7 @@ where
 {
 }
 
-#[derive(Debug, ConstDefault)]
+#[derive(Debug, Default)]
 pub struct EcdsaVerifier<C, H>
 where
     C: EcdsaVerifierCurve<H>,
@@ -46,6 +45,17 @@ where
 {
     _curve: PhantomData<C>,
     _hash: PhantomData<H>,
+}
+
+impl<C, H> EcdsaVerifier<C, H>
+where
+    C: EcdsaVerifierCurve<H>,
+    H: Digest + EcdsaHashAlgId,
+{
+    pub const DEFAULT: Self = Self {
+        _curve: PhantomData,
+        _hash: PhantomData,
+    };
 }
 
 impl<C, H> EcdsaVerifier<C, H>
@@ -65,7 +75,7 @@ where
         use der::Decode;
         let signature = Signature::<C>::from_der(signature)?;
         let verifying_key = VerifyingKey::<C>::from_sec1_bytes(public_key)?;
-        let digest = &H::digest(&message);
+        let digest = &H::digest(message);
         verifying_key.verify_prehash(digest, &signature)?;
         Ok(())
     }

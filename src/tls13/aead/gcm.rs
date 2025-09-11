@@ -1,5 +1,3 @@
-use const_default::ConstDefault;
-
 use rustls::{
     ConnectionTrafficSecrets,
     crypto::cipher::{self, AeadKey, Iv},
@@ -31,6 +29,6 @@ impl Extractor for Aes256GcmExtractor {
 }
 
 pub const AES_128_GCM: &Tls13AeadAlgorithmCommon<aead::aes::Aes128Gcm, Aes128GcmExtractor> =
-    &ConstDefault::DEFAULT;
+    &Tls13AeadAlgorithmCommon::DEFAULT;
 pub const AES_256_GCM: &Tls13AeadAlgorithmCommon<aead::aes::Aes256Gcm, Aes256GcmExtractor> =
-    &ConstDefault::DEFAULT;
+    &Tls13AeadAlgorithmCommon::DEFAULT;

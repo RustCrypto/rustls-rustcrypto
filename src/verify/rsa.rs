@@ -1,4 +1,3 @@
-use const_default::ConstDefault;
 use core::fmt::Debug;
 use core::marker::PhantomData;
 use digest::{Digest, FixedOutputReset};
@@ -45,6 +44,10 @@ pub trait RsaScheme {
 
     fn signature_alg_id<H: RsaHash>() -> AlgorithmIdentifier;
     fn new_verifying_key<H: RsaHash>(public_key: rsa::RsaPublicKey) -> Self::VerifyingKey<H>;
+    /// Verifies the signature.
+    ///
+    /// # Errors
+    /// Returns an error if the signature verification fails.
     fn verify<H: RsaHash>(
         key: &Self::VerifyingKey<H>,
         message: &[u8],
@@ -101,9 +104,15 @@ impl RsaScheme for Pss {
     }
 }
 
-#[derive(Debug, ConstDefault)]
+#[derive(Debug, Default)]
 pub struct RsaVerifier<H: RsaHash, S: RsaScheme> {
     _phantom: PhantomData<(H, S)>,
+}
+
+impl<H: RsaHash, S: RsaScheme> RsaVerifier<H, S> {
+    pub const DEFAULT: Self = Self {
+        _phantom: PhantomData,
+    };
 }
 
 impl<H: RsaHash, S: RsaScheme> RsaVerifier<H, S> {

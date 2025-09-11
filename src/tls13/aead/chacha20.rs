@@ -1,4 +1,3 @@
-use const_default::ConstDefault;
 use rustls::ConnectionTrafficSecrets;
 use rustls::crypto::cipher::{AeadKey, Iv, UnsupportedOperationError};
 
@@ -18,4 +17,4 @@ impl Extractor for ChaCha20Poly1305Extractor {
 pub const CHACHA20_POLY1305: &Tls13AeadAlgorithmCommon<
     chacha20poly1305::ChaCha20Poly1305,
     ChaCha20Poly1305Extractor,
-> = &ConstDefault::DEFAULT;
+> = &Tls13AeadAlgorithmCommon::DEFAULT;

@@ -69,7 +69,7 @@ where
             .map_err(|_| Error::General("Failed to generate private key".into()))?;
 
         Ok(Box::new(NistKeyExchange::<C> {
-            pub_key: priv_key.public_key().to_sec1_bytes().into(),
+            pub_key: priv_key.public_key().to_sec1_bytes(),
             priv_key,
         }))
     }

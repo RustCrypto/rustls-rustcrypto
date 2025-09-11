@@ -52,11 +52,10 @@ getrandom = { version = "0.3", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1.12.0", default-features = false }
 preinterpret = "0.2.0"
 rand_core = { version = "0.9.3", default-features = false, features = [
-    "os_rng"
+    "os_rng",
 ], optional = true }
 rustls = { version = "0.23.31", default-features = false }
 webpki = { package = "rustls-webpki", version = "0.103.4", default-features = false, optional = true }
-paste = "1.0.15"
 
 
 [dev-dependencies]
@@ -65,9 +64,11 @@ itertools = { version = "0.14.0", default-features = false }
 rsa_098 = { package = "rsa", version = "0.9.8", features = ["sha2"] }
 signature_220 = { package = "signature", version = "2.2.0" }
 rustls = { version = "0.23.31", default-features = false, features = ["std"] }
-spki = { version = "0.8.0-rc.4", default-features = false, features = ["alloc"] }
+spki = { version = "0.8.0-rc.4", default-features = false, features = [
+    "alloc",
+] }
 x509-cert = { version = "0.2.5", default-features = false, features = [
-    "builder"
+    "builder",
 ] }
 rand_core_064 = { package = "rand_core", version = "0.6.4" }
 p256_0132 = { package = "p256", version = "0.13.2" }
@@ -226,7 +227,11 @@ aes-ccm = ["aes", "ccm"]
 aes-gcm = ["dep:aes-gcm", "aes", "gcm"]
 ccm = ["dep:ccm"]
 chacha20poly1305 = ["dep:chacha20poly1305"]
-elliptic-curve = ["dep:elliptic-curve", "elliptic-curve/ecdh", "elliptic-curve/sec1"]
+elliptic-curve = [
+    "dep:elliptic-curve",
+    "elliptic-curve/ecdh",
+    "elliptic-curve/sec1",
+]
 gcm = []
 rand = ["dep:rand_core", "signature?/rand_core", "x25519-dalek?/os_rng"]
 signature = ["dep:signature"]
