@@ -1,16 +1,15 @@
 name: ESP32 Test Build
 
 on:
-  # push:
-  #   branches: [ master ]
-  #   paths:
-  #     - 'validation/esp32-test/**'
-  #     - '.github/workflows/esp32-test.yml'
-  # pull_request:
-  #   paths:
-  #     - 'validation/esp32-test/**'
-  #     - '.github/workflows/esp32-test.yml'
-  workflow_dispatch:
+  push:
+    branches: [ master ]
+    paths:
+      - 'validation/esp32-test/**'
+      - '.github/workflows/esp32-test.yml'
+  pull_request:
+    paths:
+      - 'validation/esp32-test/**'
+      - '.github/workflows/esp32-test.yml'
 
 permissions:
   contents: read
