@@ -1,0 +1,79 @@
+name: ESP32 Test Build
+
+on:
+  # push:
+  #   branches: [ master ]
+  #   paths:
+  #     - 'validation/esp32-test/**'
+  #     - '.github/workflows/esp32-test.yml'
+  # pull_request:
+  #   paths:
+  #     - 'validation/esp32-test/**'
+  #     - '.github/workflows/esp32-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Cache ESP-IDF
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.espressif
+          /opt/esp
+        key: ${{ runner.os }}-espidf-${{ hashFiles('validation/esp32-test/sdkconfig.defaults') }}
+        restore-keys: |
+          ${{ runner.os }}-espidf-
+
+    - name: Install ESP-IDF
+      uses: espressif/install-esp-idf-action@v1
+      with:
+        version: "v5.5.1"
+
+    - name: Set ESP-IDF environment
+      run: |
+        echo "ESP_IDF_TOOLS_INSTALL_DIR=/opt/esp" >> $GITHUB_ENV
+        echo "ESP_IDF_PATH=/opt/esp/idf" >> $GITHUB_ENV
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: nightly
+        components: rust-src
+
+    - name: Setup SCCache
+      uses: mozilla-actions/sccache-action@v0.0.9
+
+    - name: Cache Cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "validation/esp32-test"
+
+    - name: Setup | ldproxy
+      uses: taiki-e/cache-cargo-install-action@v2
+      with:
+        tool: ldproxy
+
+    - name: Build ESP32 test
+      working-directory: validation/esp32-test
+      run: |
+        cargo build
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: esp32-test-build
+        path: |
+          validation/esp32-test/build/
+        retention-days: 30

@@ -1,0 +1,26 @@
+[package]
+name = "rustls-real-socket-test"
+version = "0.1.0"
+authors = ["Steve Fan <29133953+stevefan1999-personal@users.noreply.github.com>"]
+edition = "2024"
+resolver = "2"
+rust-version = "1.88.0"
+
+[dependencies]
+rustls-rustcrypto = { path = "../..", default-features = false, features = [
+    "aead-chacha20poly1305",
+    "der",
+    "fast",
+    "kx-p256",
+    "pkcs8",
+    "sign-ecdsa-p256",
+    "std",
+    "tls12",
+    "verify-ecdsa-p256-sha256",
+] }
+rustls = { version = "0.23.10", default-features = false, features = [
+    "std"
+] }
+anyhow = { version = "1.0", default-features = false }
+log = "0.4"
+env_logger = "0.11"
