@@ -47,7 +47,7 @@ jobs:
       with:
         toolchain: nightly
         components: rust-src
-
+        target: riscv32imac-unknown-none-elf
     - name: Setup SCCache
       uses: mozilla-actions/sccache-action@v0.0.9
 
