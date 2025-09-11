@@ -116,8 +116,6 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-      - name: Show sccache stats
-        run: ${SCCACHE_PATH} --show-stats
 
   cross:
     strategy:
