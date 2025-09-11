@@ -20,8 +20,7 @@ jobs:
 
     env:
       ESP_IDF_VERSION: v5.5.1
-      ESP_IDF_TOOLS_INSTALL_DIR: /opt/esp
-      ESP_IDF_PATH: /opt/esp/idf
+      ESP_IDF_TOOLS_INSTALL_DIR: custom:/opt/esp
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: "sccache"
 
