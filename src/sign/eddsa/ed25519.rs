@@ -26,7 +26,7 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                 SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
-            
+
             // (chat log from tony in zulip)
             // Per RFC 8410, only PKCS#8 is supported for ED25519 keys
             // https://datatracker.ietf.org/doc/html/rfc8410#section-7

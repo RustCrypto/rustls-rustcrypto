@@ -68,5 +68,5 @@ jobs:
       with:
         name: esp32-test-build
         path: |
-          validation/esp32-test/target/release/
+          validation/esp32-test/target
         retention-days: 30
