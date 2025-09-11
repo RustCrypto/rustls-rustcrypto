@@ -18,7 +18,7 @@ rustls-rustcrypto = { path = "../..", default-features = false, features = [
     "tls12",
     "verify-ecdsa-p256-sha256",
 ] }
-rustls = { version = "0.23.10", default-features = false, features = [
+rustls = { version = "0.23.31", default-features = false, features = [
     "std"
 ] }
 anyhow = { version = "1.0", default-features = false }

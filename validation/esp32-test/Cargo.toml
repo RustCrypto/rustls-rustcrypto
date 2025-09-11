@@ -26,6 +26,9 @@ experimental = ["esp-idf-svc/experimental"]
 anyhow = { version = "1.0", default-features = false }
 esp-idf-svc = "0.51"
 log = "0.4"
+rustls = { version = "0.23.31", default-features = false, features = [
+    "std"
+] }
 rustls-rustcrypto = { version = "0.0.2-alpha", path = "../..", default-features = false, features = ["aead-chacha20poly1305", "alloc", "der", "ecdsa-p256", "fast", "kx-p256", "pkcs8", "sign-ecdsa-p256", "tls12", "verify-ecdsa-p256", "verify-ecdsa-p256-sha256"] }
 
 # --- Optional Embassy Integration ---
