@@ -113,12 +113,6 @@ fn run_tls_server(server_config: ServerConfig, tx: mpsc::Sender<u16>) {
 
             let mut tls_stream = Stream::new(&mut tls_conn, &mut tcp_stream);
 
-            // Perform TLS handshake
-            if let Err(e) = tls_conn.complete_io(&mut tls_stream) {
-                error!("TLS handshake failed: {:?}", e);
-                return;
-            }
-
             info!("TLS handshake completed successfully");
 
             // Read and echo data
@@ -179,12 +173,6 @@ fn run_tls_client(client_config: ClientConfig, port: u16) {
     };
 
     let mut tls_stream = Stream::new(&mut tls_conn, &mut tcp_stream);
-
-    // Perform TLS handshake
-    if let Err(e) = tls_conn.complete_io(&mut tls_stream) {
-        error!("TLS handshake failed: {:?}", e);
-        return;
-    }
 
     info!("TLS handshake completed successfully");
 
