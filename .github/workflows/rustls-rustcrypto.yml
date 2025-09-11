@@ -118,9 +118,9 @@ jobs:
           - rust: stable
             target: wasm32-unknown-unknown
           - rust: 1.88.0
-            target: riscv32imc-unknown-none-elf
+            target: riscv32imac-unknown-none-elf
           - rust: stable
-            target: riscv32imc-unknown-none-elf
+            target: riscv32imac-unknown-none-elf
     steps:
       - uses: actions/checkout@v4
       - name: Cache Rust toolchain
