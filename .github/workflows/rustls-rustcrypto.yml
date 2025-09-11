@@ -64,7 +64,8 @@ jobs:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
       - run: cargo build --no-default-features --features tls12,full,alloc --release --target ${{ matrix.target }}
-
+        env: 
+          RUSTFLAGS: --cfg getrandom_backend="custom"
   test:
     strategy:
       matrix:
@@ -100,3 +101,5 @@ jobs:
           targets: ${{ matrix.target }}
       - uses: RustCrypto/actions/cross-install@master
       - run: cross test --release --target ${{ matrix.target }} --all-features
+        env: 
+          RUSTFLAGS: --cfg getrandom_backend="custom"
