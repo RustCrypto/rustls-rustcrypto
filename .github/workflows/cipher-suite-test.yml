@@ -11,23 +11,19 @@ on:
   workflow_dispatch:
     inputs:
       aead:
-        description: "AEAD algorithm to test (optional)"
-        required: false
-        type: string
-      hash:
-        description: "Hash algorithm to test (optional)"
+        description: 'AEAD algorithm to test (optional)'
         required: false
         type: string
       verify:
-        description: "Verify algorithm to test (optional)"
+        description: 'Verify algorithm to test (optional)'
         required: false
         type: string
       sign:
-        description: "Sign algorithm to test (optional)"
+        description: 'Sign algorithm to test (optional)'
         required: false
         type: string
       kx:
-        description: "Key exchange algorithm to test (optional)"
+        description: 'Key exchange algorithm to test (optional)'
         required: false
         type: string
 
@@ -40,14 +36,24 @@ env:
 jobs:
   test-cipher-suite-matrix:
     runs-on: ubuntu-latest
-    name: Test ${{ matrix.aead }}-${{ matrix.hash }}-${{ matrix.kx }}
+    name: Test ${{ matrix.aead }}-${{ matrix.kx }}
     strategy:
       matrix:
         # Complete Cartesian product of all cipher suite components
         aead: ["aead-aes-gcm", "aead-aes-ccm", "aead-chacha20poly1305"]
-        hash: ["hash-sha224", "hash-sha256", "hash-sha384", "hash-sha512"]
-        verify: ["verify-ecdsa-p256-sha256"]
-        sign: ["sign-ecdsa-p256"]
+        verify: [
+          "verify-ecdsa-p256-sha256", 
+          "verify-ecdsa-p384-sha384",
+          "verify-ecdsa-p521-sha512",
+          "verify-eddsa-ed25519",
+          "verify-rsa-pkcs1-sha256", "verify-rsa-pkcs1-sha384", "verify-rsa-pkcs1-sha512",
+          "verify-rsa-pss-sha256", "verify-rsa-pss-sha384", "verify-rsa-pss-sha512"
+        ]
+        sign: [
+          "sign-ecdsa-p256", "sign-ecdsa-p384", "sign-ecdsa-p521",
+          "sign-eddsa-ed25519",
+          "sign-rsa-pkcs1", "sign-rsa-pss"
+        ]
         kx: ["kx-p256", "kx-p384", "kx-p521", "kx-x25519", "kx-x448"]
       # Allow failures for incompatible combinations
       fail-fast: false
@@ -66,14 +72,13 @@ jobs:
         run: |
           echo "Testing cipher suite combination:"
           echo "  AEAD: ${{ matrix.aead }}"
-          echo "  Hash: ${{ matrix.hash }}"
           echo "  Verify: ${{ matrix.verify }}"
           echo "  Sign: ${{ matrix.sign }}"
           echo "  KX: ${{ matrix.kx }}"
           echo ""
 
           # Build the feature string
-          FEATURES="tls12,${{ matrix.aead }},${{ matrix.hash }},${{ matrix.verify }},${{ matrix.sign }},${{ matrix.kx }}"
+          FEATURES="tls12,${{ matrix.aead }},${{ matrix.verify }},${{ matrix.sign }},${{ matrix.kx }}"
           echo "Features: $FEATURES"
 
           # Test the combination (allow failures for incompatible combinations)
@@ -88,7 +93,7 @@ jobs:
 
       - name: Build verification (optional)
         run: |
-          FEATURES="tls12,${{ matrix.aead }},${{ matrix.hash }},${{ matrix.verify }},${{ matrix.sign }},${{ matrix.kx }}"
+          FEATURES="tls12,${{ matrix.aead }},${{ matrix.verify }},${{ matrix.sign }},${{ matrix.kx }}"
           if cargo build --features "$FEATURES" 2>/dev/null; then
             echo "✅ BUILD OK: $FEATURES"
           else
@@ -100,7 +105,7 @@ jobs:
         continue-on-error: true
 
   test-specific-combination:
-    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.aead != '' || github.event.inputs.hash != '' || github.event.inputs.verify != '' || github.event.inputs.sign != '' || github.event.inputs.kx != '')
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.aead != '' || github.event.inputs.verify != '' || github.event.inputs.sign != '' || github.event.inputs.kx != '')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -116,26 +121,23 @@ jobs:
         run: |
           # Use provided inputs or defaults
           AEAD="${{ github.event.inputs.aead }}"
-          HASH="${{ github.event.inputs.hash }}"
           VERIFY="${{ github.event.inputs.verify }}"
           SIGN="${{ github.event.inputs.sign }}"
           KX="${{ github.event.inputs.kx }}"
 
           # Set defaults if not provided
           [ -z "$AEAD" ] && AEAD="aead-aes-gcm"
-          [ -z "$HASH" ] && HASH="hash-sha256"
           [ -z "$VERIFY" ] && VERIFY="verify-rsa-pkcs1-sha256"
           [ -z "$SIGN" ] && SIGN="sign-rsa-pkcs1"
           [ -z "$KX" ] && KX="kx-p256"
 
           echo "Testing specific combination:"
           echo "  AEAD: $AEAD"
-          echo "  Hash: $HASH"
           echo "  Verify: $VERIFY"
           echo "  Sign: $SIGN"
           echo "  KX: $KX"
 
-          FEATURES="tls12,$AEAD,$HASH,$VERIFY,$SIGN,$KX"
+          FEATURES="tls12,$AEAD,$VERIFY,$SIGN,$KX"
           echo "Features: $FEATURES"
 
           cargo test --features "$FEATURES"
