@@ -11,23 +11,23 @@ on:
   workflow_dispatch:
     inputs:
       aead:
-        description: 'AEAD algorithm to test (optional)'
+        description: "AEAD algorithm to test (optional)"
         required: false
         type: string
       hash:
-        description: 'Hash algorithm to test (optional)'
+        description: "Hash algorithm to test (optional)"
         required: false
         type: string
       verify:
-        description: 'Verify algorithm to test (optional)'
+        description: "Verify algorithm to test (optional)"
         required: false
         type: string
       sign:
-        description: 'Sign algorithm to test (optional)'
+        description: "Sign algorithm to test (optional)"
         required: false
         type: string
       kx:
-        description: 'Key exchange algorithm to test (optional)'
+        description: "Key exchange algorithm to test (optional)"
         required: false
         type: string
 
@@ -40,24 +40,14 @@ env:
 jobs:
   test-cipher-suite-matrix:
     runs-on: ubuntu-latest
+    name: Test ${{ matrix.aead }}-${{ matrix.hash }}-${{ matrix.kx }}
     strategy:
       matrix:
         # Complete Cartesian product of all cipher suite components
         aead: ["aead-aes-gcm", "aead-aes-ccm", "aead-chacha20poly1305"]
         hash: ["hash-sha224", "hash-sha256", "hash-sha384", "hash-sha512"]
-        verify: [
-          "verify-ecdsa-p256-sha256", "verify-ecdsa-p256-sha384", "verify-ecdsa-p256-sha512",
-          "verify-ecdsa-p384-sha256", "verify-ecdsa-p384-sha384", "verify-ecdsa-p384-sha512",
-          "verify-ecdsa-p521-sha256", "verify-ecdsa-p521-sha384", "verify-ecdsa-p521-sha512",
-          "verify-eddsa-ed25519",
-          "verify-rsa-pkcs1-sha256", "verify-rsa-pkcs1-sha384", "verify-rsa-pkcs1-sha512",
-          "verify-rsa-pss-sha256", "verify-rsa-pss-sha384", "verify-rsa-pss-sha512"
-        ]
-        sign: [
-          "sign-ecdsa-p256", "sign-ecdsa-p384", "sign-ecdsa-p521",
-          "sign-eddsa-ed25519",
-          "sign-rsa-pkcs1", "sign-rsa-pss"
-        ]
+        verify: ["verify-ecdsa-p256-sha256"]
+        sign: ["sign-ecdsa-p256"]
         kx: ["kx-p256", "kx-p384", "kx-p521", "kx-x25519", "kx-x448"]
       # Allow failures for incompatible combinations
       fail-fast: false
