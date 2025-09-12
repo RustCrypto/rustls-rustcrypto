@@ -167,9 +167,15 @@ verify-ecdsa-nist = ["verify"]
 verify-ecdsa-p256 = ["verify-ecdsa-nist", "ecdsa-p256"]
 verify-ecdsa-p256-sha256 = ["verify-ecdsa-p256", "hash-sha256"]
 verify-ecdsa-p256-sha384 = ["verify-ecdsa-p256", "hash-sha384"]
+verify-ecdsa-p256-sha512 = ["verify-ecdsa-p256", "hash-sha512"]
 verify-ecdsa-p384 = ["verify-ecdsa-nist", "ecdsa-p384"]
 verify-ecdsa-p384-sha256 = ["verify-ecdsa-p384", "hash-sha256"]
 verify-ecdsa-p384-sha384 = ["verify-ecdsa-p384", "hash-sha384"]
+verify-ecdsa-p384-sha512 = ["verify-ecdsa-p384", "hash-sha512"]
+verify-ecdsa-p521 = ["verify-ecdsa-nist", "ecdsa-p521"]
+verify-ecdsa-p521-sha256 = ["verify-ecdsa-p521", "hash-sha256"]
+verify-ecdsa-p521-sha384 = ["verify-ecdsa-p521", "hash-sha384"]
+verify-ecdsa-p521-sha512 = ["verify-ecdsa-p521", "hash-sha512"]
 verify-eddsa = ["verify"]
 verify-eddsa-ed25519 = ["verify-eddsa", "eddsa-ed25519"]
 verify-rsa = ["verify"]
@@ -186,6 +192,11 @@ verify-full = [
     "verify-ecdsa-p256-sha384",
     "verify-ecdsa-p384-sha256",
     "verify-ecdsa-p384-sha384",
+    "verify-ecdsa-p256-sha512",
+    "verify-ecdsa-p384-sha512",
+    "verify-ecdsa-p521-sha256",
+    "verify-ecdsa-p521-sha384",
+    "verify-ecdsa-p521-sha512",
     "verify-eddsa-ed25519",
     "verify-rsa-pkcs1-sha256",
     "verify-rsa-pkcs1-sha384",

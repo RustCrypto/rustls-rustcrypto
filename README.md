@@ -19,43 +19,130 @@ Note that RustCrypto performance is generally inferior than ring, but in exchang
 
 Only the recommended ([TLS1.2](https://ciphersuite.info/cs/?security=recommended&singlepage=true&tls=tls12), [TLS1.3](https://ciphersuite.info/cs/?security=recommended&singlepage=true&tls=tls13)) and secure ([TLS1.2](https://ciphersuite.info/cs/?security=secure&singlepage=true&tls=tls12), [TLS1.3](https://ciphersuite.info/cs/?security=secure&singlepage=true&tls=tls13)) suites will be chosen
 
-For TLS 1.3:
+### TLS 1.3 Cipher Suites
 
-- [x] (Recommended) TLS_AES_128_GCM_SHA256
-- [x] (Recommended) TLS_AES_256_GCM_SHA384
-- [x] (Recommended) TLS_CHACHA20_POLY1305_SHA256
-- [x] (Secure) TLS_AES_128_CCM_8_SHA256
-- [x] (Secure) TLS_AES_128_CCM_SHA256
+| Cipher Suite | Status | Required Features |
+|-------------|--------|-------------------|
+| TLS_AES_128_GCM_SHA256 | ✅ Recommended | `tls13`, `aead-aes-gcm`, `hash-sha256` |
+| TLS_AES_256_GCM_SHA384 | ✅ Recommended | `tls13`, `aead-aes-gcm`, `hash-sha384` |
+| TLS_CHACHA20_POLY1305_SHA256 | ✅ Recommended | `tls13`, `aead-aes-chacha20poly1305`, `hash-sha256` |
+| TLS_AES_128_CCM_8_SHA256 | ✅ Secure | `tls13`, `aead-aes-ccm`, `hash-sha256` |
+| TLS_AES_128_CCM_SHA256 | ✅ Secure | `tls13`, `aead-aes-ccm`, `hash-sha256` |
 
-For TLS 1.2:
+### TLS 1.2 Cipher Suites
 
-- [ ] (Recommended) TLS_ECCPWD_WITH_AES_128_GCM_SHA256
-- [ ] (Recommended) TLS_ECCPWD_WITH_AES_256_GCM_SHA384
-- [x] (Recommended) TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-- [x] (Recommended) TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-- [ ] (Recommended) TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256
-- [ ] (Recommended) TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384
-- [ ] (Recommended) TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256
-- [ ] (Recommended) TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384
-- [x] (Recommended) TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
-- [ ] (Recommended) TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256
-- [ ] (Recommended) TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384
-- [ ] (Recommended) TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256
-- [ ] (Secure) TLS_ECCPWD_WITH_AES_128_CCM_SHA256
-- [ ] (Secure) TLS_ECCPWD_WITH_AES_256_CCM_SHA384
-- [x] (Secure) TLS_ECDHE_ECDSA_WITH_AES_128_CCM
-- [x] (Secure) TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8
-- [x] (Secure) TLS_ECDHE_ECDSA_WITH_AES_256_CCM
-- [x] (Secure) TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8
-- [ ] (Secure) TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256
-- [ ] (Secure) TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256
-- [x] (Secure) TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-- [x] (Secure) TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-- [ ] (Secure) TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256
-- [ ] (Secure) TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384
-- [ ] (Secure) TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256
-- [ ] (Secure) TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384
-- [x] (Secure) TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+| Cipher Suite | Status | Required Features |
+|-------------|--------|-------------------|
+| TLS_ECCPWD_WITH_AES_128_GCM_SHA256 | ❌ Not supported | N/A (ECCPWD not implemented) |
+| TLS_ECCPWD_WITH_AES_256_GCM_SHA384 | ❌ Not supported | N/A (ECCPWD not implemented) |
+| TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 | ✅ Recommended | `tls12`, `verify-ecdsa-p256-sha256`, `aead-aes-gcm`, `kx-p256` |
+| TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 | ✅ Recommended | `tls12`, `verify-ecdsa-p384-sha384`, `aead-aes-gcm`, `kx-p384` |
+| TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256 | ❌ Not supported | N/A (ARIA not production-ready) |
+| TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384 | ❌ Not supported | N/A (ARIA not production-ready) |
+| TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256 | ❌ Not supported | N/A (CAMELLIA not production-ready) |
+| TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384 | ❌ Not supported | N/A (CAMELLIA not production-ready) |
+| TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 | ✅ Recommended | `tls12`, `verify-ecdsa-p256-sha256`, `aead-chacha20poly1305`, `kx-p256` |
+| TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256 | ❌ Not supported | N/A (PSK not supported in Rustls) |
+| TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384 | ❌ Not supported | N/A (PSK not supported in Rustls) |
+| TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256 | ❌ Not supported | N/A (PSK not supported in Rustls) |
+| TLS_ECCPWD_WITH_AES_128_CCM_SHA256 | ❌ Not supported | N/A (ECCPWD not implemented) |
+| TLS_ECCPWD_WITH_AES_256_CCM_SHA384 | ❌ Not supported | N/A (ECCPWD not implemented) |
+| TLS_ECDHE_ECDSA_WITH_AES_128_CCM | ✅ Secure | `tls12`, `verify-ecdsa-p256-sha256`, `aead-aes-ccm`, `kx-p256` |
+| TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 | ✅ Secure | `tls12`, `verify-ecdsa-p256-sha256`, `aead-aes-ccm`, `kx-p256` |
+| TLS_ECDHE_ECDSA_WITH_AES_256_CCM | ✅ Secure | `tls12`, `verify-ecdsa-p384-sha384`, `aead-aes-ccm`, `kx-p384` |
+| TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8 | ✅ Secure | `tls12`, `verify-ecdsa-p384-sha384`, `aead-aes-ccm`, `kx-p384` |
+| TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256 | ❌ Not supported | N/A (PSK not supported in Rustls) |
+| TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256 | ❌ Not supported | N/A (PSK not supported in Rustls) |
+| TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 | ✅ Secure | `tls12`, `verify-rsa-pkcs1-sha256`, `aead-aes-gcm`, `kx-p256` |
+| TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 | ✅ Secure | `tls12`, `verify-rsa-pkcs1-sha384`, `aead-aes-gcm`, `kx-p384` |
+| TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256 | ❌ Not supported | N/A (ARIA not production-ready) |
+| TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384 | ❌ Not supported | N/A (ARIA not production-ready) |
+| TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 | ❌ Not supported | N/A (CAMELLIA not production-ready) |
+| TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 | ❌ Not supported | N/A (CAMELLIA not production-ready) |
+| TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 | ✅ Secure | `tls12`, `verify-rsa-pkcs1-sha256`, `aead-chacha20poly1305`, `kx-p256` |
+
+### Feature Usage Examples
+
+To enable TLS 1.3 with AES-GCM support:
+```toml
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["tls13", "gcm", "hash-sha256"] }
+```
+
+To enable TLS 1.2 with ECDSA and AES-GCM:
+```toml
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["tls12", "verify-ecdsa-p256-sha256", "aead-aes-gcm", "kx-p256"] }
+```
+
+To enable TLS 1.2 with RSA and AES-GCM:
+```toml
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["tls12", "verify-rsa-pkcs1-sha256", "aead-aes-gcm", "kx-p256"] }
+```
+
+To enable both TLS 1.2 and TLS 1.3 with full algorithm support:
+```toml
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["full"] }
+```
+
+### Simplified Feature Sets
+
+For common use cases, you can use these simplified configurations:
+
+**TLS 1.3 Only (Recommended for new applications):**
+```toml
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["tls13", "aead-full", "hash-full"] }
+```
+
+**TLS 1.2 + ECDSA (Legacy compatibility):**
+```toml
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["tls12", "verify-ecdsa-p256-sha256", "aead-full", "kx-p256"] }
+```
+
+**TLS 1.2 + RSA (Maximum compatibility):**
+```toml
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["tls12", "verify-rsa-pkcs1-sha256", "aead-full", "kx-p256"] }
+```
+
+### Using Compound Features
+
+You can also use compound features that automatically include related dependencies:
+
+**AEAD Compound Features:**
+- `aead-aes-gcm` = includes `aead` + `aes-gcm`
+- `aead-aes-ccm` = includes `aead` + `aes-ccm`
+- `aead-chacha20poly1305` = includes `aead` + `chacha20poly1305`
+- `aead-full` = includes all AEAD algorithms
+
+**Signing Compound Features:**
+- `sign-ecdsa-p256` = includes `sign-ecdsa-nist` + `ecdsa-p256`
+- `sign-rsa-pkcs1` = includes `sign-rsa` + `rsa-pkcs1`
+- `sign-full` = includes all signing algorithms
+
+**Example using compound features:**
+```toml
+# Base features: ["tls12", "verify-ecdsa-p256-sha256", "aead-aes-gcm", "kx-p256"]
+# Compound features: ["tls12", "verify-ecdsa-p256-sha256", "aead-aes-gcm", "kx-p256"]
+rustls-rustcrypto = { version = "0.0.2-alpha", features = ["tls12", "verify-ecdsa-p256-sha256", "aead-aes-gcm", "kx-p256"] }
+```
+
+**Note:** The base features (like `aes-gcm`) are still required for conditional compilation in the source code. Compound features are primarily for convenience and ensuring all dependencies are included.
+
+### Understanding Feature Dependencies
+
+The verification features have hierarchical dependencies that automatically include required components:
+
+- `verify-ecdsa-p256-sha256` automatically includes:
+  - `verify-ecdsa-p256` (includes `ecdsa-p256`)
+  - `verify-ecdsa-nist`
+  - `verify` (includes `webpki`)
+  - `hash-sha256`
+
+- `verify-rsa-pkcs1-sha256` automatically includes:
+  - `verify-rsa-pkcs1` (includes `rsa-pkcs1`)
+  - `verify-rsa`
+  - `verify` (includes `webpki`)
+  - `hash-sha256`
+
+This hierarchical structure means you only need to specify the highest-level feature for your use case.
 
 \* PSK support is currently blocked due to [it not currently being supported in Rustls as of 2024](https://github.com/rustls/rustls/issues/174).
 If you want this feature, consider financially supporting the Rustls project by being a funder in [Prossimo](https://www.memorysafety.org/initiative/rustls/)
