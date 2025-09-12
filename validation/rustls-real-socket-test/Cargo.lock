@@ -283,6 +283,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "ed448"
+version = "0.5.0-pre.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24f3621b15eb4095d0e7c2502abd44291413b8a638f88dc08f1188993143332b"
+dependencies = [
+ "pkcs8",
+ "signature",
+]
+
+[[package]]
+name = "ed448-goldilocks"
+version = "0.14.0-pre.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4c1833a8f682ff0628f3b7ae755c5ea17854d7bdadf90c017feef4e84b78bb2"
+dependencies = [
+ "ed448",
+ "elliptic-curve",
+ "hash2curve",
+ "rand_core",
+ "serdect",
+ "sha3",
+ "signature",
+ "subtle",
+]
+
+[[package]]
 name = "elliptic-curve"
 version = "0.14.0-rc.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -382,6 +408,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "hash2curve"
+version = "0.14.0-rc.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9d3a227db59d3140ef8cfcf56a8c5c3bd7c10f7363100bc0e430628d3e3bfc6"
+dependencies = [
+ "digest",
+ "elliptic-curve",
+ "ff",
+ "subtle",
+]
+
+[[package]]
 name = "hkdf"
 version = "0.13.0-rc.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -446,6 +484,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "keccak"
+version = "0.2.0-rc.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d546793a04a1d3049bd192856f804cfe96356e2cf36b54b4e575155babe9f41"
+dependencies = [
+ "cpufeatures",
 ]
 
 [[package]]
@@ -718,6 +765,7 @@ dependencies = [
  "digest",
  "ecdsa",
  "ed25519-dalek",
+ "ed448-goldilocks",
  "elliptic-curve",
  "hmac",
  "p256",
@@ -786,6 +834,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serdect"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3ef0e35b322ddfaecbc60f34ab448e157e48531288ee49fafbb053696b8ffe2"
+dependencies = [
+ "base16ct",
+ "serde",
+]
+
+[[package]]
 name = "sha2"
 version = "0.11.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -794,6 +852,16 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
+]
+
+[[package]]
+name = "sha3"
+version = "0.11.0-rc.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2103ca0e6f4e9505eae906de5e5883e06fc3b2232fb5d6914890c7bbcb62f478"
+dependencies = [
+ "digest",
+ "keccak",
 ]
 
 [[package]]

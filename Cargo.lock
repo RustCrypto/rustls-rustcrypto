@@ -372,9 +372,21 @@ checksum = "ad207ed88a133091f83224265eac21109930db09bedcad05d5252f2af2de20a1"
 dependencies = [
  "curve25519-dalek",
  "ed25519",
+ "serde",
  "sha2 0.11.0-rc.2",
+ "signature 3.0.0-rc.3",
  "subtle",
  "zeroize",
+]
+
+[[package]]
+name = "ed448"
+version = "0.5.0-pre.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24f3621b15eb4095d0e7c2502abd44291413b8a638f88dc08f1188993143332b"
+dependencies = [
+ "pkcs8 0.11.0-rc.6",
+ "signature 3.0.0-rc.3",
 ]
 
 [[package]]
@@ -383,10 +395,13 @@ version = "0.14.0-pre.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4c1833a8f682ff0628f3b7ae755c5ea17854d7bdadf90c017feef4e84b78bb2"
 dependencies = [
+ "ed448",
  "elliptic-curve 0.14.0-rc.13",
  "hash2curve",
  "rand_core 0.9.3",
+ "serdect",
  "sha3",
+ "signature 3.0.0-rc.3",
  "subtle",
 ]
 
@@ -1054,6 +1069,7 @@ dependencies = [
  "digest 0.11.0-rc.1",
  "ecdsa 0.17.0-rc.6",
  "ed25519-dalek",
+ "ed448-goldilocks",
  "elliptic-curve 0.14.0-rc.13",
  "hmac 0.13.0-rc.1",
  "itertools",
