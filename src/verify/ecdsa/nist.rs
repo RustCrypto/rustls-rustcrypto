@@ -105,110 +105,54 @@ where
     }
 }
 
-#[cfg(feature = "ecdsa-p256")]
-impl EcdsaCurveAlgId for ::p256::NistP256 {
-    const PUBLIC_KEY_ALG_ID: AlgorithmIdentifier = alg_id::ECDSA_P256;
-}
+/// Macro to generate all ECDSA hash impls, curve impls, and constants
+macro_rules! ecdsa_setup {
+    (
+        hashes: $( ($hash_ty:ty, $hash_alg:expr, $hash_feat:literal) ),* $(,)? ;
+        curves: $( ($curve_ty:ty, $curve_alg:expr, $curve_feat:literal, $( ($const_name:ident, $hash_for_const:ty, $hash_feat_for_const:literal) ),* $(,)? ) ),* $(,)?
+    ) => {
+        $(
+            #[cfg(feature = $hash_feat)]
+            impl EcdsaHashAlgId for $hash_ty {
+                const SIGNATURE_ALG_ID: AlgorithmIdentifier = $hash_alg;
+            }
+        )*
 
-#[cfg(feature = "ecdsa-p384")]
-impl EcdsaCurveAlgId for ::p384::NistP384 {
-    const PUBLIC_KEY_ALG_ID: AlgorithmIdentifier = alg_id::ECDSA_P384;
-}
+        $(
+            #[cfg(feature = $curve_feat)]
+            impl EcdsaCurveAlgId for $curve_ty {
+                const PUBLIC_KEY_ALG_ID: AlgorithmIdentifier = $curve_alg;
+            }
 
-#[cfg(feature = "ecdsa-p521")]
-impl EcdsaCurveAlgId for ::p521::NistP521 {
-    const PUBLIC_KEY_ALG_ID: AlgorithmIdentifier = alg_id::ECDSA_P521;
-}
-
-#[cfg(feature = "hash-sha256")]
-impl EcdsaHashAlgId for ::sha2::Sha256 {
-    const SIGNATURE_ALG_ID: AlgorithmIdentifier = alg_id::ECDSA_SHA256;
-}
-
-#[cfg(feature = "hash-sha384")]
-impl EcdsaHashAlgId for ::sha2::Sha384 {
-    const SIGNATURE_ALG_ID: AlgorithmIdentifier = alg_id::ECDSA_SHA384;
-}
-
-#[cfg(feature = "hash-sha512")]
-impl EcdsaHashAlgId for ::sha2::Sha512 {
-    const SIGNATURE_ALG_ID: AlgorithmIdentifier = alg_id::ECDSA_SHA512;
-}
-
-/// Macro to generate ECDSA verifier constants
-macro_rules! ecdsa_const {
-    ($name:ident, $curve:path, $hash:path, $ecdsa_feat:literal, $hash_feat:literal) => {
-        #[cfg(all(feature = $ecdsa_feat, feature = $hash_feat))]
-        pub const $name: &dyn SignatureVerificationAlgorithm =
-            &EcdsaVerifier::<$curve, $hash>::DEFAULT;
+            $(
+                #[cfg(all(feature = $curve_feat, feature = $hash_feat_for_const))]
+                pub const $const_name: &dyn SignatureVerificationAlgorithm =
+                    &EcdsaVerifier::<$curve_ty, $hash_for_const>::DEFAULT;
+            )*
+        )*
     };
 }
 
-// P-256 curve constants
-ecdsa_const!(
-    ECDSA_P256_SHA256,
-    ::p256::NistP256,
-    ::sha2::Sha256,
-    "ecdsa-p256",
-    "hash-sha256"
-);
-ecdsa_const!(
-    ECDSA_P256_SHA384,
-    ::p256::NistP256,
-    ::sha2::Sha384,
-    "ecdsa-p256",
-    "hash-sha384"
-);
-ecdsa_const!(
-    ECDSA_P256_SHA512,
-    ::p256::NistP256,
-    ::sha2::Sha512,
-    "ecdsa-p256",
-    "hash-sha512"
-);
+ecdsa_setup! {
+    hashes:
+        (::sha2::Sha256, alg_id::ECDSA_SHA256, "hash-sha256"),
+        (::sha2::Sha384, alg_id::ECDSA_SHA384, "hash-sha384"),
+        (::sha2::Sha512, alg_id::ECDSA_SHA512, "hash-sha512");
 
-// P-384 curve constants
-ecdsa_const!(
-    ECDSA_P384_SHA256,
-    ::p384::NistP384,
-    ::sha2::Sha256,
-    "ecdsa-p384",
-    "hash-sha256"
-);
-ecdsa_const!(
-    ECDSA_P384_SHA384,
-    ::p384::NistP384,
-    ::sha2::Sha384,
-    "ecdsa-p384",
-    "hash-sha384"
-);
-ecdsa_const!(
-    ECDSA_P384_SHA512,
-    ::p384::NistP384,
-    ::sha2::Sha512,
-    "ecdsa-p384",
-    "hash-sha512"
-);
-
-// P-521 curve constants
-ecdsa_const!(
-    ECDSA_P521_SHA256,
-    ::p521::NistP521,
-    ::sha2::Sha256,
-    "ecdsa-p521",
-    "hash-sha256"
-);
-ecdsa_const!(
-    ECDSA_P521_SHA384,
-    ::p521::NistP521,
-    ::sha2::Sha384,
-    "ecdsa-p521",
-    "hash-sha384"
-);
-ecdsa_const!(
-    ECDSA_P521_SHA512,
-    ::p521::NistP521,
-    ::sha2::Sha512,
-    "ecdsa-p521",
-    "hash-sha512"
-);
+    curves:
+        (::p256::NistP256, alg_id::ECDSA_P256, "ecdsa-p256",
+            (ECDSA_P256_SHA256, ::sha2::Sha256, "hash-sha256"),
+            (ECDSA_P256_SHA384, ::sha2::Sha384, "hash-sha384"),
+            (ECDSA_P256_SHA512, ::sha2::Sha512, "hash-sha512")
+        ),
+        (::p384::NistP384, alg_id::ECDSA_P384, "ecdsa-p384",
+            (ECDSA_P384_SHA256, ::sha2::Sha256, "hash-sha256"),
+            (ECDSA_P384_SHA384, ::sha2::Sha384, "hash-sha384"),
+            (ECDSA_P384_SHA512, ::sha2::Sha512, "hash-sha512")
+        ),
+        (::p521::NistP521, alg_id::ECDSA_P521, "ecdsa-p521",
+            (ECDSA_P521_SHA256, ::sha2::Sha256, "hash-sha256"),
+            (ECDSA_P521_SHA384, ::sha2::Sha384, "hash-sha384"),
+            (ECDSA_P521_SHA512, ::sha2::Sha512, "hash-sha512")
+        )
+}
