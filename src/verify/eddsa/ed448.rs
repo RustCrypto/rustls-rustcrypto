@@ -19,13 +19,17 @@ impl Ed448Verify {
     }
 }
 
+// Until https://github.com/rustls/pki-types/pull/87 was released, we need to use this hack
+const ED448_IDENTIFIER: AlgorithmIdentifier =
+    AlgorithmIdentifier::from_slice(&[0x06, 0x03, 0x2B, 0x65, 0x71]);
+
 impl SignatureVerificationAlgorithm for Ed448Verify {
     fn public_key_alg_id(&self) -> AlgorithmIdentifier {
-        todo!()
+        ED448_IDENTIFIER
     }
 
     fn signature_alg_id(&self) -> AlgorithmIdentifier {
-        todo!()
+        ED448_IDENTIFIER
     }
 
     fn verify_signature(

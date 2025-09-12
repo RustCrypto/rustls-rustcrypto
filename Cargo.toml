@@ -60,9 +60,6 @@ itertools = { version = "0.14.0", default-features = false }
 rsa_098 = { package = "rsa", version = "0.9.8", features = ["sha2"] }
 signature_220 = { package = "signature", version = "2.2.0" }
 rustls = { version = "0.23.31", default-features = false, features = ["std"] }
-spki = { version = "0.8.0-rc.4", default-features = false, features = [
-    "alloc",
-] }
 x509-cert = { version = "0.2.5", default-features = false, features = [
     "builder",
 ] }

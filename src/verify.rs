@@ -211,8 +211,8 @@ pub const ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
             &[
                 #[cfg(feature = "eddsa-ed25519")]
                 eddsa::ed25519::ED25519,
-                // #[cfg(feature = "eddsa-ed448")]
-                // eddsa::ed448::ED448,
+                #[cfg(feature = "eddsa-ed448")]
+                eddsa::ed448::ED448,
             ]
         }
 
