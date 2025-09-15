@@ -68,5 +68,7 @@ jobs:
       with:
         name: esp32-test-build
         path: |
-          validation/esp32-test/target
+          validation/esp32-test/target/riscv32imac-esp-espidf/release/partition-table.bin
+          validation/esp32-test/target/riscv32imac-esp-espidf/release/esp32-test
+          validation/esp32-test/target/riscv32imac-esp-espidf/release/bootloader.bin
         retention-days: 30
