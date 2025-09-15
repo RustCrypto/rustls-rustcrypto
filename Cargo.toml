@@ -43,7 +43,7 @@ sha2 = { version = "0.11.0-rc.2", default-features = false }
 signature = { version = "3.0.0-rc.3", default-features = false, optional = true }
 typenum = { version = "1.18.0", features = ["no_std", "const-generics"] }
 x25519-dalek = { version = "3.0.0-pre.1", default-features = false, optional = true }
-x448 = { version = "0.14.0-pre.0", default-features = false, optional = true }
+x448 = { version = "=0.14.0-pre.0", default-features = false, optional = true }
 ed448-goldilocks = { version = "0.14.0-pre.3", default-features = false, optional = true }
 
 # External groups

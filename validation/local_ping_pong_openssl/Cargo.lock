@@ -1095,9 +1095,9 @@ dependencies = [
 
 [[package]]
 name = "x448"
-version = "0.14.0-pre.1"
+version = "0.14.0-pre.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad75d99c445fe734fb12a67fc897274139f9458f2db832a02feaee338224cedc"
+checksum = "c20e03d60707405e830d70c431a837b0df7a04450e50caee26a5a5a1bb78b7c9"
 dependencies = [
  "ed448-goldilocks",
  "rand_core",
