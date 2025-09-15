@@ -11,6 +11,8 @@ pub const TLS12_ECDSA_SCHEMES: &[SignatureScheme] = &[
     SignatureScheme::ECDSA_NISTP521_SHA512,
     #[cfg(feature = "eddsa-ed25519")]
     SignatureScheme::ED25519,
+    #[cfg(feature = "eddsa-ed448")]
+    SignatureScheme::ED448,
 ];
 
 #[cfg(feature = "rsa")]

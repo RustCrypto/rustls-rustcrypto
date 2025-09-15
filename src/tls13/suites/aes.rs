@@ -1,99 +1,70 @@
 use crate::const_concat_slices;
+use crate::feature_slice;
 #[cfg(all(feature = "ccm", feature = "hash-sha256"))]
 use crate::tls13::aead::ccm::{AES_128_CCM, AES_128_CCM_8};
 #[cfg(all(feature = "gcm", feature = "hash-sha256"))]
 use crate::tls13::aead::gcm::AES_128_GCM;
 #[cfg(all(feature = "gcm", feature = "hash-sha384"))]
 use crate::tls13::aead::gcm::AES_256_GCM;
+use crate::tls13_cipher_suite;
 use crate::{hash, hmac};
 use rustls::crypto::{CipherSuiteCommon, tls13::HkdfUsingHmac};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
 #[cfg(all(feature = "gcm", feature = "hash-sha256"))]
-pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_128_GCM_SHA256,
-            hash_provider: hash::SHA256,
-            confidentiality_limit: u64::MAX,
-        },
-        hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: AES_128_GCM,
-        quic: None,
-    });
+tls13_cipher_suite!(
+    TLS13_AES_128_GCM_SHA256,
+    CipherSuite::TLS13_AES_128_GCM_SHA256,
+    hash::SHA256,
+    HkdfUsingHmac(hmac::SHA256),
+    AES_128_GCM
+);
 
 #[cfg(all(feature = "gcm", feature = "hash-sha384"))]
-pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_256_GCM_SHA384,
-            hash_provider: hash::SHA384,
-            confidentiality_limit: u64::MAX,
-        },
-        hkdf_provider: &HkdfUsingHmac(hmac::SHA384),
-        aead_alg: AES_256_GCM,
-        quic: None,
-    });
+tls13_cipher_suite!(
+    TLS13_AES_256_GCM_SHA384,
+    CipherSuite::TLS13_AES_256_GCM_SHA384,
+    hash::SHA384,
+    HkdfUsingHmac(hmac::SHA384),
+    AES_256_GCM
+);
 
 #[cfg(all(feature = "ccm", feature = "hash-sha256"))]
-pub const TLS13_AES_128_CCM_SHA256: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_128_CCM_SHA256,
-            hash_provider: hash::SHA256,
-            confidentiality_limit: u64::MAX,
-        },
-        hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: AES_128_CCM,
-        quic: None,
-    });
+tls13_cipher_suite!(
+    TLS13_AES_128_CCM_SHA256,
+    CipherSuite::TLS13_AES_128_CCM_SHA256,
+    hash::SHA256,
+    HkdfUsingHmac(hmac::SHA256),
+    AES_128_CCM
+);
 
 #[cfg(all(feature = "ccm", feature = "hash-sha256"))]
-pub const TLS13_AES_128_CCM_8_SHA256: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_128_CCM_8_SHA256,
-            hash_provider: hash::SHA256,
-            confidentiality_limit: u64::MAX,
-        },
-        hkdf_provider: &HkdfUsingHmac(hmac::SHA256),
-        aead_alg: AES_128_CCM_8,
-        quic: None,
-    });
+tls13_cipher_suite!(
+    TLS13_AES_128_CCM_8_SHA256,
+    CipherSuite::TLS13_AES_128_CCM_8_SHA256,
+    hash::SHA256,
+    HkdfUsingHmac(hmac::SHA256),
+    AES_128_CCM_8
+);
 
 pub const TLS13_AES_SUITES: &[SupportedCipherSuite] = const_concat_slices!(
     SupportedCipherSuite,
-    {
-        #[cfg(feature = "gcm")]
-        {
-            &[
-                #[cfg(feature = "hash-sha256")]
-                TLS13_AES_128_GCM_SHA256,
-                #[cfg(feature = "hash-sha384")]
-                TLS13_AES_256_GCM_SHA384,
-            ]
-        }
-
-        #[cfg(not(feature = "gcm"))]
-        {
-            &[]
-        }
-    },
-    {
-        #[cfg(feature = "ccm")]
-        {
-            &[
-                #[cfg(feature = "hash-sha256")]
-                TLS13_AES_128_CCM_SHA256,
-                #[cfg(feature = "hash-sha256")]
-                TLS13_AES_128_CCM_8_SHA256,
-            ]
-        }
-
-        #[cfg(not(feature = "ccm"))]
-        {
-            &[]
-        }
-    },
-    &[]
+    feature_slice!(
+        [feature = "gcm"],
+        &[
+            #[cfg(feature = "hash-sha256")]
+            SupportedCipherSuite::Tls13(&TLS13_AES_128_GCM_SHA256),
+            #[cfg(feature = "hash-sha384")]
+            SupportedCipherSuite::Tls13(&TLS13_AES_256_GCM_SHA384),
+        ]
+    ),
+    feature_slice!(
+        [feature = "ccm"],
+        &[
+            #[cfg(feature = "hash-sha256")]
+            SupportedCipherSuite::Tls13(&TLS13_AES_128_CCM_SHA256),
+            #[cfg(feature = "hash-sha256")]
+            SupportedCipherSuite::Tls13(&TLS13_AES_128_CCM_8_SHA256),
+        ]
+    )
 );

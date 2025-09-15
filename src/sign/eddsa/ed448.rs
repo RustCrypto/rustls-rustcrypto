@@ -15,14 +15,14 @@ use pki_types::PrivateKeyDer;
 pub struct Ed448Signature(Signature);
 
 impl SignatureEncoding for Ed448Signature {
-    type Repr = [u8; 114]; // Ed448 signature is 114 bytes
+    type Repr = [u8; Signature::BYTE_SIZE]; // Ed448 signature is 114 bytes
 
     fn to_bytes(&self) -> Self::Repr {
         self.0.to_bytes()
     }
 
     fn encoded_len(&self) -> usize {
-        114
+        Signature::BYTE_SIZE
     }
 }
 
@@ -30,13 +30,11 @@ impl TryFrom<&[u8]> for Ed448Signature {
     type Error = signature::Error;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        Signature::from_slice(bytes)
-            .map(Self)
-            .map_err(|_| signature::Error::new())
+        Signature::from_slice(bytes).map(Self)
     }
 }
 
-impl From<Ed448Signature> for [u8; 114] {
+impl From<Ed448Signature> for [u8; Signature::BYTE_SIZE] {
     fn from(sig: Ed448Signature) -> Self {
         sig.0.to_bytes()
     }

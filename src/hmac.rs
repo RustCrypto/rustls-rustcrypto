@@ -14,6 +14,12 @@ pub struct GenericHmac<H: HmacHash> {
     _phantom: PhantomData<H>,
 }
 
+impl<H: HmacHash> GenericHmac<H> {
+    pub const DEFAULT: Self = Self {
+        _phantom: PhantomData,
+    };
+}
+
 impl<H> RustlsHmac for GenericHmac<H>
 where
     H: HmacHash,
@@ -54,17 +60,14 @@ where
     }
 }
 
-#[cfg(feature = "hash-sha256")]
-pub const SHA256: &dyn RustlsHmac = &GenericHmac::<::sha2::Sha256> {
-    _phantom: PhantomData,
-};
+/// Macro to generate HMAC constants
+macro_rules! hmac_const {
+    ($name:ident, $hash:ty) => {
+        pub const $name: &GenericHmac<$hash> = &GenericHmac::DEFAULT;
+    };
+}
 
-#[cfg(feature = "hash-sha384")]
-pub const SHA384: &dyn RustlsHmac = &GenericHmac::<::sha2::Sha384> {
-    _phantom: PhantomData,
-};
-
-#[cfg(feature = "hash-sha512")]
-pub const SHA512: &dyn RustlsHmac = &GenericHmac::<::sha2::Sha512> {
-    _phantom: PhantomData,
-};
+// Generate HMAC constants using macro
+hmac_const!(SHA256, ::sha2::Sha256);
+hmac_const!(SHA384, ::sha2::Sha384);
+hmac_const!(SHA512, ::sha2::Sha512);

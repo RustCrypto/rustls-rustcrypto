@@ -8,34 +8,9 @@ use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgo
 use rsa::RsaPublicKey;
 use signature::Verifier;
 
-#[cfg(feature = "hash-sha256")]
-use sha2::Sha256;
-#[cfg(feature = "hash-sha384")]
-use sha2::Sha384;
-#[cfg(feature = "hash-sha512")]
-use sha2::Sha512;
-
 pub trait RsaHash: Digest + FixedOutputReset + AssociatedOid + Debug + Send + Sync {
     const PKCS1_ALG_ID: AlgorithmIdentifier;
     const PSS_ALG_ID: AlgorithmIdentifier;
-}
-
-#[cfg(feature = "hash-sha256")]
-impl RsaHash for Sha256 {
-    const PKCS1_ALG_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA256;
-    const PSS_ALG_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA256;
-}
-
-#[cfg(feature = "hash-sha384")]
-impl RsaHash for Sha384 {
-    const PKCS1_ALG_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA384;
-    const PSS_ALG_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA384;
-}
-
-#[cfg(feature = "hash-sha512")]
-impl RsaHash for Sha512 {
-    const PKCS1_ALG_ID: AlgorithmIdentifier = alg_id::RSA_PKCS1_SHA512;
-    const PSS_ALG_ID: AlgorithmIdentifier = alg_id::RSA_PSS_SHA512;
 }
 
 pub trait RsaScheme {
@@ -80,7 +55,6 @@ impl RsaScheme for Pkcs1 {
 }
 
 #[derive(Debug)]
-
 pub struct Pss;
 
 impl RsaScheme for Pss {
@@ -150,21 +124,53 @@ impl<H: RsaHash, S: RsaScheme + Debug + Send + Sync> SignatureVerificationAlgori
     }
 }
 
-/// Macro to generate RSA verifier constants
-macro_rules! rsa_const {
-    ($name:ident, $hash:ident, $scheme:ident, $rsa_feat:literal, $hash_feat:literal) => {
-        #[cfg(all(feature = $rsa_feat, feature = $hash_feat))]
-        pub const $name: &dyn SignatureVerificationAlgorithm =
-            &RsaVerifier::<$hash, $scheme>::DEFAULT;
+/// Macro to generate RSA hash impl and verifier constants
+macro_rules! rsa_hash_and_consts {
+    (
+        $hash:ty,
+        $pkcs1_const:ident,
+        $pss_const:ident,
+        $pkcs1_alg:expr,
+        $pss_alg:expr,
+        $hash_feat:literal
+    ) => {
+        #[cfg(feature = $hash_feat)]
+        impl RsaHash for $hash {
+            const PKCS1_ALG_ID: AlgorithmIdentifier = $pkcs1_alg;
+            const PSS_ALG_ID: AlgorithmIdentifier = $pss_alg;
+        }
+
+        #[cfg(all(feature = "rsa-pkcs1", feature = $hash_feat))]
+        pub const $pkcs1_const: &dyn SignatureVerificationAlgorithm =
+            &RsaVerifier::<$hash, Pkcs1>::DEFAULT;
+
+        #[cfg(all(feature = "rsa-pss", feature = $hash_feat))]
+        pub const $pss_const: &dyn SignatureVerificationAlgorithm =
+            &RsaVerifier::<$hash, Pss>::DEFAULT;
     };
 }
 
-// PKCS1 constants
-rsa_const!(RSA_PKCS1_SHA256, Sha256, Pkcs1, "rsa-pkcs1", "hash-sha256");
-rsa_const!(RSA_PKCS1_SHA384, Sha384, Pkcs1, "rsa-pkcs1", "hash-sha384");
-rsa_const!(RSA_PKCS1_SHA512, Sha512, Pkcs1, "rsa-pkcs1", "hash-sha512");
-
-// PSS constants
-rsa_const!(RSA_PSS_SHA256, Sha256, Pss, "rsa-pss", "hash-sha256");
-rsa_const!(RSA_PSS_SHA384, Sha384, Pss, "rsa-pss", "hash-sha384");
-rsa_const!(RSA_PSS_SHA512, Sha512, Pss, "rsa-pss", "hash-sha512");
+rsa_hash_and_consts!(
+    sha2::Sha256,
+    RSA_PKCS1_SHA256,
+    RSA_PSS_SHA256,
+    alg_id::RSA_PKCS1_SHA256,
+    alg_id::RSA_PSS_SHA256,
+    "hash-sha256"
+);
+rsa_hash_and_consts!(
+    sha2::Sha384,
+    RSA_PKCS1_SHA384,
+    RSA_PSS_SHA384,
+    alg_id::RSA_PKCS1_SHA384,
+    alg_id::RSA_PSS_SHA384,
+    "hash-sha384"
+);
+rsa_hash_and_consts!(
+    sha2::Sha512,
+    RSA_PKCS1_SHA512,
+    RSA_PSS_SHA512,
+    alg_id::RSA_PKCS1_SHA512,
+    alg_id::RSA_PSS_SHA512,
+    "hash-sha512"
+);

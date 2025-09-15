@@ -56,18 +56,16 @@ pub fn provider() -> CryptoProvider {
 
 impl SecureRandom for Provider {
     fn fill(&self, #[allow(unused_variables)] bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
-        #[cfg(feature = "rand")]
-        {
-            use rand_core::TryRngCore;
-            rand_core::OsRng
-                .try_fill_bytes(bytes)
-                .map_err(|_| GetRandomFailed)
-        }
-
-        #[cfg(not(feature = "rand"))]
-        {
-            Err(GetRandomFailed)
-        }
+        feature_eval_expr!(
+            [feature = "rand"],
+            {
+                use rand_core::TryRngCore;
+                rand_core::OsRng
+                    .try_fill_bytes(bytes)
+                    .map_err(|_| GetRandomFailed)
+            },
+            else Err(GetRandomFailed)
+        )
     }
 }
 
@@ -76,30 +74,17 @@ impl KeyProvider for Provider {
         &self,
         #[allow(unused_variables)] key_der: PrivateKeyDer<'static>,
     ) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-        #[cfg(feature = "sign")]
-        {
-            sign::any_supported_type(&key_der)
-        }
-        #[cfg(not(feature = "sign"))]
-        {
-            Err(rustls::Error::General("not key providers supported".into()))
-        }
+        feature_eval_expr!(
+            [feature = "sign"],
+            sign::any_supported_type(&key_der),
+            else Err(rustls::Error::General("not key providers supported".into()))
+        )
     }
 }
 
 pub const ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     SupportedCipherSuite,
-    {
-        #[cfg(feature = "tls12")]
-        {
-            tls12::suites::TLS12_SUITES
-        }
-
-        #[cfg(not(feature = "tls12"))]
-        {
-            &[]
-        }
-    },
+    feature_slice!([feature = "tls12"], tls12::suites::TLS12_SUITES),
     tls13::suites::TLS13_SUITES
 );
 

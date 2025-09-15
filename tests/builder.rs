@@ -75,6 +75,7 @@ fn test_basic_round_trip() {
                 "{:?}-{:?}",
                 provider.cipher_suites[0], provider.kx_groups[0]
             );
+            println!("Testing with {base_name}");
             // Creates a pair of sockets that interconnect from client to server, and server to client
             let (socket_c2s, socket_s2c) = MemorySocket::new_pair();
 

@@ -1,59 +1,35 @@
-#[cfg(all(feature = "alloc", feature = "kx-nist"))]
+#[cfg(feature = "alloc")]
 use alloc::boxed::Box;
-
-#[cfg(feature = "kx-nist")]
+use core::fmt::Debug;
 use core::marker::PhantomData;
 
-#[cfg(feature = "kx-nist")]
-use rustls::{Error, NamedGroup, PeerMisbehaved, crypto};
-
-#[cfg(feature = "kx-nist")]
 use crypto::{ActiveKeyExchange, SharedSecret, SupportedKxGroup};
-
-#[cfg(feature = "kx-nist")]
 use elliptic_curve::{
     Curve, CurveArithmetic, PublicKey,
     ecdh::EphemeralSecret,
     point::PointCompression,
     sec1::{FromEncodedPoint, ToEncodedPoint},
 };
-
-#[cfg(feature = "kx-nist")]
 use rand_core::OsRng;
-
-#[cfg(feature = "kx-nist")]
+use rustls::{Error, NamedGroup, PeerMisbehaved, crypto};
 use sec1::point::ModulusSize;
 
-#[cfg(feature = "kx-nist")]
-use core::fmt::Debug;
-
-#[cfg(feature = "kx-nist")]
 pub trait NistCurve: Curve + CurveArithmetic + PointCompression {
     const NAMED_GROUP: NamedGroup;
 }
 
-#[cfg(all(feature = "kx-nist", feature = "kx-p256"))]
-impl NistCurve for ::p256::NistP256 {
-    const NAMED_GROUP: NamedGroup = NamedGroup::secp256r1;
-}
-
-#[cfg(all(feature = "kx-nist", feature = "kx-p384"))]
-impl NistCurve for ::p384::NistP384 {
-    const NAMED_GROUP: NamedGroup = NamedGroup::secp384r1;
-}
-
-#[cfg(all(feature = "kx-nist", feature = "kx-p521"))]
-impl NistCurve for ::p521::NistP521 {
-    const NAMED_GROUP: NamedGroup = NamedGroup::secp521r1;
-}
-
-#[cfg(feature = "kx-nist")]
 #[derive(Debug)]
 pub struct NistKxGroup<C>(PhantomData<C>)
 where
     C: NistCurve;
 
-#[cfg(feature = "kx-nist")]
+impl<C> NistKxGroup<C>
+where
+    C: NistCurve,
+{
+    const DEFAULT: Self = Self(PhantomData);
+}
+
 impl<C> SupportedKxGroup for NistKxGroup<C>
 where
     <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C> + ToEncodedPoint<C>,
@@ -75,7 +51,6 @@ where
     }
 }
 
-#[cfg(feature = "kx-nist")]
 #[allow(non_camel_case_types)]
 pub struct NistKeyExchange<C>
 where
@@ -85,12 +60,11 @@ where
     pub_key: Box<[u8]>,
 }
 
-#[cfg(feature = "kx-nist")]
-impl<C: NistCurve> ActiveKeyExchange for NistKeyExchange<C>
+impl<C> ActiveKeyExchange for NistKeyExchange<C>
 where
-    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C>,
+    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C> + ToEncodedPoint<C>,
     <C as elliptic_curve::Curve>::FieldBytesSize: ModulusSize,
-    <C as CurveArithmetic>::AffinePoint: ToEncodedPoint<C>,
+    C: NistCurve,
 {
     fn complete(self: Box<Self>, peer: &[u8]) -> Result<SharedSecret, Error> {
         let their_pub = PublicKey::<C>::from_sec1_bytes(peer)
@@ -112,11 +86,21 @@ where
     }
 }
 
+macro_rules! impl_nist_curve {
+    ($ty:ty, $named_group:expr, $const_name:ident) => {
+        impl NistCurve for $ty {
+            const NAMED_GROUP: NamedGroup = $named_group;
+        }
+
+        pub const $const_name: NistKxGroup<$ty> = NistKxGroup::DEFAULT;
+    };
+}
+
 #[cfg(feature = "kx-p256")]
-pub const SEC_P256_R1: NistKxGroup<::p256::NistP256> = NistKxGroup(PhantomData);
+impl_nist_curve!(::p256::NistP256, NamedGroup::secp256r1, SEC_P256_R1);
 
 #[cfg(feature = "kx-p384")]
-pub const SEC_P384_R1: NistKxGroup<::p384::NistP384> = NistKxGroup(PhantomData);
+impl_nist_curve!(::p384::NistP384, NamedGroup::secp384r1, SEC_P384_R1);
 
 #[cfg(feature = "kx-p521")]
-pub const SEC_P521_R1: NistKxGroup<::p521::NistP521> = NistKxGroup(PhantomData);
+impl_nist_curve!(::p521::NistP521, NamedGroup::secp521r1, SEC_P521_R1);

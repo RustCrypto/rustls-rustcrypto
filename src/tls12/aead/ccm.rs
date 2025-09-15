@@ -1,10 +1,13 @@
 use super::explicit_nonce::Tls12AeadAlgorithmWithExplicitNonce;
 
-pub const AES_128_CCM: &Tls12AeadAlgorithmWithExplicitNonce<crate::aead::aes::Aes128Ccm> =
-    &Tls12AeadAlgorithmWithExplicitNonce::DEFAULT;
-pub const AES_256_CCM: &Tls12AeadAlgorithmWithExplicitNonce<crate::aead::aes::Aes256Ccm> =
-    &Tls12AeadAlgorithmWithExplicitNonce::DEFAULT;
-pub const AES_128_CCM_8: &Tls12AeadAlgorithmWithExplicitNonce<crate::aead::aes::Aes128Ccm8> =
-    &Tls12AeadAlgorithmWithExplicitNonce::DEFAULT;
-pub const AES_256_CCM_8: &Tls12AeadAlgorithmWithExplicitNonce<crate::aead::aes::Aes256Ccm8> =
-    &Tls12AeadAlgorithmWithExplicitNonce::DEFAULT;
+macro_rules! impl_ccm {
+    ($name:ident, $type:ty) => {
+        pub const $name: &Tls12AeadAlgorithmWithExplicitNonce<$type> =
+            &Tls12AeadAlgorithmWithExplicitNonce::DEFAULT;
+    };
+}
+
+impl_ccm!(AES_128_CCM, crate::aead::aes::Aes128Ccm);
+impl_ccm!(AES_256_CCM, crate::aead::aes::Aes256Ccm);
+impl_ccm!(AES_128_CCM_8, crate::aead::aes::Aes128Ccm8);
+impl_ccm!(AES_256_CCM_8, crate::aead::aes::Aes256Ccm8);
