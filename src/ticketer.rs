@@ -31,40 +31,17 @@ fn try_split_at(data: &[u8], at: usize) -> Option<(&[u8], &[u8])> {
 pub struct Ticketer {}
 
 impl Ticketer {
-    /// Make the recommended `Ticketer`.
-    ///
-    /// This produces tickets:
-    ///
-    /// - where each lasts for at least 6 hours,
-    /// - with randomly generated keys, and
-    /// - where keys are rotated every 6 hours.
-    ///
-    /// The encryption mechanism used is Chacha20Poly1305.
-
     pub fn new() -> Result<Arc<dyn ProducesTickets>, Error> {
         Ok(Arc::new(TicketRotator::new(
-            time::Duration::from_hours(6).as_secs() as u32,
+            time::Duration::from_secs(6 * 60 * 60).as_secs() as u32,
             || Ok(Box::new(AeadTicketProducer::new()?)),
         )?))
     }
 }
 
-/// This is a `ProducesTickets` implementation which uses
-/// ChaCha20Poly1305 to encrypt and authenticate
-/// the ticket payload.  It does not enforce any lifetime
-/// constraint.
 struct AeadTicketProducer {
     key: ChaCha20Poly1305,
     key_name: [u8; 16],
-
-    /// Tracks the largest ciphertext produced by `encrypt`, and
-    /// uses it to early-reject `decrypt` queries that are too long.
-    ///
-    /// Accepting excessively long ciphertexts means a "Partitioning
-    /// Oracle Attack" (see <https://eprint.iacr.org/2020/1491.pdf>)
-    /// can be more efficient, though also note that these are thought
-    /// to be cryptographically hard if the key is full-entropy (as it
-    /// is here).
     maximum_ciphertext_len: AtomicUsize,
 }
 
