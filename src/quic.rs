@@ -24,6 +24,7 @@ use cipher::BlockCipherEncrypt;
 use cipher::StreamCipherSeek;
 
 trait HasHeaderKey {
+    #[allow(clippy::new_ret_no_self)]
     fn new(key: AeadKey) -> Result<HeaderProtectionKey, Error>;
 }
 
@@ -57,6 +58,7 @@ impl HasHeaderKey for ChaCha20Poly1305 {
 }
 
 #[enum_dispatch(MaskSample)]
+#[allow(clippy::large_enum_variant)]
 pub enum HeaderProtectionKey {
     #[cfg(feature = "aes")]
     Aes128Ecb(aes::Aes128),

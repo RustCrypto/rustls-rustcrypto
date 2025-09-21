@@ -31,9 +31,10 @@ fn try_split_at(data: &[u8], at: usize) -> Option<(&[u8], &[u8])> {
 pub struct Ticketer {}
 
 impl Ticketer {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Result<Arc<dyn ProducesTickets>, Error> {
         Ok(Arc::new(TicketRotator::new(
-            time::Duration::from_secs(6 * 60 * 60).as_secs() as u32,
+            #[allow(clippy::cast_possible_truncation)] { time::Duration::from_secs(6 * 60 * 60).as_secs() as u32 },
             || Ok(Box::new(AeadTicketProducer::new()?)),
         )?))
     }
@@ -83,7 +84,7 @@ impl ProducesTickets for AeadTicketProducer {
         // Random nonce, because a counter is a privacy leak.
         let mut nonce_buf = [0u8; 12];
         OsRng.try_fill_bytes(&mut nonce_buf).ok()?;
-        let nonce = nonce_buf.try_into().ok()?;
+        let nonce = nonce_buf.into();
 
         // ciphertext structure is:
         // key_name: [u8; 16]
