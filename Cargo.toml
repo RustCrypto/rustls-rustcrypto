@@ -84,7 +84,7 @@ logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
 
 # RustCrypto is preparing to migrate to core::error::Error
-# and in before most of the use case for std is just std::error::Error 
+# and in before most of the use case for std is just std::error::Error
 std = ["alloc", "rustls/std", "ed448-goldilocks?/std", "tinyvec?/std"]
 alloc = [
     "ecdsa?/alloc",
@@ -222,6 +222,7 @@ hash-sha512 = ["hash"]
 hash-full = ["hash-sha224", "hash-sha256", "hash-sha384", "hash-sha512"]
 
 quic = ["aead", "chacha20?/cipher", "tinyvec"]
+ticketer = ["aead", "chacha20poly1305", "rand"]
 
 # Formats
 der = ["dep:der", "sec1?/der"]

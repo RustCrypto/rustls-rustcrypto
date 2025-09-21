@@ -108,6 +108,9 @@ pub mod verify;
 #[cfg(feature = "quic")]
 pub mod quic;
 
+#[cfg(feature = "ticketer")]
+pub mod ticketer;
+
 const _: () = assert!(
     !ALL_CIPHER_SUITES.is_empty(),
     "At least one cipher suite should be enabled"
