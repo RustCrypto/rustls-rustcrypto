@@ -31,10 +31,13 @@ fn try_split_at(data: &[u8], at: usize) -> Option<(&[u8], &[u8])> {
 pub struct Ticketer {}
 
 impl Ticketer {
-    #[allow(clippy::new_ret_no_self)]
+    #[allow(clippy::new_ret_no_self, clippy::missing_errors_doc)]
     pub fn new() -> Result<Arc<dyn ProducesTickets>, Error> {
         Ok(Arc::new(TicketRotator::new(
-            #[allow(clippy::cast_possible_truncation)] { time::Duration::from_secs(6 * 60 * 60).as_secs() as u32 },
+            #[allow(clippy::cast_possible_truncation)]
+            {
+                time::Duration::from_secs(6 * 60 * 60).as_secs() as u32
+            },
             || Ok(Box::new(AeadTicketProducer::new()?)),
         )?))
     }
