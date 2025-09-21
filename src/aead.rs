@@ -1,7 +1,7 @@
 use aead::Buffer;
 use rustls::crypto::cipher::{BorrowedPayload, PrefixedPayload};
 
-#[cfg(feature = "alloc")]
+#[cfg(all(feature = "quic", feature = "alloc"))]
 use alloc::vec::Vec;
 
 #[cfg(feature = "gcm")]
