@@ -162,12 +162,6 @@ at your option.
 
 Some code authored by [@ctz](https://github.com/ctz) was adapted from upstream rustls. Licensed as above with permission.
 
-### Contribution
-
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
-dual licensed as above, without any additional terms or conditions.
-
 [//]: # "badges"
 [crate-image]: https://img.shields.io/crates/v/rustls-rustcrypto
 [crate-link]: https://crates.io/crates/rustls-rustcrypto

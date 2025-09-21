@@ -135,32 +135,6 @@ cargo run -p esp32-test
 - OpenSSL development libraries
 - Custom certificate generation tools
 
-## Configuration
-
-### Feature Flags
-
-Most crates support various feature flags to customize the build:
-
-```toml
-[dependencies.rustls-rustcrypto]
-version = "0.0.2-alpha"
-path = "../.."
-default-features = false
-features = [
-    "aead-chacha20poly1305",
-    "alloc",
-    "der",
-    "ecdsa-p256",
-    "fast",
-    "kx-p256",
-    "pkcs8",
-    "sign-ecdsa-p256",
-    "tls12",
-    "verify-ecdsa-p256",
-    "verify-ecdsa-p256-sha256"
-]
-```
-
 ### Environment Variables
 
 - `RUST_LOG`: Set logging level (e.g., `RUST_LOG=trace`)
@@ -175,54 +149,6 @@ These validation crates are designed with the following principles:
 3. **Realism**: Use actual network communication where possible
 4. **Cross-Platform**: Support multiple target architectures
 5. **Extensibility**: Easy to add new test scenarios
-
-## Troubleshooting
-
-### Common Issues
-
-#### ESP32 Build Failures
-- Ensure ESP-IDF is properly installed and configured
-- Check that the correct Rust toolchain is selected
-- Verify ESP32 hardware connections if running on device
-
-#### OpenSSL Compatibility Issues
-- Ensure OpenSSL development libraries are installed
-- Check certificate generation scripts in `certs/` directory
-- Verify OpenSSL version compatibility
-
-#### no_std Compilation Errors
-- Use `--no-default-features` flag
-- Ensure all dependencies support no_std
-- Check for std-specific code in dependencies
-
-#### Network Socket Issues
-- Ensure no firewall blocking local connections
-- Check that ports are available (tests use random ports)
-- Verify network interface configuration
-
-### Debugging
-
-Enable detailed logging:
-
-```bash
-RUST_LOG=trace cargo run -p <crate_name>
-```
-
-For ESP32, use ESP-IDF logging facilities.
-
-## Contributing
-
-When adding new validation crates:
-
-1. Create a new directory under `validation/`
-2. Add a dedicated `Cargo.toml` with minimal dependencies
-3. Include a `README.md` with crate-specific documentation
-4. Update this main README.md
-5. Add appropriate CI/CD configuration if needed
-
-## License
-
-These validation crates follow the same license as the main rustls-rustcrypto project: Apache-2.0 or MIT.
 
 ---
 
