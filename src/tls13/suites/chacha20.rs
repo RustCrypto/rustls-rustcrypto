@@ -1,8 +1,13 @@
+use crate::feature_eval_expr;
 #[cfg(feature = "hash-sha256")]
 use crate::tls13::aead::CHACHA20_POLY1305;
 use crate::{hash, hmac, tls13_cipher_suite};
+
 use rustls::crypto::{CipherSuiteCommon, tls13::HkdfUsingHmac};
 use rustls::{CipherSuite, Tls13CipherSuite};
+
+#[cfg(feature = "quic")]
+use chacha20poly1305::ChaCha20Poly1305;
 
 #[cfg(feature = "hash-sha256")]
 tls13_cipher_suite!(
@@ -10,5 +15,6 @@ tls13_cipher_suite!(
     CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
     hash::SHA256,
     HkdfUsingHmac(hmac::SHA256),
-    CHACHA20_POLY1305
+    CHACHA20_POLY1305,
+    feature_eval_expr!([feature = "quic"], Some(&crate::quic::QuicCrypto::<ChaCha20Poly1305>::DEFAULT), else None)
 );

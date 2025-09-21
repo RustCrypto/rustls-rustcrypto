@@ -41,7 +41,7 @@ where
                 &Nonce::<A>::try_from(&cipher::Nonce::new(&self.iv, seq).0[..])
                     .map_err(|_| rustls::Error::EncryptError)?,
                 &make_tls13_aad(total_len),
-                &mut EncryptBufferAdapter(&mut payload),
+                &mut EncryptBufferAdapter::PrefixedPayload(&mut payload),
             )
             .map_err(|_| rustls::Error::EncryptError)
             .map(|_| {
@@ -77,7 +77,7 @@ where
                 &Nonce::<A>::try_from(&cipher::Nonce::new(&self.iv, seq).0[..])
                     .map_err(|_| rustls::Error::DecryptError)?,
                 &make_tls13_aad(m.payload.len()),
-                &mut DecryptBufferAdapter(&mut m.payload),
+                &mut DecryptBufferAdapter::BorrowedPayload(&mut m.payload),
             )
             .map_err(|_| rustls::Error::DecryptError)?;
 

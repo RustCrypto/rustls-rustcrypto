@@ -72,7 +72,7 @@ impl MessageEncrypter for Tls12AeadAlgorithmChacha20Poly1305Adapter {
             .encrypt_in_place(
                 &cipher::Nonce::new(&self.1, seq).0.into(),
                 &make_tls12_aad(seq, m.typ, m.version, m.payload.len()),
-                &mut EncryptBufferAdapter(&mut payload),
+                &mut EncryptBufferAdapter::PrefixedPayload(&mut payload),
             )
             .map(|_| OutboundOpaqueMessage::new(m.typ, m.version, payload))
             .map_err(|_| rustls::Error::EncryptError)
@@ -98,7 +98,7 @@ impl MessageDecrypter for Tls12AeadAlgorithmChacha20Poly1305Adapter {
                     m.version,
                     m.payload.len() - CHACHAPOLY1305_OVERHEAD,
                 ),
-                &mut DecryptBufferAdapter(&mut m.payload),
+                &mut DecryptBufferAdapter::BorrowedPayload(&mut m.payload),
             )
             .map_err(|_| rustls::Error::DecryptError)?;
 

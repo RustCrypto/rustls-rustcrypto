@@ -105,6 +105,9 @@ pub mod tls13;
 #[cfg(feature = "verify")]
 pub mod verify;
 
+#[cfg(feature = "quic")]
+pub mod quic;
+
 const _: () = assert!(
     !ALL_CIPHER_SUITES.is_empty(),
     "At least one cipher suite should be enabled"

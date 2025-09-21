@@ -1,9 +1,8 @@
+use crate::tls13::aead::common::{Extractor, Tls13AeadAlgorithmCommon};
 use rustls::{
     ConnectionTrafficSecrets,
     crypto::cipher::{self, AeadKey, Iv},
 };
-
-use crate::tls13::aead::common::{Extractor, Tls13AeadAlgorithmCommon};
 
 macro_rules! impl_gcm_aead {
     ($const_name:ident, $extractor_name:ident, $variant:ident, $type:ty) => {

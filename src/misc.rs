@@ -54,7 +54,7 @@ macro_rules! feature_slice {
 
 #[macro_export]
 macro_rules! tls13_cipher_suite {
-    ($name:ident, $suite:expr, $hash:expr, $hkdf:expr, $aead:expr) => {
+    ($name:ident, $suite:expr, $hash:expr, $hkdf:expr, $aead:expr, $quic:expr) => {
         pub const $name: Tls13CipherSuite = Tls13CipherSuite {
             common: CipherSuiteCommon {
                 suite: $suite,
@@ -63,7 +63,7 @@ macro_rules! tls13_cipher_suite {
             },
             hkdf_provider: &$hkdf,
             aead_alg: $aead,
-            quic: None,
+            quic: $quic,
         };
     };
 }
