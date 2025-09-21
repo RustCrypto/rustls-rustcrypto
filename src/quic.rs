@@ -9,6 +9,8 @@ use typenum::Unsigned;
 
 use crate::aead::{DecryptBufferAdapter, EncryptBufferAdapter};
 
+#[cfg(feature = "aes-ccm")]
+use crate::aead::aes::Aes128Ccm;
 #[cfg(feature = "aes-gcm")]
 use crate::aead::aes::{Aes128Gcm, Aes256Gcm};
 #[cfg(feature = "chacha20")]
@@ -44,6 +46,16 @@ impl HasHeaderKey for Aes256Gcm {
         Ok(HeaderProtectionKey::Aes256Ecb(
             aes::Aes256::new_from_slice(key.as_ref())
                 .map_err(|_| Error::General("Invalid AES-256-GCM key".into()))?,
+        ))
+    }
+}
+
+#[cfg(feature = "aes-ccm")]
+impl HasHeaderKey for Aes128Ccm {
+    fn new(key: AeadKey) -> Result<HeaderProtectionKey, Error> {
+        Ok(HeaderProtectionKey::Aes128Ecb(
+            aes::Aes128::new_from_slice(key.as_ref())
+                .map_err(|_| Error::General("Invalid AES-128-GCM key".into()))?,
         ))
     }
 }

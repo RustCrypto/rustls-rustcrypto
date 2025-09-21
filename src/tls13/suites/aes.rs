@@ -44,7 +44,7 @@ tls13_cipher_suite!(
     hash::SHA256,
     HkdfUsingHmac(hmac::SHA256),
     AES_128_CCM,
-    None // TODO: add QUIC support
+    feature_eval_expr!([feature = "quic"], Some(&crate::quic::QuicCrypto::<Aes128Ccm>::DEFAULT), else None)
 );
 
 #[cfg(all(feature = "ccm", feature = "hash-sha256"))]
