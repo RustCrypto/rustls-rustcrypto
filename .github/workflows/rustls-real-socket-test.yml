@@ -45,7 +45,7 @@ jobs:
         RUSTC_WRAPPER: "sccache"
 
     - name: Run in QUIC test release mode
-      working-directory: validation/rustls-real-socket-test
+      working-directory: validation/quic-test
       run: cargo run --release
       env:
         SCCACHE_GHA_ENABLED: "true"
