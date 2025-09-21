@@ -14,45 +14,54 @@ These validation crates serve multiple critical purposes:
 
 ## Validation Crates
 
-| Crate                    | Description                                      | Target Environment |
-| :---                     | :---                                             | :---               |
-| consumer-no_std          | Basic consumer library for no_std environments   | no_std             |
-| local_ping_pong_openssl  | Local tests against OpenSSL reference            | Standard Rust      |
-| esp32-test               | Test for ESP32 microcontroller target using real sockets | ESP32           |
-| rustls-real-socket-test  | Test using real sockets for TLS integration      | Standard Rust      |
+| Crate                   | Description                                              | Target Environment |
+| :---------------------- | :------------------------------------------------------- | :----------------- |
+| consumer-no_std         | Basic consumer library for no_std environments           | no_std             |
+| local_ping_pong_openssl | Local tests against OpenSSL reference                    | Standard Rust      |
+| esp32-test              | Test for ESP32 microcontroller target using real sockets | ESP32              |
+| rustls-real-socket-test | Test using real sockets for TLS integration              | Standard Rust      |
+| quic-test               | Battle-test using QUIC to do roundtrip calls             | Standard Rust      |
 
 ### Detailed Crate Descriptions
 
 #### consumer-no_std
+
 A minimal self-testing crate that validates the no_std build capability of rustls-rustcrypto. This crate ensures that the provider can be compiled and used in environments without the standard library, which is crucial for embedded systems and constrained environments.
 
 **Key Features:**
+
 - Validates no_std compilation
 - Minimal dependencies
 - Self-contained testing
 
 #### local_ping_pong_openssl
+
 This crate performs comprehensive compatibility testing between rustls-rustcrypto and OpenSSL. It includes tests with OpenSSL-generated certificates and keys to ensure interoperability and correct TLS handshake behavior.
 
 **Key Features:**
+
 - OpenSSL compatibility testing
 - Certificate and key validation
 - TLS handshake verification
 - Cross-implementation validation
 
 #### esp32-test
+
 A specialized test crate for the ESP32 microcontroller platform. It performs end-to-end TLS testing using real network sockets, validating the rustcrypto provider's functionality in an embedded environment.
 
 **Key Features:**
+
 - ESP32-specific testing
 - Real socket communication
 - TLS client/server implementation
 - Embedded target validation
 
 #### rustls-real-socket-test
+
 Similar to esp32-test but designed for standard Rust environments. This crate tests TLS functionality using actual network sockets, providing realistic validation of the provider's capabilities.
 
 **Key Features:**
+
 - Real socket testing
 - TLS client/server implementation
 - Network communication validation
@@ -122,16 +131,19 @@ cargo run -p esp32-test
 ## Dependencies
 
 ### Common Dependencies
+
 - `rustls` 0.23.x
 - `rustls-rustcrypto` (workspace)
 - `anyhow` for error handling
 - `log` for logging
 
 ### ESP32-Specific
+
 - `esp-idf-svc` for ESP32 services
 - `esp-idf-hal` for hardware abstraction
 
 ### OpenSSL-Specific
+
 - OpenSSL development libraries
 - Custom certificate generation tools
 

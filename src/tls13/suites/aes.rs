@@ -1,18 +1,21 @@
-#[cfg(feature = "quic")]
-use crate::aead::aes::{Aes128Gcm, Aes256Gcm};
 use crate::const_concat_slices;
 use crate::feature_eval_expr;
 use crate::feature_slice;
+use crate::tls13_cipher_suite;
+use crate::{hash, hmac};
+use rustls::crypto::{CipherSuiteCommon, tls13::HkdfUsingHmac};
+use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
+
+#[cfg(all(feature = "gcm", feature = "hash-sha256", feature = "quic"))]
+use crate::aead::aes::Aes128Gcm;
+#[cfg(all(feature = "gcm", feature = "hash-sha384", feature = "quic"))]
+use crate::aead::aes::Aes256Gcm;
 #[cfg(all(feature = "ccm", feature = "hash-sha256"))]
 use crate::tls13::aead::ccm::{AES_128_CCM, AES_128_CCM_8};
 #[cfg(all(feature = "gcm", feature = "hash-sha256"))]
 use crate::tls13::aead::gcm::AES_128_GCM;
 #[cfg(all(feature = "gcm", feature = "hash-sha384"))]
 use crate::tls13::aead::gcm::AES_256_GCM;
-use crate::tls13_cipher_suite;
-use crate::{hash, hmac};
-use rustls::crypto::{CipherSuiteCommon, tls13::HkdfUsingHmac};
-use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
 #[cfg(all(feature = "gcm", feature = "hash-sha256"))]
 tls13_cipher_suite!(

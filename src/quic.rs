@@ -1,11 +1,10 @@
-use alloc::{boxed::Box, vec};
+use alloc::boxed::Box;
 
 use aead::{AeadCore, AeadInOut, KeyInit};
 use enum_dispatch::enum_dispatch;
 use rustls::Error;
 use rustls::crypto::cipher::{AeadKey, Iv, Nonce};
 use rustls::quic;
-use tinyvec::SliceVec;
 use typenum::Unsigned;
 
 use crate::aead::{DecryptBufferAdapter, EncryptBufferAdapter};
@@ -267,17 +266,14 @@ where
         let nonce_aead = aead::Nonce::<A>::try_from(&Nonce::new(&self.iv, packet_number).0[..])
             .map_err(|_| Error::EncryptError)?;
 
-        // Create a buffer with payload + space for tag
-        let mut buffer = vec![0u8; payload.len() + A::TagSize::USIZE];
-        buffer[..payload.len()].copy_from_slice(payload);
+        // Create a buffer with the payload
+        let mut buffer = EncryptBufferAdapter::Vec(payload.to_vec());
 
         self.key
-            .encrypt_in_place(
-                &nonce_aead,
-                header,
-                &mut EncryptBufferAdapter::Slice(SliceVec::from(&mut buffer)),
-            )
+            .encrypt_in_place(&nonce_aead, header, &mut buffer)
             .map_err(|_| Error::EncryptError)?;
+
+        let buffer = buffer.as_ref();
 
         // Copy the encrypted payload back
         payload.copy_from_slice(&buffer[..payload.len()]);
