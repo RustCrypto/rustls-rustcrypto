@@ -11,7 +11,7 @@ use elliptic_curve::{
     sec1::{FromEncodedPoint, ToEncodedPoint},
 };
 use rand_core::OsRng;
-use rustls::{Error, NamedGroup, PeerMisbehaved, crypto};
+use rustls::{Error, NamedGroup, crypto};
 use sec1::point::ModulusSize;
 
 /// Errors that can occur in NIST key exchange
