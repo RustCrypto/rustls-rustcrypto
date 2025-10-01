@@ -6,6 +6,8 @@ use crate::{hash, hmac};
 use rustls::crypto::{CipherSuiteCommon, tls13::HkdfUsingHmac};
 use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
+#[cfg(all(feature = "ccm", feature = "hash-sha256", feature = "quic"))]
+use crate::aead::aes::Aes128Ccm;
 #[cfg(all(feature = "gcm", feature = "hash-sha256", feature = "quic"))]
 use crate::aead::aes::Aes128Gcm;
 #[cfg(all(feature = "gcm", feature = "hash-sha384", feature = "quic"))]
