@@ -48,8 +48,7 @@ impl Read for MemorySocket {
             match self.current_buffer {
                 // We still have data to copy to `buf`
                 Some(ref mut current_buffer) if current_buffer.has_remaining() => {
-                    let bytes_to_read =
-                        core::cmp::min(buf.len() - bytes_read, current_buffer.remaining());
+                    let bytes_to_read = current_buffer.remaining().min(buf.len() - bytes_read);
                     debug_assert!(bytes_to_read > 0);
 
                     current_buffer
@@ -70,13 +69,13 @@ impl Read for MemorySocket {
 
                         // The remote side hung up, if this is the first time we've seen EOF then
                         // we should return `Ok(0)` otherwise an UnexpectedEof Error
+                        Err(_) if self.seen_eof => {
+                            return Err(ErrorKind::UnexpectedEof.into());
+                        }
+
                         Err(_) => {
-                            if self.seen_eof {
-                                return Err(ErrorKind::UnexpectedEof.into());
-                            } else {
-                                self.seen_eof = true;
-                                return Ok(0);
-                            }
+                            self.seen_eof = true;
+                            return Ok(0);
                         }
                     }
                 }
