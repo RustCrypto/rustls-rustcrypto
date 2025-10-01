@@ -76,8 +76,8 @@ impl KeyProvider for Provider {
     ) -> Result<Arc<dyn SigningKey>, rustls::Error> {
         feature_eval_expr!(
             [feature = "sign"],
-            sign::any_supported_type(&key_der),
-            else Err(rustls::Error::General("not key providers supported".into()))
+            sign::any_supported_type(&key_der).map_err(Into::into),
+            else Err(rustls::Error::General("no key providers supported".into()))
         )
     }
 }

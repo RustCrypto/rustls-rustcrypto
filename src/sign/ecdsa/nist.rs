@@ -1,5 +1,5 @@
 #[cfg(feature = "alloc")]
-use alloc::{boxed::Box, format, sync::Arc};
+use alloc::{boxed::Box, string::ToString, sync::Arc};
 use core::fmt::Debug;
 use core::marker::PhantomData;
 
@@ -9,6 +9,41 @@ use rustls::{SignatureAlgorithm, SignatureScheme};
 
 #[cfg(feature = "der")]
 use ::pki_types::PrivateKeyDer;
+
+/// Errors that can occur when loading an ECDSA private key
+#[derive(Debug, thiserror::Error)]
+pub enum EcdsaKeyError {
+    /// Failed to decode PKCS#8 private key
+    #[cfg(feature = "pkcs8")]
+    #[error("failed to decrypt PKCS#8 private key: {0}")]
+    Pkcs8(::pkcs8::Error),
+
+    /// Failed to decode SEC1 private key
+    #[cfg(feature = "sec1")]
+    #[error("failed to decrypt SEC1 private key: {0}")]
+    Sec1(#[from] ::sec1::Error),
+
+    /// ECDSA does not support PKCS#1 keys
+    #[error("ECDSA does not support PKCS#1 key")]
+    Pkcs1NotSupported,
+
+    /// Key format not supported
+    #[error("key format not supported")]
+    NotSupported,
+}
+
+#[cfg(feature = "pkcs8")]
+impl From<::pkcs8::Error> for EcdsaKeyError {
+    fn from(e: ::pkcs8::Error) -> Self {
+        Self::Pkcs8(e)
+    }
+}
+
+impl From<EcdsaKeyError> for rustls::Error {
+    fn from(e: EcdsaKeyError) -> Self {
+        rustls::Error::General(e.to_string())
+    }
+}
 
 trait EcdsaKey: Sized {
     const SCHEME: SignatureScheme;
@@ -36,13 +71,15 @@ where
     fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         let pkey = match value {
             #[cfg(feature = "pkcs8")]
-            PrivateKeyDer::Pkcs8(der) => SecretKey::from_pkcs8_der(der.secret_pkcs8_der())
-                .map_err(|e| format!("failed to decrypt private key: {e}")),
+            PrivateKeyDer::Pkcs8(der) => {
+                SecretKey::from_pkcs8_der(der.secret_pkcs8_der()).map_err(Into::into)
+            }
             #[cfg(feature = "sec1")]
-            PrivateKeyDer::Sec1(sec1) => SecretKey::from_sec1_der(sec1.secret_sec1_der())
-                .map_err(|e| format!("failed to decrypt private key: {e}")),
-            PrivateKeyDer::Pkcs1(_) => Err("ECDSA does not support PKCS#1 key".into()),
-            _ => Err("not supported".into()),
+            PrivateKeyDer::Sec1(sec1) => {
+                SecretKey::from_sec1_der(sec1.secret_sec1_der()).map_err(Into::into)
+            }
+            PrivateKeyDer::Pkcs1(_) => Err(EcdsaKeyError::Pkcs1NotSupported),
+            _ => Err(EcdsaKeyError::NotSupported),
         };
         pkey.map(|kp| Self {
             key: Arc::new(kp.into()),
@@ -50,7 +87,7 @@ where
             _phantom: PhantomData,
             _phantom_sk: PhantomData,
         })
-        .map_err(rustls::Error::General)
+        .map_err(Into::into)
     }
 }
 

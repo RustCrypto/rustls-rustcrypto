@@ -1,5 +1,5 @@
 #[cfg(feature = "alloc")]
-use alloc::boxed::Box;
+use alloc::{boxed::Box, string::ToString};
 use core::fmt::Debug;
 use core::marker::PhantomData;
 
@@ -13,6 +13,26 @@ use elliptic_curve::{
 use rand_core::OsRng;
 use rustls::{Error, NamedGroup, PeerMisbehaved, crypto};
 use sec1::point::ModulusSize;
+
+/// Errors that can occur in NIST key exchange
+#[derive(Debug, thiserror::Error)]
+pub enum NistKxError {
+    /// Failed to generate private key
+    #[error("failed to generate private key: {0}")]
+    KeyGenerationFailed(rand_core::OsError),
+}
+
+impl From<rand_core::OsError> for NistKxError {
+    fn from(e: rand_core::OsError) -> Self {
+        Self::KeyGenerationFailed(e)
+    }
+}
+
+impl From<NistKxError> for rustls::Error {
+    fn from(e: NistKxError) -> Self {
+        rustls::Error::General(e.to_string())
+    }
+}
 
 pub trait NistCurve: Curve + CurveArithmetic + PointCompression {
     const NAMED_GROUP: NamedGroup;
@@ -41,8 +61,7 @@ where
     }
 
     fn start(&self) -> Result<Box<dyn ActiveKeyExchange>, Error> {
-        let priv_key = EphemeralSecret::<C>::try_from_rng(&mut OsRng)
-            .map_err(|_| Error::General("Failed to generate private key".into()))?;
+        let priv_key = EphemeralSecret::<C>::try_from_rng(&mut OsRng).map_err(NistKxError::from)?;
 
         Ok(Box::new(NistKeyExchange::<C> {
             pub_key: priv_key.public_key().to_sec1_bytes(),
@@ -68,7 +87,7 @@ where
 {
     fn complete(self: Box<Self>, peer: &[u8]) -> Result<SharedSecret, Error> {
         let their_pub = PublicKey::<C>::from_sec1_bytes(peer)
-            .map_err(|_| Error::from(PeerMisbehaved::InvalidKeyShare))?;
+            .map_err(|_| rustls::PeerMisbehaved::InvalidKeyShare)?;
         Ok(self
             .priv_key
             .diffie_hellman(&their_pub)

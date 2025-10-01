@@ -1,7 +1,5 @@
 #[cfg(feature = "alloc")]
-use alloc::{boxed::Box, sync::Arc, vec::Vec};
-#[cfg(all(feature = "alloc", feature = "der"))]
-use alloc::{format, string::ToString};
+use alloc::{boxed::Box, string::ToString, sync::Arc, vec::Vec};
 
 use ed448_goldilocks::{Signature, SigningKey};
 use rustls::{SignatureAlgorithm, SignatureScheme, sign::Signer};
@@ -9,6 +7,40 @@ use signature::{SignatureEncoding, Signer as SignatureSigner};
 
 #[cfg(feature = "der")]
 use pki_types::PrivateKeyDer;
+
+/// Errors that can occur when loading an Ed448 private key
+#[derive(Debug, thiserror::Error)]
+pub enum Ed448KeyError {
+    /// Failed to decode PKCS#8 private key
+    #[cfg(feature = "pkcs8")]
+    #[error("failed to decrypt PKCS#8 private key: {0}")]
+    Pkcs8(::pkcs8::Error),
+
+    /// ED448 does not support SEC-1 keys
+    #[error("ED448 does not support SEC-1 key")]
+    Sec1NotSupported,
+
+    /// ED448 does not support PKCS#1 keys
+    #[error("ED448 does not support PKCS#1 key")]
+    Pkcs1NotSupported,
+
+    /// Key format not supported
+    #[error("key format not supported")]
+    NotSupported,
+}
+
+#[cfg(feature = "pkcs8")]
+impl From<::pkcs8::Error> for Ed448KeyError {
+    fn from(e: ::pkcs8::Error) -> Self {
+        Self::Pkcs8(e)
+    }
+}
+
+impl From<Ed448KeyError> for rustls::Error {
+    fn from(e: Ed448KeyError) -> Self {
+        rustls::Error::General(e.to_string())
+    }
+}
 
 // Wrapper for Ed448 signature to implement SignatureEncoding
 #[derive(Debug, Clone)]
@@ -52,18 +84,16 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed448SigningKey {
             #[cfg(feature = "pkcs8")]
             PrivateKeyDer::Pkcs8(der) => {
                 use pkcs8::DecodePrivateKey;
-                SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+                SigningKey::from_pkcs8_der(der.secret_pkcs8_der()).map_err(Into::into)
             }
 
             // Per RFC 8410, only PKCS#8 is supported for ED448 keys
             // https://datatracker.ietf.org/doc/html/rfc8410#section-7
-            PrivateKeyDer::Sec1(_) => Err("ED448 does not support SEC 1 key".to_string()),
-            PrivateKeyDer::Pkcs1(_) => Err("ED448 does not support PKCS#1 key".to_string()),
-            _ => Err("not supported".into()),
+            PrivateKeyDer::Sec1(_) => Err(Ed448KeyError::Sec1NotSupported),
+            PrivateKeyDer::Pkcs1(_) => Err(Ed448KeyError::Pkcs1NotSupported),
+            _ => Err(Ed448KeyError::NotSupported),
         };
-        pkey.map(|kp| Self(Arc::new(kp)))
-            .map_err(rustls::Error::General)
+        pkey.map(|kp| Self(Arc::new(kp))).map_err(Into::into)
     }
 }
 

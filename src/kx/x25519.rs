@@ -29,7 +29,7 @@ impl ActiveKeyExchange for X25519KeyExchange {
     fn complete(self: Box<X25519KeyExchange>, peer: &[u8]) -> Result<SharedSecret, rustls::Error> {
         let peer_array: [u8; 32] = peer
             .try_into()
-            .map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
+            .map_err(|_| rustls::PeerMisbehaved::InvalidKeyShare)?;
         Ok(self
             .priv_key
             .diffie_hellman(&peer_array.into())

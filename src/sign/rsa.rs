@@ -1,7 +1,5 @@
 #[cfg(feature = "alloc")]
-use alloc::{boxed::Box, sync::Arc};
-#[cfg(all(feature = "alloc", feature = "der"))]
-use alloc::{format, string::ToString};
+use alloc::{boxed::Box, string::ToString, sync::Arc};
 
 use rsa::RsaPrivateKey;
 use rustls::sign::{Signer, SigningKey};
@@ -16,6 +14,41 @@ use sha2::Sha512;
 
 #[cfg(feature = "der")]
 use pki_types::PrivateKeyDer;
+
+/// Errors that can occur when loading an RSA private key
+#[derive(Debug, thiserror::Error)]
+pub enum RsaKeyError {
+    /// Failed to decode PKCS#8 private key
+    #[cfg(feature = "pkcs8")]
+    #[error("failed to decrypt PKCS#8 private key: {0}")]
+    Pkcs8(::pkcs8::Error),
+
+    /// Failed to decode PKCS#1 private key
+    #[cfg(all(feature = "pkcs8", feature = "pkcs1"))]
+    #[error("failed to decrypt PKCS#1 private key: {0}")]
+    Pkcs1(#[from] ::pkcs1::Error),
+
+    /// RSA does not support SEC-1 keys
+    #[error("RSA does not support SEC-1 key")]
+    Sec1NotSupported,
+
+    /// Key format not supported
+    #[error("key format not supported")]
+    NotSupported,
+}
+
+#[cfg(feature = "pkcs8")]
+impl From<::pkcs8::Error> for RsaKeyError {
+    fn from(e: ::pkcs8::Error) -> Self {
+        Self::Pkcs8(e)
+    }
+}
+
+impl From<RsaKeyError> for rustls::Error {
+    fn from(e: RsaKeyError) -> Self {
+        rustls::Error::General(e.to_string())
+    }
+}
 
 const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
     #[cfg(all(feature = "rsa-pss", feature = "hash-sha512"))]
@@ -44,20 +77,18 @@ impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
             #[cfg(feature = "pkcs8")]
             PrivateKeyDer::Pkcs8(der) => {
                 use pkcs8::DecodePrivateKey;
-                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+                RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der()).map_err(Into::into)
             }
             #[cfg(all(feature = "pkcs8", feature = "pkcs1"))]
             PrivateKeyDer::Pkcs1(der) => {
                 use pkcs1::DecodeRsaPrivateKey;
-                RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+                RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der()).map_err(Into::into)
             }
-            PrivateKeyDer::Sec1(_) => Err("RSA does not support SEC-1 key".to_string()),
-            _ => Err("not supported".into()),
+            PrivateKeyDer::Sec1(_) => Err(RsaKeyError::Sec1NotSupported),
+            _ => Err(RsaKeyError::NotSupported),
         };
 
-        pkey.map(Self).map_err(rustls::Error::General)
+        pkey.map(Self).map_err(Into::into)
     }
 }
 
