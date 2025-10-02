@@ -44,7 +44,7 @@ use alloc::sync::Arc;
 use rustls::crypto::{
     CipherSuiteCommon, CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom,
 };
-use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
+use rustls::{crypto, CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
 #[cfg(feature = "tls12")]
 use rustls::SignatureScheme;
@@ -55,7 +55,7 @@ pub struct Provider;
 pub fn provider() -> CryptoProvider {
     CryptoProvider {
         cipher_suites: ALL_CIPHER_SUITES.to_vec(),
-        kx_groups: kx::ALL_KX_GROUPS.to_vec(),
+        kx_groups: ALL_KX_GROUPS.to_vec(),
         signature_verification_algorithms: verify::ALGORITHMS,
         secure_random: &Provider,
         key_provider: &Provider,
@@ -261,9 +261,31 @@ static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     TLS13_SUITES,
 );
 
+#[cfg(feature = "p256")]
+pub use verify::ecdsa::{ECDSA_P256_SHA256, ECDSA_P256_SHA384};
+#[cfg(feature = "p384")]
+pub use verify::ecdsa::{ECDSA_P384_SHA256, ECDSA_P384_SHA384};
+
+#[cfg(feature = "ed25519")]
+pub use verify::eddsa::ED25519;
+
+#[cfg(feature = "rsa")]
+pub use verify::rsa::{RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512, RSA_PSS_SHA256, RSA_PSS_SHA384, RSA_PSS_SHA512};
+
+const ALL_KX_GROUPS: &[&dyn crypto::SupportedKxGroup] = &[
+    #[cfg(feature = "x25519")]
+    &X25519,
+    #[cfg(feature = "p256")]
+    &SecP256R1,
+    #[cfg(feature = "p384")]
+    &SecP384R1
+];
+
 mod aead;
 mod hash;
 mod hmac;
+
+#[cfg(any(feature = "x25519", feature = "p256", feature = "p384"))]
 mod kx;
 mod misc;
 pub mod quic;
