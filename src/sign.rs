@@ -84,7 +84,7 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
         return Ok(Arc::new(key));
     }
 
-    #[cfg(any(feature = "p256", feature = "p384"))]
+    #[cfg(feature = "ecdsa")]
     if let Ok(key) = any_ecdsa_type(der) {
         return Ok(key);
     }
@@ -97,7 +97,7 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
     Err(rustls::Error::General("unsupported private key format".into()))
 }
 
-#[cfg(any(feature = "p256", feature = "p384"))]
+#[cfg(feature = "ecdsa")]
 /// Extract any supported ECDSA key from the given DER input.
 ///
 /// # Errors
@@ -128,7 +128,7 @@ pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, ru
     Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _)
 }
 
-#[cfg(any(feature = "p256", feature = "p384"))]
+#[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 pub mod eddsa;

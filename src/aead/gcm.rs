@@ -225,11 +225,13 @@ macro_rules! impl_gcm_tls12 {
     };
 }
 
+#[cfg(feature = "aes-gcm")]
 impl_gcm_tls13! {Aes128Gcm, aes_gcm::Aes128Gcm, 16}
+#[cfg(feature = "aes-gcm")]
 impl_gcm_tls13! {Aes256Gcm, aes_gcm::Aes256Gcm, 16}
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "aes-gcm"))]
 impl_gcm_tls12! {Aes128Gcm, aes_gcm::Aes128Gcm, TLS12_GCM_EXPLICIT_NONCE_LEN, TLS12_GCM_OVERHEAD}
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "aes-gcm"))]
 impl_gcm_tls12! {Aes256Gcm, aes_gcm::Aes256Gcm, TLS12_GCM_EXPLICIT_NONCE_LEN, TLS12_GCM_OVERHEAD}

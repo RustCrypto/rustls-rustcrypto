@@ -74,7 +74,7 @@ pub static ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
     ],
 };
 
-#[cfg(any(feature = "p256", feature = "p384"))]
+#[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 pub mod eddsa;

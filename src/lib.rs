@@ -44,7 +44,7 @@ use alloc::sync::Arc;
 use rustls::crypto::{
     CipherSuiteCommon, CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom,
 };
-use rustls::{crypto, CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
+use rustls::{CipherSuite, SupportedCipherSuite, Tls13CipherSuite};
 
 #[cfg(feature = "tls12")]
 use rustls::SignatureScheme;
@@ -55,7 +55,7 @@ pub struct Provider;
 pub fn provider() -> CryptoProvider {
     CryptoProvider {
         cipher_suites: ALL_CIPHER_SUITES.to_vec(),
-        kx_groups: ALL_KX_GROUPS.to_vec(),
+        kx_groups: kx::ALL_KX_GROUPS.to_vec(),
         signature_verification_algorithms: verify::ALGORITHMS,
         secure_random: &Provider,
         key_provider: &Provider,
@@ -81,14 +81,16 @@ impl KeyProvider for Provider {
 }
 
 #[cfg(feature = "tls12")]
-const TLS12_ECDSA_SCHEMES: [SignatureScheme; 4] = [
+const TLS12_ECDSA_SCHEMES: &[SignatureScheme] = &[
+    #[cfg(feature = "p256")]
     SignatureScheme::ECDSA_NISTP256_SHA256,
+    #[cfg(feature = "p384")]
     SignatureScheme::ECDSA_NISTP384_SHA384,
-    SignatureScheme::ECDSA_NISTP521_SHA512,
+    #[cfg(feature = "ed25519")]
     SignatureScheme::ED25519,
 ];
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "rsa"))]
 const TLS12_RSA_SCHEMES: [SignatureScheme; 6] = [
     SignatureScheme::RSA_PKCS1_SHA256,
     SignatureScheme::RSA_PKCS1_SHA384,
@@ -98,7 +100,7 @@ const TLS12_RSA_SCHEMES: [SignatureScheme; 6] = [
     SignatureScheme::RSA_PSS_SHA512,
 ];
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "aes-gcm"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -107,12 +109,12 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_ECDSA_SCHEMES,
+        sign: TLS12_ECDSA_SCHEMES,
         aead_alg: &aead::gcm::Tls12Aes128Gcm,
         prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
     });
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "aes-gcm"))]
 pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -121,12 +123,12 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
             confidentiality_limit: u64::MAX,
         },
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_ECDSA_SCHEMES,
+        sign: TLS12_ECDSA_SCHEMES,
         prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA384),
         aead_alg: &aead::gcm::Tls12Aes256Gcm,
     });
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "chacha20poly1305"))]
 pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -136,18 +138,12 @@ pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
         },
         prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
         kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
-        sign: &TLS12_ECDSA_SCHEMES,
+        sign: TLS12_ECDSA_SCHEMES,
         aead_alg: &aead::chacha20::Chacha20Poly1305,
     });
 
-#[cfg(feature = "tls12")]
-const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
-    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-    TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-    TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-];
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "aes-gcm", feature = "rsa"))]
 pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -161,7 +157,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: SupportedCipherSuite =
         prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
     });
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "aes-gcm", feature = "ecdsa", feature = "rsa"))]
 pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -175,7 +171,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
         aead_alg: &aead::gcm::Tls12Aes256Gcm,
     });
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "rsa", feature = "chacha20poly1305"))]
 pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -189,23 +185,26 @@ pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
         aead_alg: &aead::chacha20::Chacha20Poly1305,
     });
 
-#[cfg(feature = "tls12")]
-const TLS_ECDHE_RSA_SUITES: &[SupportedCipherSuite] = &[
+#[cfg(all(feature = "tls12", feature = "ecdsa"))]
+const TLS12_SUITES: &[SupportedCipherSuite] = &[
+    #[cfg(feature = "aes-gcm")]
+    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+    #[cfg(feature = "aes-gcm")]
+    TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+    #[cfg(feature = "chacha20poly1305")]
+    TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+    #[cfg(all(feature = "rsa", feature = "aes-gcm"))]
     TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+    #[cfg(all(feature = "rsa", feature = "aes-gcm"))]
     TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+    #[cfg(all(feature = "rsa", feature = "chacha20poly1305"))]
     TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
 ];
-
-#[cfg(feature = "tls12")]
-const TLS12_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
-    SupportedCipherSuite,
-    TLS_ECDHE_ECDSA_SUITES,
-    TLS_ECDHE_RSA_SUITES
-);
 
 #[cfg(not(feature = "tls12"))]
 const TLS12_SUITES: &[SupportedCipherSuite] = &[];
 
+#[cfg(feature = "aes-gcm")]
 pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -218,6 +217,7 @@ pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
         quic: None,
     });
 
+#[cfg(feature = "aes-gcm")]
 pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -230,9 +230,7 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
         quic: None,
     });
 
-const TLS13_AES_SUITES: &[SupportedCipherSuite] =
-    &[TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384];
-
+#[cfg(feature = "chacha20poly1305")]
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -245,11 +243,14 @@ pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
         quic: None,
     });
 
-const TLS13_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
-    SupportedCipherSuite,
-    TLS13_AES_SUITES,
-    &[TLS13_CHACHA20_POLY1305_SHA256]
-);
+const TLS13_SUITES: &[SupportedCipherSuite] = &[
+        #[cfg(feature = "aes-gcm")]
+        TLS13_AES_128_GCM_SHA256,
+        #[cfg(feature = "aes-gcm")]
+        TLS13_AES_256_GCM_SHA384,
+        #[cfg(feature = "chacha20poly1305")]
+        TLS13_CHACHA20_POLY1305_SHA256
+];
 
 static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     SupportedCipherSuite,
@@ -272,22 +273,13 @@ pub use verify::eddsa::ED25519;
 #[cfg(feature = "rsa")]
 pub use verify::rsa::{RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512, RSA_PSS_SHA256, RSA_PSS_SHA384, RSA_PSS_SHA512};
 
-const ALL_KX_GROUPS: &[&dyn crypto::SupportedKxGroup] = &[
-    #[cfg(feature = "x25519")]
-    &X25519,
-    #[cfg(feature = "p256")]
-    &SecP256R1,
-    #[cfg(feature = "p384")]
-    &SecP384R1
-];
-
 mod aead;
 mod hash;
 mod hmac;
 
-#[cfg(any(feature = "x25519", feature = "p256", feature = "p384"))]
 mod kx;
 mod misc;
+#[cfg(feature = "quic")]
 pub mod quic;
 pub mod sign;
 mod verify;
