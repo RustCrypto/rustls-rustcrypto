@@ -15,10 +15,8 @@ use rustls::{ConnectionTrafficSecrets, ContentType, ProtocolVersion};
 #[cfg(feature = "tls12")]
 use rustls::crypto::cipher::{KeyBlockShape, Tls12AeadAlgorithm, NONCE_LEN};
 
-
 #[cfg(feature = "chacha20poly1305")]
 pub struct Chacha20Poly1305;
-
 
 #[cfg(feature = "chacha20poly1305")]
 impl Tls13AeadAlgorithm for Chacha20Poly1305 {
