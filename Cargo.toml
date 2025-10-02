@@ -19,41 +19,49 @@ resolver = "1" # Hack to enable the `custom` feature of `getrandom`
 # default features often have std breaking no_std and potentially other unwanted
 [dependencies]
 aead = { version = "0.5.2", default-features = false }
-aes-gcm = { version = "0.10.3", default-features = false, features = ["aes", "alloc"] }
-chacha20poly1305 = { version = "0.10.1", default-features = false }
+aes-gcm = { version = "0.10.3", default-features = false, features = ["aes", "alloc"], optional = true }
+chacha20poly1305 = { version = "0.10.1", default-features = false, optional = true }
 crypto-common = { version = "0.1.6", default-features = false }
 der = { version = "0.7.9", default-features = false }
 digest = { version = "0.10.7", default-features = false }
-ecdsa = { version = "0.16.8", default-features = false, features = ["alloc"] }
-ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"] }
+ecdsa = { version = "0.16.8", default-features = false, features = ["alloc"], optional = true }
+ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"], optional = true }
 hmac = { version = "0.12.1", default-features = false }
-p256 = { version = "0.13.2", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
-p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
+p256 = { version = "0.13.2", default-features = false, features = ["pem", "ecdsa", "ecdh"], optional = true }
+p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa", "ecdh"], optional = true }
 paste = { version = "1.0.15", default-features = false }
 pkcs8 = { version = "0.10.2", default-features = false, features = ["pem", "pkcs5"] }
 pki-types = { package = "rustls-pki-types", version = "1.0.1", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = ["getrandom"] }
-rsa = { version = "0.9.2", default-features = false, features = ["sha2"] }
+rsa = { version = "0.9.2", default-features = false, features = ["sha2"], optional = true }
 rustls = { version = "0.23.12", default-features = false }
 sec1 = { version = "0.7.3", default-features = false, features = ["pkcs8", "pem"] }
 sha2 = { version = "0.10.7", default-features = false }
-signature = { version = "2.1.0", default-features = false }
+signature = { version = "2.1.0", default-features = false, features = ["rand_core", "alloc"] }
 webpki = { package = "rustls-webpki", version = "0.102.0", default-features = false }
-x25519-dalek = { version = "2", default-features = false }
+x25519-dalek = { version = "2", default-features = false, optional = true }
 
 [dev-dependencies]
 getrandom = { version = "0.2", features = ["custom"] } # workaround to build on no_std targets
 
 [features]
-default = ["std", "tls12", "zeroize"]
+default = ["std", "tls12", "zeroize", "quic", "aes-gcm", "chacha20poly1305", "rsa", "p256", "p384", "ed25519", "x25519"]
 logging = ["rustls/logging"]
-tls12 = ["rustls/tls12"]
+tls12 = ["rustls/tls12", "ecdsa"]
 
 # Only enable feature in upstream if there is an overall effect e.g. aead/alloc in-place
 # zeroize is another typical that can be turned off
 
 # TODO: go through all of these that what gets exposed re: std error type
-std = ["alloc", "webpki/std", "pki-types/std", "rustls/std", "ed25519-dalek/std"]
+std = ["alloc", "webpki/std", "pki-types/std", "rustls/std"]
 # TODO: go through all of these to ensure to_vec etc. impls are exposed
-alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
-zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
+alloc = ["webpki/alloc", "pki-types/alloc", "aead/alloc"]
+zeroize = ["ed25519-dalek?/zeroize", "x25519-dalek?/zeroize"]
+quic = ["chacha20poly1305"]
+aes-gcm = ["dep:aes-gcm"]
+chacha20poly1305 = ["dep:chacha20poly1305"]
+ecdsa = ["dep:ecdsa"]
+p256 = ["dep:p256", "ecdsa"]
+p384 = ["dep:p384", "ecdsa"]
+x25519 = ["dep:x25519-dalek"]
+ed25519 = ["dep:ed25519-dalek", "ed25519-dalek/alloc", "ed25519-dalek/std", "alloc"]

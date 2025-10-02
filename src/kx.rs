@@ -5,10 +5,12 @@ use crypto::{SharedSecret, SupportedKxGroup};
 use paste::paste;
 use rustls::crypto;
 
+#[cfg(feature = "x25519")]
 #[derive(Debug)]
 pub struct X25519;
 
-impl crypto::SupportedKxGroup for X25519 {
+#[cfg(feature = "x25519")]
+impl SupportedKxGroup for X25519 {
     fn name(&self) -> rustls::NamedGroup {
         rustls::NamedGroup::X25519
     }
@@ -20,11 +22,13 @@ impl crypto::SupportedKxGroup for X25519 {
     }
 }
 
+#[cfg(feature = "x25519")]
 pub struct X25519KeyExchange {
     priv_key: x25519_dalek::EphemeralSecret,
     pub_key: x25519_dalek::PublicKey,
 }
 
+#[cfg(feature = "x25519")]
 impl crypto::ActiveKeyExchange for X25519KeyExchange {
     fn complete(self: Box<X25519KeyExchange>, peer: &[u8]) -> Result<SharedSecret, rustls::Error> {
         let peer_array: [u8; 32] = peer
@@ -102,7 +106,16 @@ macro_rules! impl_kx {
     };
 }
 
+#[cfg(feature = "p256")]
 impl_kx! {SecP256R1, rustls::NamedGroup::secp256r1, p256::ecdh::EphemeralSecret, p256::PublicKey}
+#[cfg(feature = "p384")]
 impl_kx! {SecP384R1, rustls::NamedGroup::secp384r1, p384::ecdh::EphemeralSecret, p384::PublicKey}
 
-pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[&X25519, &SecP256R1, &SecP384R1];
+pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[
+    #[cfg(feature = "x25519")]
+    &X25519,
+    #[cfg(feature = "p256")]
+    &SecP256R1,
+    #[cfg(feature = "p384")]
+    &SecP384R1
+];

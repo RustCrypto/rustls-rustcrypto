@@ -3,6 +3,7 @@ use alloc::boxed::Box;
 
 use super::{DecryptBufferAdapter, EncryptBufferAdapter};
 
+#[cfg(feature = "chacha20poly1305")]
 use chacha20poly1305::{AeadInPlace, KeyInit, KeySizeUser};
 use rustls::crypto::cipher::{
     self, AeadKey, InboundOpaqueMessage, InboundPlainMessage, Iv, MessageDecrypter,
@@ -14,8 +15,10 @@ use rustls::{ConnectionTrafficSecrets, ContentType, ProtocolVersion};
 #[cfg(feature = "tls12")]
 use rustls::crypto::cipher::{KeyBlockShape, Tls12AeadAlgorithm, NONCE_LEN};
 
+#[cfg(feature = "chacha20poly1305")]
 pub struct Chacha20Poly1305;
 
+#[cfg(feature = "chacha20poly1305")]
 impl Tls13AeadAlgorithm for Chacha20Poly1305 {
     fn encrypter(&self, key: AeadKey, iv: Iv) -> Box<dyn MessageEncrypter> {
         Box::new(Tls13Cipher(
