@@ -10,12 +10,12 @@ hyper-rustls = { version = "=0.25.0-alpha.1", features = ["http2", "webpki-roots
 pki-types = { package = "rustls-pki-types", version = "0.2.1", default-features = false }
 rcgen = "0.11.1"
 rustls = { version = "=0.22.0-alpha.4", default-features = false }
-rustls-provider-rustcrypto = { path = "../" }
+rustls-rustcrypto = { path = "../" }
 tokio = { version = "1.32.0", features = ["rt-multi-thread", "macros", "io-std", "io-util", "net"] }
 vc-ltl = "5.0.8"
 
 [features]
-tls12 = ["rustls-provider-rustcrypto/tls12"]
+tls12 = ["rustls-rustcrypto/tls12"]
 
 [profile.release]
 strip = true

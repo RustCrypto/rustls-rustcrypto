@@ -29,7 +29,7 @@ where
 {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
         self.key
-            .try_sign_with_rng(&mut rand_core::OsRng, message)
+            .try_sign_with_rng(&mut crate::misc::TinyRng, message)
             .map_err(|_| rustls::Error::General("signing failed".into()))
             .map(|sig: S| sig.to_vec())
     }

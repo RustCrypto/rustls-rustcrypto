@@ -2,11 +2,12 @@
 use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 use core::marker::PhantomData;
 
+use der::asn1::ObjectIdentifier;
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{SignatureAlgorithm, SignatureScheme};
-use sec1::DecodeEcPrivateKey;
+use sec1::EcPrivateKey;
 
 #[derive(Debug)]
 pub struct Ed25519SigningKey {
@@ -24,8 +25,31 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
             PrivateKeyDer::Sec1(sec1) => {
-                ed25519_dalek::SigningKey::from_sec1_der(sec1.secret_sec1_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+                // Parse SEC1 ECPrivateKey and extract the raw private key bytes.
+                let res = EcPrivateKey::try_from(sec1.secret_sec1_der())
+                    .map_err(|e| format!("failed to parse SEC1 private key: {e}"))
+                    .and_then(|ec| {
+                        // If parameters are present, ensure the named curve OID is id-Ed25519 (1.3.101.112)
+                        if let Some(params) = ec.parameters {
+                            if let Some(oid) = params.named_curve() {
+                                let ed_oid = ObjectIdentifier::new_unwrap("1.3.101.112");
+                                if oid != ed_oid {
+                                    return Err("not an Ed25519 key".to_string());
+                                }
+                            }
+                        }
+
+                        // Private key must be exactly 32 bytes for Ed25519
+                        let sk = ec.private_key;
+                        if sk.len() != ed25519_dalek::SECRET_KEY_LENGTH {
+                            return Err("invalid Ed25519 secret length".to_string());
+                        }
+
+                        // Convert to SigningKey
+                        ed25519_dalek::SigningKey::try_from(sk)
+                            .map_err(|e| format!("failed to parse Ed25519 secret: {e}"))
+                    });
+                res
             }
             PrivateKeyDer::Pkcs1(_) => Err("ED25519 does not support PKCS#1 key".to_string()),
             _ => Err("not supported".into()),
