@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-rustls = { version = "0.23.0", default-features = false, features = ["std"] }
+rustls = { version = "0.23", default-features = false, features = ["std"] }
 rustls-rustcrypto = { path = "../../" }
 openssl = { version = "0.10", default-features = false }
 pem-rfc7468 = { version = "0.7", default-features = false, features = ["alloc"] }
