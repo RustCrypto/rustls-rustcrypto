@@ -24,22 +24,22 @@ chacha20poly1305 = { version = "0.11.0-rc.2", default-features = false }
 crypto-common = { version = "0.2.0-rc.8", default-features = false }
 der = { version = "0.8.0-rc.10", default-features = false }
 digest = { version = "0.11.0-rc.5", default-features = false }
-ecdsa = { version = "0.17.0-rc.9", default-features = false, features = ["alloc"] }
-ed25519-dalek = { version = "3.0.0-pre.3", default-features = false, features = ["pkcs8"] }
+ecdsa = { version = "0.17.0-rc.10", default-features = false, features = ["alloc"] }
+ed25519-dalek = { version = "3.0.0-pre.4", default-features = false, features = ["pkcs8"] }
 getrandom = { version = "0.2", default-features = false, features = ["custom"] }
 hmac = { version = "0.13.0-rc.3", default-features = false }
-p256 = { version = "0.14.0-rc.1", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
-p384 = { version = "0.14.0-rc.1", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
+p256 = { version = "0.14.0-rc.2", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
+p384 = { version = "0.14.0-rc.2", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1", default-features = false }
 pkcs8 = { version = "0.11.0-rc.8", default-features = false, features = ["pem", "pkcs5"] }
 pki-types = { package = "rustls-pki-types", version = "1", default-features = false }
 rand_core = { version = "0.10.0-rc-3", default-features = false }
-rsa = { version = "0.10.0-rc.10", default-features = false, features = ["sha2", "encoding"] }
+rsa = { version = "0.10.0-rc.11", default-features = false, features = ["sha2", "encoding"] }
 rustls = { version = "0.23", default-features = false }
-sec1 = { version = "0.8.0-rc.10", default-features = false, features = ["pem"] }
+sec1 = { version = "0.8.0-rc.11", default-features = false, features = ["pem"] }
 sha2 = { version = "0.11.0-rc.3", default-features = false }
 signature = { version = "3.0.0-rc.6", default-features = false }
-x25519-dalek = { version = "3.0.0-pre.3", default-features = false }
+x25519-dalek = { version = "3.0.0-pre.4", default-features = false }
 
 [features]
 default = ["std", "tls12", "zeroize"]
