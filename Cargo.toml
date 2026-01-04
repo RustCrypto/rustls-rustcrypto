@@ -21,7 +21,7 @@ resolver = "1" # Hack to enable the `custom` feature of `getrandom`
 aead = { version = "0.6.0-rc.5", default-features = false }
 aes-gcm = { version = "0.11.0-rc.2", default-features = false, features = ["aes", "alloc"] }
 chacha20poly1305 = { version = "0.11.0-rc.2", default-features = false }
-crypto-common = { version = "0.2.0-rc.8", default-features = false }
+crypto-common = { version = "0.2.0-rc.9", default-features = false }
 der = { version = "0.8.0-rc.10", default-features = false }
 digest = { version = "0.11.0-rc.5", default-features = false }
 ecdsa = { version = "0.17.0-rc.11", default-features = false, features = ["alloc"] }
