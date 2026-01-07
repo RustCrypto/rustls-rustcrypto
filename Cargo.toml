@@ -48,12 +48,12 @@ x25519-dalek = { version = "3.0.0-pre.4", default-features = false, optional = t
 x448 = { version = "=0.14.0-pre.3", default-features = false, optional = true }
 
 # External groups
-pki-types = { package = "rustls-pki-types", version = "1.12.0", default-features = false }
+pki-types = { package = "rustls-pki-types", version = "1.13.2", default-features = false }
 rand_core = { version = "0.9.3", default-features = false, features = [
     "os_rng",
 ], optional = true }
-rustls = { version = "0.23.32", default-features = false }
-webpki = { package = "rustls-webpki", version = "0.103.6", default-features = false, optional = true }
+rustls = { version = "0.23.36", default-features = false }
+webpki = { package = "rustls-webpki", version = "0.103.8", default-features = false, optional = true }
 enum_dispatch = "0.3.13"
 tinyvec = { version = "1.10.0", default-features = false, optional = true }
 thiserror = { version = "2.0.17", default-features = false }
@@ -255,6 +255,6 @@ elliptic-curve = [
 ]
 gcm = []
 rand = ["dep:rand_core", "signature?/rand_core", "x25519-dalek?/getrandom"]
- signature = ["dep:signature"]
+signature = ["dep:signature"]
 x448 = ["dep:x448"]
 tinyvec = ["dep:tinyvec"]
