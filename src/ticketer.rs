@@ -10,7 +10,6 @@ use core::{fmt, time};
 
 use aead::{AeadInOut, KeyInit};
 use elliptic_curve::subtle::ConstantTimeEq;
-use rand_core::{OsRng, TryRngCore};
 use rustls::crypto::GetRandomFailed;
 use rustls::server::ProducesTickets;
 use rustls::{Error, ticketer::TicketRotator};

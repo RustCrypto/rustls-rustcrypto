@@ -213,7 +213,7 @@ impl MaskSample for chacha20::Key {
 
         let mut mask = [0u8; 5];
         chacha
-            .apply_keystream_b2b(&[0u8; 5], &mut mask)
+            .try_apply_keystream_b2b(&[0u8; 5], &mut mask)
             .map_err(QuicError::KeystreamFailed)?;
 
         Ok(mask)

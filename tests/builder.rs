@@ -5,7 +5,6 @@ use fake_cert_server_resolver::FakeServerCertResolver;
 use fake_time::FakeTime;
 use itertools::iproduct;
 use mem_socket::MemorySocket;
-use rand_core::{OsRng, TryRngCore};
 use rustls::crypto::CryptoProvider;
 use rustls::{
     ClientConfig as RusTlsClientConfig, RootCertStore, ServerConfig as RusTlsServerConfig,

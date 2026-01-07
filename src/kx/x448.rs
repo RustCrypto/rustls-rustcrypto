@@ -2,7 +2,6 @@
 use alloc::boxed::Box;
 
 use crypto::{SharedSecret, SupportedKxGroup};
-use rand_core::TryRngCore;
 use rustls::crypto::{self, ActiveKeyExchange};
 
 #[derive(Debug)]
