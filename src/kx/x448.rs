@@ -15,8 +15,8 @@ impl crypto::SupportedKxGroup for X448 {
 
     fn start(&self) -> Result<Box<dyn ActiveKeyExchange>, rustls::Error> {
         let mut priv_key = [0u8; 56];
-        rand_core::OsRng
-            .try_fill_bytes(&mut priv_key)
+        
+        getrandom::fill(&mut priv_key)
             .map_err(|_| rustls::Error::FailedToGetRandomBytes)?;
         let priv_key: x448::Secret = priv_key.into();
         let pub_key = x448::PublicKey::from(&priv_key);

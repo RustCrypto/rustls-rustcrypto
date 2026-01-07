@@ -57,6 +57,7 @@ webpki = { package = "rustls-webpki", version = "0.103.6", default-features = fa
 enum_dispatch = "0.3.13"
 tinyvec = { version = "1.10.0", default-features = false, optional = true }
 thiserror = { version = "2.0.17", default-features = false }
+getrandom = "0.3.4"
 
 [dev-dependencies]
 bytes = { version = "1.10.1", default-features = false }

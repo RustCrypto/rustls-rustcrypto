@@ -52,16 +52,12 @@ struct AeadTicketProducer {
 impl AeadTicketProducer {
     fn new() -> Result<Self, GetRandomFailed> {
         let mut key_bytes = [0u8; 32];
-        OsRng
-            .try_fill_bytes(&mut key_bytes)
-            .map_err(|_| GetRandomFailed)?;
+        getrandom::fill(&mut key_bytes).map_err(|_| GetRandomFailed)?;
 
         let key = ChaCha20Poly1305::new_from_slice(&key_bytes).map_err(|_| GetRandomFailed)?;
 
         let mut key_name = [0u8; 16];
-        OsRng
-            .try_fill_bytes(&mut key_name)
-            .map_err(|_| GetRandomFailed)?;
+        getrandom::fill(&mut key_name).map_err(|_| GetRandomFailed)?;
 
         Ok(Self {
             key,
@@ -86,7 +82,7 @@ impl ProducesTickets for AeadTicketProducer {
     fn encrypt(&self, message: &[u8]) -> Option<Vec<u8>> {
         // Random nonce, because a counter is a privacy leak.
         let mut nonce_buf = [0u8; 12];
-        OsRng.try_fill_bytes(&mut nonce_buf).ok()?;
+        getrandom::fill(&mut nonce_buf).ok()?;
         let nonce = nonce_buf.into();
 
         // ciphertext structure is:

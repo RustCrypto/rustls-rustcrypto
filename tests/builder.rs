@@ -80,7 +80,8 @@ fn test_basic_round_trip() {
             let (socket_c2s, socket_s2c) = MemorySocket::new_pair();
 
             let mut random_data: [u8; 64 * 1024] = [0; 64 * 1024];
-            OsRng.try_fill_bytes(&mut random_data).unwrap();
+            
+            getrandom::fill(&mut random_data).unwrap();
 
             std::thread::Builder::new()
                 .name(format!("{base_name}-server"))
