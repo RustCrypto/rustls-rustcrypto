@@ -1,4 +1,4 @@
-name: validate-local-openssl
+name: OpenSSL Local Comparison Tests
 
 defaults:
   run:
@@ -9,7 +9,7 @@ on:
     paths-ignore:
       - README.md
   push:
-    branches: master
+    branches: [master]
     paths-ignore:
       - README.md
 
@@ -29,9 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: RustCrypto/actions/cargo-cache@master
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: Swatinem/rust-cache@v2
       - name: Test against OpenSSL locally
         run: cargo test
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"

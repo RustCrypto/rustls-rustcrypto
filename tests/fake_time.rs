@@ -1,3 +1,5 @@
+use core::time::Duration;
+
 use rustls::pki_types::UnixTime;
 use rustls::time_provider::TimeProvider;
 
@@ -6,6 +8,6 @@ pub struct FakeTime;
 
 impl TimeProvider for FakeTime {
     fn current_time(&self) -> Option<UnixTime> {
-        None
+        Some(UnixTime::since_unix_epoch(Duration::ZERO))
     }
 }

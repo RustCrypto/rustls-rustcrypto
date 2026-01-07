@@ -1,0 +1,60 @@
+name: Rustls Real World Test
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'validation/rustls-real-socket-test/**'
+      - 'validation/quic-test/**'
+      - '.github/workflows/rustls-real-socket-test.yml'
+  pull_request:
+    paths:
+      - 'validation/rustls-real-socket-test/**'
+      - 'validation/quic-test/**'
+      - '.github/workflows/rustls-real-socket-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Setup SCCache
+      uses: mozilla-actions/sccache-action@v0.0.9
+
+    - name: Cache Cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: |
+          validation/rustls-real-socket-test
+          validation/quic-test
+
+    - name: Run in real socket test release mode
+      working-directory: validation/rustls-real-socket-test
+      run: cargo run --release
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
+
+    - name: Run in QUIC test release mode
+      working-directory: validation/quic-test
+      run: cargo run --release
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rustls-real-socket-test-release
+        path: |
+          validation/rustls-real-socket-test/target/release/
+        retention-days: 30

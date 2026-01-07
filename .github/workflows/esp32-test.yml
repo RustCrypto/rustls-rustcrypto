@@ -1,0 +1,74 @@
+name: ESP32 Test Build
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'validation/esp32-test/**'
+      - '.github/workflows/esp32-test.yml'
+  pull_request:
+    paths:
+      - 'validation/esp32-test/**'
+      - '.github/workflows/esp32-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      ESP_IDF_VERSION: v5.4.2
+      ESP_IDF_TOOLS_INSTALL_DIR: custom:/opt/esp
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Cache ESP-IDF
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.espressif
+          /opt/esp
+        key: ${{ runner.os }}-espidf-${{ env.ESP_IDF_VERSION }}-
+        restore-keys: |
+          ${{ runner.os }}-espidf-${{ env.ESP_IDF_VERSION }}-
+          ${{ runner.os }}-espidf-
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: nightly
+        components: rust-src
+        target: riscv32imac-unknown-none-elf
+    - name: Setup SCCache
+      uses: mozilla-actions/sccache-action@v0.0.9
+
+    - name: Cache Cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "validation/esp32-test"
+
+    - name: Setup ldproxy
+      uses: taiki-e/cache-cargo-install-action@v2
+      with:
+        tool: ldproxy
+
+    - name: Build ESP32 test
+      working-directory: validation/esp32-test
+      run: |
+        cargo build --release
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: esp32-test-build
+        path: |
+          validation/esp32-test/target/riscv32imac-esp-espidf/release/partition-table.bin
+          validation/esp32-test/target/riscv32imac-esp-espidf/release/esp32-test
+          validation/esp32-test/target/riscv32imac-esp-espidf/release/bootloader.bin
+        retention-days: 30

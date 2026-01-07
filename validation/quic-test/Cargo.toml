@@ -1,0 +1,29 @@
+[package]
+name = "quic-test"
+version = "0.1.0"
+authors = ["Steve Fan <29133953+stevefan1999-personal@users.noreply.github.com>"]
+edition = "2024"
+resolver = "2"
+rust-version = "1.88.0"
+
+[dependencies]
+rustls-rustcrypto = { path = "../..", default-features = false, features = [
+    "aead-full",
+    "der",
+    "fast",
+    "kx-p256",
+    "pkcs8",
+    "sign-ecdsa-p256",
+    "std",
+    "verify-ecdsa-p256-sha256",
+    "hash-sha384",
+    "quic"
+] }
+rustls = { version = "0.23.31", default-features = false, features = [
+    "std"
+] }
+anyhow = { version = "1.0", default-features = false }
+log = "0.4"
+env_logger = "0.11"
+tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros", "io-std"] }
+gm-quic = "0.3.0"

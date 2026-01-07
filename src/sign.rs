@@ -1,41 +1,33 @@
 #[cfg(feature = "alloc")]
-use alloc::{sync::Arc, vec::Vec};
+use alloc::{string::ToString, sync::Arc, vec::Vec};
 use core::marker::PhantomData;
-
-use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
-use self::eddsa::Ed25519SigningKey;
-use self::rsa::RsaSigningKey;
 
 use pki_types::PrivateKeyDer;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{Error, SignatureScheme};
-use signature::{RandomizedSigner, SignatureEncoding};
+use signature::SignatureEncoding;
 
-#[derive(Debug)]
-pub struct GenericRandomizedSigner<S, T>
-where
-    S: SignatureEncoding,
-    T: RandomizedSigner<S>,
-{
-    _marker: PhantomData<S>,
-    key: Arc<T>,
-    scheme: SignatureScheme,
+/// Errors that can occur in the signing module
+#[derive(Debug, thiserror::Error)]
+pub enum SignError {
+    /// Signing operation failed
+    #[error("signing failed: {0}")]
+    SigningFailed(signature::Error),
+
+    /// Key type not supported
+    #[error("key type not supported")]
+    NotSupported,
 }
 
-impl<T, S> Signer for GenericRandomizedSigner<S, T>
-where
-    S: SignatureEncoding + Send + Sync + core::fmt::Debug,
-    T: RandomizedSigner<S> + Send + Sync + core::fmt::Debug,
-{
-    fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
-        self.key
-            .try_sign_with_rng(&mut rand_core::OsRng, message)
-            .map_err(|_| rustls::Error::General("signing failed".into()))
-            .map(|sig: S| sig.to_vec())
+impl From<signature::Error> for SignError {
+    fn from(e: signature::Error) -> Self {
+        Self::SigningFailed(e)
     }
+}
 
-    fn scheme(&self) -> SignatureScheme {
-        self.scheme
+impl From<SignError> for rustls::Error {
+    fn from(e: SignError) -> Self {
+        rustls::Error::General(e.to_string())
     }
 }
 
@@ -58,8 +50,9 @@ where
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
         self.key
             .try_sign(message)
-            .map_err(|_| rustls::Error::General("signing failed".into()))
+            .map_err(SignError::SigningFailed)
             .map(|sig: S| sig.to_vec())
+            .map_err(Into::into)
     }
 
     fn scheme(&self) -> SignatureScheme {
@@ -72,11 +65,24 @@ where
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
-pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    RsaSigningKey::try_from(der)
-        .map(|x| Arc::new(x) as _)
-        .or_else(|_| any_ecdsa_type(der))
-        .or_else(|_| any_eddsa_type(der))
+#[allow(unused_variables)]
+pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, SignError> {
+    #[cfg(feature = "sign-rsa")]
+    if let Ok(key) = rsa::RsaSigningKey::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+
+    #[cfg(feature = "sign-ecdsa-nist")]
+    if let Ok(key) = any_ecdsa_type(der) {
+        return Ok(key);
+    }
+
+    #[cfg(feature = "sign-eddsa")]
+    if let Ok(key) = any_eddsa_type(der) {
+        return Ok(key);
+    }
+
+    Err(SignError::NotSupported)
 }
 
 /// Extract any supported ECDSA key from the given DER input.
@@ -84,10 +90,19 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
-pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    let p256 = |_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _);
-    let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
-    p256(()).or_else(p384)
+#[allow(unused_variables)]
+#[cfg(feature = "sign-ecdsa-nist")]
+pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, SignError> {
+    #[cfg(all(feature = "der", feature = "ecdsa-p256"))]
+    if let Ok(key) = ecdsa::nist::EcdsaSigningKeyP256::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+    #[cfg(all(feature = "der", feature = "ecdsa-p384"))]
+    if let Ok(key) = ecdsa::nist::EcdsaSigningKeyP384::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+
+    Err(SignError::NotSupported)
 }
 
 /// Extract any supported EDDSA key from the given DER input.
@@ -95,11 +110,28 @@ pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, ru
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
-pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    // TODO: Add support for Ed448
-    Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _)
+#[allow(unused_variables)]
+#[cfg(feature = "sign-eddsa")]
+pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, SignError> {
+    #[cfg(all(feature = "der", feature = "eddsa-ed25519"))]
+    if let Ok(key) = eddsa::ed25519::Ed25519SigningKey::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+
+    #[cfg(all(feature = "der", feature = "eddsa-ed448"))]
+    if let Ok(key) = eddsa::ed448::Ed448SigningKey::try_from(der) {
+        return Ok(Arc::new(key) as _);
+    }
+
+    Err(SignError::NotSupported)
 }
 
+#[cfg(feature = "ecdsa")]
 pub mod ecdsa;
+#[cfg(feature = "eddsa")]
 pub mod eddsa;
+#[cfg(feature = "rsa")]
 pub mod rsa;
+
+#[cfg(feature = "rand")]
+pub mod rand;

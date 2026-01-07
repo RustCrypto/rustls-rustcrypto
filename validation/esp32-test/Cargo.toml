@@ -1,0 +1,52 @@
+[package]
+name = "esp32-test"
+version = "0.1.0"
+authors = ["Steve Fan <29133953+stevefan1999-personal@users.noreply.github.com>"]
+edition = "2024"
+resolver = "2"
+rust-version = "1.88.0"
+
+[[bin]]
+name = "esp32-test"
+harness = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true    # Symbols are nice and they don't increase the size on Flash
+opt-level = "z"
+
+[features]
+default = []
+
+experimental = ["esp-idf-svc/experimental"]
+
+[dependencies]
+anyhow = { version = "1.0", default-features = false }
+esp-idf-svc = "0.51"
+log = "0.4"
+rustls = { version = "0.23.31", default-features = false, features = [
+    "std"
+] }
+rustls-rustcrypto = { version = "0.0.2-alpha", path = "../..", default-features = false, features = ["aead-chacha20poly1305", "alloc", "der", "ecdsa-p256", "fast", "kx-p256", "pkcs8", "sign-ecdsa-p256", "tls12", "verify-ecdsa-p256", "verify-ecdsa-p256-sha256"] }
+
+# --- Optional Embassy Integration ---
+# esp-idf-svc = { version = "0.51", features = ["critical-section", "embassy-time-driver", "embassy-sync"] }
+
+# If you enable embassy-time-driver, you MUST also add one of:
+
+# a) Standalone Embassy libs ( embassy-time, embassy-sync etc) with a foreign async runtime:
+# embassy-time = { version = "0.4.0", features = ["generic-queue-8"] } # NOTE: any generic-queue variant will work
+
+# b) With embassy-executor:
+# embassy-executor = { version = "0.7", features = ["executor-thread", "arch-std"] }
+
+# NOTE: if you use embassy-time with embassy-executor you don't need the generic-queue-8 feature
+
+# --- Temporary workaround for embassy-executor < 0.8 ---
+# esp-idf-svc = { version = "0.51", features = ["embassy-time-driver", "embassy-sync"] }
+# critical-section = { version = "1.1", features = ["std"], default-features = false }
+
+[build-dependencies]
+embuild = "0.33"

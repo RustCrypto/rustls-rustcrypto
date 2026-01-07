@@ -1,11 +1,11 @@
-name: rustls-rustcrypto
+name: Unit Tests
 
 on:
   pull_request:
     paths-ignore:
       - README.md
   push:
-    branches: master
+    branches: [master]
     paths-ignore:
       - README.md
 
@@ -13,7 +13,6 @@ permissions:
   contents: read
 
 env:
-  CARGO_INCREMENTAL: 0
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
@@ -23,9 +22,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.75.0
+          toolchain: 1.88.0
           components: clippy
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --all --all-features -- -D warnings
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
   doc:
     runs-on: ubuntu-latest
@@ -34,7 +38,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: Swatinem/rust-cache@v2
       - run: cargo doc --all-features --no-deps
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -50,53 +59,98 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust:
-          - 1.75.0 # MSRV
-          - stable
-        target:
-          - armv7a-none-eabi
-          - thumbv7em-none-eabi
-          - wasm32-unknown-unknown
+        include:
+          - rust: 1.88.0
+            target: armv7a-none-eabi
+          - rust: stable
+            target: armv7a-none-eabi
+          - rust: 1.88.0
+            target: thumbv7em-none-eabi
+          - rust: stable
+            target: thumbv7em-none-eabi
+          - rust: 1.88.0
+            target: wasm32-unknown-unknown
+          - rust: stable
+            target: wasm32-unknown-unknown
+          - rust: 1.88.0
+            target: riscv32imac-unknown-none-elf
+          - rust: stable
+            target: riscv32imac-unknown-none-elf
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
-      - run: cargo build --no-default-features --features tls12,alloc --release --target ${{ matrix.target }}
-
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - run: cargo build --no-default-features --features tls12,full,alloc --release --target ${{ matrix.target }}
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
+          RUSTFLAGS: --cfg getrandom_backend="custom"
   test:
     strategy:
       matrix:
         toolchain:
-          - 1.75.0 # MSRV
+          - 1.88.0 # MSRV
           - stable
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: RustCrypto/actions/cargo-cache@master
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.toolchain }}
       - run: cargo test --features tls12
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
       - name: Test no_std with alloc
-        run: cargo test --no-default-features --features tls12,alloc
+        run: cargo test --no-default-features --features tls12,full,alloc
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
   cross:
     strategy:
       matrix:
         include:
           - target: powerpc-unknown-linux-gnu
-            rust: 1.75.0 # MSRV
+            rust: 1.88.0 # MSRV
           - target: powerpc-unknown-linux-gnu
+            rust: stable
+          - target: aarch64-unknown-linux-gnu
+            rust: 1.88.0
+          - target: aarch64-unknown-linux-gnu
+            rust: stable
+          - target: armv7-unknown-linux-gnueabihf
+            rust: 1.88.0
+          - target: armv7-unknown-linux-gnueabihf
+            rust: stable
+          - target: riscv64gc-unknown-linux-gnu
+            rust: 1.88.0
+          - target: riscv64gc-unknown-linux-gnu
             rust: stable
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ${{ matrix.deps }}
-      - uses: dtolnay/rust-toolchain@master
+      - name: Cross-compile library
+        uses: houseabsolute/actions-rust-cross@v1
         with:
+          command: build
+          target: ${{ matrix.target }}
           toolchain: ${{ matrix.rust }}
-          targets: ${{ matrix.target }}
-      - uses: RustCrypto/actions/cross-install@master
-      - run: cross test --release --target ${{ matrix.target }} --all-features
+          args: "--release --all-features"
+      - name: Cross-test library
+        uses: houseabsolute/actions-rust-cross@v1
+        with:
+          command: test
+          target: ${{ matrix.target }}
+          toolchain: ${{ matrix.rust }}
+          args: "--release --all-features"
