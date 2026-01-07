@@ -1,83 +1,164 @@
-use std::sync::Arc;
+use std::io::{Read, Write};
+use std::sync::{Arc, OnceLock};
 
-use rustls::ClientConfig as RusTlsClientConfig;
-use rustls::ServerConfig as RusTlsServerConfig;
-
-use rustls_rustcrypto::provider as rustcrypto_provider;
-
-mod fake_time;
+use fake_cert_server_resolver::FakeServerCertResolver;
 use fake_time::FakeTime;
-
-mod fake_cert_server_verifier;
-use fake_cert_server_verifier::FakeServerCertVerifier;
-
-mod fake_cert_client_verifier;
-use fake_cert_client_verifier::FakeClientCertVerifier;
+use itertools::iproduct;
+use mem_socket::MemorySocket;
+use rustls::crypto::CryptoProvider;
+use rustls::{
+    ClientConfig as RusTlsClientConfig, RootCertStore, ServerConfig as RusTlsServerConfig,
+};
+use rustls_rustcrypto::{Provider, provider as rustcrypto_provider, verify};
 
 mod fake_cert_server_resolver;
-use fake_cert_server_resolver::FakeServerCertResolver;
+mod fake_time;
+
+static SERVER_RESOLVER: OnceLock<Arc<FakeServerCertResolver>> = OnceLock::new();
+
+fn make_client_config(provider: CryptoProvider) -> RusTlsClientConfig {
+    let resolver = SERVER_RESOLVER.get_or_init(|| Arc::new(FakeServerCertResolver::new()));
+    let mut store = RootCertStore::empty();
+
+    store.add(resolver.rsa_root_cert()).unwrap();
+    store.add(resolver.ecdsa_root_cert()).unwrap();
+
+    RusTlsClientConfig::builder_with_details(Arc::new(provider), Arc::new(FakeTime {}))
+        .with_safe_default_protocol_versions()
+        .expect("Default protocol versions error?")
+        .with_root_certificates(store)
+        // .dangerous()
+        // .with_custom_certificate_verifier(Arc::new(FakeServerCertVerifier {}))
+        .with_no_client_auth()
+}
+
+fn make_server_config(provider: CryptoProvider) -> RusTlsServerConfig {
+    let resolver = SERVER_RESOLVER
+        .get_or_init(|| Arc::new(FakeServerCertResolver::new()))
+        .clone();
+    RusTlsServerConfig::builder_with_details(Arc::new(provider), Arc::new(FakeTime {}))
+        .with_safe_default_protocol_versions()
+        .expect("Default protocol versions error?")
+        .with_no_client_auth()
+        .with_cert_resolver(resolver)
+}
 
 // Test integration between rustls and rustls in Client builder context
 #[test]
 fn integrate_client_builder_with_details_fake() {
-    let provider = rustcrypto_provider();
-    let time_provider = FakeTime {};
-
-    let fake_server_cert_verifier = FakeServerCertVerifier {};
-
-    let builder_init =
-        RusTlsClientConfig::builder_with_details(Arc::new(provider), Arc::new(time_provider));
-
-    let builder_default_versions = builder_init
-        .with_safe_default_protocol_versions()
-        .expect("Default protocol versions error?");
-
-    let dangerous_verifier = builder_default_versions
-        .dangerous()
-        .with_custom_certificate_verifier(Arc::new(fake_server_cert_verifier));
-
     // Out of scope
-    let rustls_client_config = dangerous_verifier.with_no_client_auth();
+    let rustls_client_config = make_client_config(rustcrypto_provider());
 
     // RustCrypto is not fips
     assert!(!rustls_client_config.fips());
 }
-
-use rustls::DistinguishedName;
 
 // Test integration between rustls and rustls in Server builder context
 #[test]
 fn integrate_server_builder_with_details_fake() {
-    let provider = rustcrypto_provider();
-    let time_provider = FakeTime {};
-
-    let builder_init =
-        RusTlsServerConfig::builder_with_details(Arc::new(provider), Arc::new(time_provider));
-
-    let builder_default_versions = builder_init
-        .with_safe_default_protocol_versions()
-        .expect("Default protocol versions error?");
-
-    // A DistinguishedName is a Vec<u8> wrapped in internal types.
-    // DER or BER encoded Subject field from RFC 5280 for a single certificate.
-    // The Subject field is encoded as an RFC 5280 Name
-    //let b_wrap_in: &[u8] = b""; // TODO: should have constant somewhere
-
-    let dummy_entry: &[u8] = b"";
-
-    let client_dn = [DistinguishedName::in_sequence(dummy_entry)];
-
-    let client_cert_verifier = FakeClientCertVerifier { dn: client_dn };
-
-    let dangerous_verifier =
-        builder_default_versions.with_client_cert_verifier(Arc::new(client_cert_verifier));
-
-    let server_cert_resolver = FakeServerCertResolver {};
-
-    // Out of scope
-    let rustls_client_config =
-        dangerous_verifier.with_cert_resolver(Arc::new(server_cert_resolver));
+    let rustls_server_config = make_server_config(rustcrypto_provider());
 
     // RustCrypto is not fips
-    assert!(!rustls_client_config.fips());
+    assert!(!rustls_server_config.fips());
 }
+
+const CLIENT_MAGIC: &[u8; 18] = b"Hello from Client!";
+const SERVER_MAGIC: &[u8; 18] = b"Hello from Server!";
+
+// Test integration
+#[test]
+fn test_basic_round_trip() {
+    std::thread::scope(move |s| {
+        for provider in generate_providers() {
+            let base_name = format!(
+                "{:?}-{:?}",
+                provider.cipher_suites[0], provider.kx_groups[0]
+            );
+            println!("Testing with {base_name}");
+            // Creates a pair of sockets that interconnect from client to server, and server to client
+            let (socket_c2s, socket_s2c) = MemorySocket::new_pair();
+
+            let mut random_data: [u8; 64 * 1024] = [0; 64 * 1024];
+            
+            getrandom::fill(&mut random_data).unwrap();
+
+            std::thread::Builder::new()
+                .name(format!("{base_name}-server"))
+                .spawn_scoped(s, {
+                    let provider: CryptoProvider = provider.clone();
+                    move || {
+                        let config = Arc::new(make_server_config(provider));
+                        let mut stream = socket_s2c;
+                        let mut conn = rustls::ServerConnection::new(config.clone())
+                            .expect("failed to create server config");
+
+                        let mut tls = rustls::Stream::new(&mut conn, &mut stream);
+
+                        {
+                            let mut buf = [0; CLIENT_MAGIC.len()];
+                            tls.read_exact(&mut buf).unwrap();
+                            assert_eq!(&buf, CLIENT_MAGIC);
+                        }
+
+                        tls.write_all(SERVER_MAGIC)
+                            .expect("failed to write to client");
+                        tls.write_all(&random_data)
+                            .expect("failed to write random data to client");
+                        tls.conn.send_close_notify();
+                        tls.flush().expect("failed to flush connection");
+                    }
+                })
+                .unwrap();
+
+            std::thread::Builder::new()
+                .name(format!("{base_name}-client"))
+                .spawn_scoped(s, move || {
+                    let mut sock = socket_c2s;
+                    let server_name = "acme.com".try_into().expect("failed to get server name");
+                    let mut conn = rustls::ClientConnection::new(
+                        Arc::new(make_client_config(provider)),
+                        server_name,
+                    )
+                    .expect("failed to create client config");
+                    let mut tls = rustls::Stream::new(&mut conn, &mut sock);
+                    tls.write_all(CLIENT_MAGIC)
+                        .expect("failed to write to server");
+
+                    {
+                        let mut buf = [0; SERVER_MAGIC.len()];
+                        tls.read_exact(&mut buf)
+                            .expect("failed to read from server");
+                        assert_eq!(&buf, SERVER_MAGIC);
+                    }
+
+                    {
+                        let mut plaintext = Vec::new();
+                        tls.write_all(&random_data)
+                            .expect("failed to write random data to server");
+                        tls.read_to_end(&mut plaintext)
+                            .expect("failed to read from server");
+                        assert_eq!(plaintext, random_data);
+                    }
+                })
+                .unwrap();
+        }
+    });
+}
+
+fn generate_providers() -> impl Iterator<Item = CryptoProvider> {
+    let CryptoProvider {
+        cipher_suites,
+        kx_groups,
+        ..
+    } = rustcrypto_provider();
+
+    iproduct!(cipher_suites, kx_groups).map(|(cipher_suite, kx_group)| CryptoProvider {
+        cipher_suites: vec![cipher_suite],
+        kx_groups: vec![kx_group],
+        signature_verification_algorithms: verify::ALGORITHMS,
+        secure_random: &Provider,
+        key_provider: &Provider,
+    })
+}
+
+mod mem_socket;
