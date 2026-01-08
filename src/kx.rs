@@ -2,6 +2,7 @@
 use alloc::boxed::Box;
 
 use crypto::{SharedSecret, SupportedKxGroup};
+use crypto_common::Generate;
 use paste::paste;
 use rustls::crypto;
 
@@ -60,7 +61,7 @@ macro_rules! impl_kx {
                 }
 
                 fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::Error> {
-                    let priv_key = <$secret>::try_from_rng(&mut crate::misc::TinyRng).map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
+                    let priv_key = <$secret>::try_generate_from_rng(&mut crate::misc::TinyRng).map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
                     let pub_key: $public_key = (&priv_key).into();
                     Ok(Box::new([<$name KeyExchange>] {
                         priv_key,
