@@ -733,7 +733,6 @@ dependencies = [
  "rsa",
  "rustls",
  "rustls-pki-types",
- "sec1",
  "sha2",
  "signature",
  "x25519-dalek",

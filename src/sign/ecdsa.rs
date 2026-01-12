@@ -2,7 +2,6 @@
 use alloc::{boxed::Box, format, sync::Arc};
 use core::marker::PhantomData;
 
-use der::asn1::ObjectIdentifier;
 use paste::paste;
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
@@ -26,30 +25,7 @@ macro_rules! impl_ecdsa {
                         PrivateKeyDer::Pkcs8(der) => {
                             $signing_key::from_pkcs8_der(der.secret_pkcs8_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
                         },
-                        PrivateKeyDer::Sec1(sec1) => {
-                            // Parse SEC1 ECPrivateKey and extract the private key octets
-                            let res = sec1::EcPrivateKey::try_from(sec1.secret_sec1_der())
-                                .map_err(|e| format!("failed to parse SEC1 private key: {e}"))
-                                .and_then(|ec| {
-                                    // If parameters are present, ensure the named curve OID matches the expected curve
-                                    if let Some(params) = ec.parameters {
-                                        if let Some(oid) = params.named_curve() {
-                                            let expected_oid = if stringify!($name) == "P256" {
-                                                ObjectIdentifier::new_unwrap("1.2.840.10045.3.1.7")
-                                            } else {
-                                                ObjectIdentifier::new_unwrap("1.3.132.0.34")
-                                            };
-                                            if oid != expected_oid {
-                                                return Err("not a supported curve".into());
-                                            }
-                                        }
-                                    }
-
-                                    // Construct signing key from the raw private octets
-                                    $signing_key::from_slice(ec.private_key).map_err(|e| format!("failed to parse EC secret: {e}"))
-                                });
-                            res
-                        },
+                        PrivateKeyDer::Sec1(_) => Err(format!("ECDSA does not support SEC1 key")),
                         PrivateKeyDer::Pkcs1(_) => Err(format!("ECDSA does not support PKCS#1 key")),
                         _ => Err("not supported".into()),
                     };
