@@ -31,7 +31,7 @@ hmac = { version = "0.13.0-rc.3", default-features = false }
 p256 = { version = "0.14.0-rc.4", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 p384 = { version = "0.14.0-rc.4", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1", default-features = false }
-pkcs8 = { version = "0.11.0-rc.8", default-features = false, features = ["pem", "pkcs5"] }
+pkcs8 = { version = "0.11.0-rc.8", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1", default-features = false }
 rand_core = { version = "0.10.0-rc-3", default-features = false }
 rsa = { version = "0.10.0-rc.12", default-features = false, features = ["sha2", "encoding"] }
