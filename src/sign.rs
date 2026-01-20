@@ -7,6 +7,7 @@ use self::eddsa::Ed25519SigningKey;
 use self::rsa::RsaSigningKey;
 
 use pki_types::PrivateKeyDer;
+use rand::TryRngCore;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{Error, SignatureScheme};
 use signature::{RandomizedSigner, SignatureEncoding};
@@ -28,8 +29,9 @@ where
     T: RandomizedSigner<S> + Send + Sync + core::fmt::Debug,
 {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
+        let mut rng = rand::rngs::SysRng.unwrap_err();
         self.key
-            .try_sign_with_rng(&mut crate::misc::TinyRng, message)
+            .try_sign_with_rng(&mut rng, message)
             .map_err(|_| rustls::Error::General("signing failed".into()))
             .map(|sig: S| sig.to_vec())
     }

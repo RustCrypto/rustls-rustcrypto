@@ -41,6 +41,7 @@ extern crate alloc;
 #[cfg(feature = "alloc")]
 use alloc::sync::Arc;
 
+use rand::TryRngCore;
 use rustls::crypto::{
     CipherSuiteCommon, CryptoProvider, GetRandomFailed, KeyProvider, SecureRandom,
 };
@@ -64,7 +65,8 @@ pub fn provider() -> CryptoProvider {
 
 impl SecureRandom for Provider {
     fn fill(&self, bytes: &mut [u8]) -> Result<(), GetRandomFailed> {
-        getrandom::getrandom(bytes).map_err(|_| GetRandomFailed)
+        let mut rng = rand::rngs::SysRng.unwrap_err();
+        rng.try_fill_bytes(bytes).map_err(|_| GetRandomFailed)
     }
 }
 

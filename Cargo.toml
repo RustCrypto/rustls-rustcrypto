@@ -26,14 +26,13 @@ der = { version = "0.8.0-rc.10", default-features = false }
 digest = { version = "0.11.0-rc.5", default-features = false }
 ecdsa = { version = "0.17.0-rc.12", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "3.0.0-pre.4", default-features = false, features = ["pkcs8"] }
-getrandom = { version = "0.2", default-features = false, features = ["custom"] }
 hmac = { version = "0.13.0-rc.3", default-features = false }
 p256 = { version = "0.14.0-rc.4", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 p384 = { version = "0.14.0-rc.4", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1", default-features = false }
 pkcs8 = { version = "0.11.0-rc.8", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1", default-features = false }
-rand_core = { version = "0.10.0-rc-3", default-features = false }
+rand = { version = "=0.10.0-rc.6", default-features = false, features = ["sys_rng"] }
 rsa = { version = "0.10.0-rc.12", default-features = false, features = ["sha2", "encoding"] }
 rustls = { version = "0.23", default-features = false }
 sha2 = { version = "0.11.0-rc.3", default-features = false }
