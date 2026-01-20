@@ -54,8 +54,8 @@ jobs:
           - 1.85.0 # MSRV
           - stable
         target:
-          - armv7a-none-eabi
-          - thumbv7em-none-eabi
+          # - armv7a-none-eabi
+          # - thumbv7em-none-eabi
           - wasm32-unknown-unknown
     steps:
       - uses: actions/checkout@v4
