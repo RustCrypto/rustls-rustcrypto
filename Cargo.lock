@@ -567,16 +567,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f"
 
 [[package]]
-name = "rand"
-version = "0.10.0-rc.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bccc05ac8fad6ee391f3cc6725171817eed960345e2fb42ad229d486c1ca2d98"
-dependencies = [
- "getrandom 0.4.0-rc.0",
- "rand_core",
-]
-
-[[package]]
 name = "rand_core"
 version = "0.10.0-rc-3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -696,7 +686,6 @@ dependencies = [
  "p384",
  "paste",
  "pkcs8",
- "rand",
  "rsa",
  "rustls",
  "rustls-pki-types",
