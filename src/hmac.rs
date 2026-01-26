@@ -2,7 +2,7 @@
 use alloc::boxed::Box;
 
 use crypto_common::OutputSizeUser;
-use hmac::Mac;
+use hmac::{KeyInit, Mac};
 use paste::paste;
 use rustls::crypto;
 use sha2::{Sha256, Sha384};

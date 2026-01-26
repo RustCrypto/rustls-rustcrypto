@@ -6,7 +6,6 @@ use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{SignatureAlgorithm, SignatureScheme};
-use sec1::DecodeEcPrivateKey;
 
 #[derive(Debug)]
 pub struct Ed25519SigningKey {
@@ -23,11 +22,8 @@ impl TryFrom<&PrivateKeyDer<'_>> for Ed25519SigningKey {
                 ed25519_dalek::SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
                     .map_err(|e| format!("failed to decrypt private key: {e}"))
             }
-            PrivateKeyDer::Sec1(sec1) => {
-                ed25519_dalek::SigningKey::from_sec1_der(sec1.secret_sec1_der())
-                    .map_err(|e| format!("failed to decrypt private key: {e}"))
-            }
             PrivateKeyDer::Pkcs1(_) => Err("ED25519 does not support PKCS#1 key".to_string()),
+            PrivateKeyDer::Sec1(_) => Err("ED25519 does not support SEC1 key".to_string()),
             _ => Err("not supported".into()),
         };
         pkey.map(|kp| Self {

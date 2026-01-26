@@ -6,7 +6,11 @@ macro_rules! const_concat_slices {
         const __LEN: usize = A.len() + B.len();
         const __CONCATENATED: &[$ty; __LEN] = &{
             let mut out: [$ty; __LEN] = if __LEN == 0 {
-                unsafe { core::mem::transmute([0u8; core::mem::size_of::<$ty>() * __LEN]) }
+                unsafe {
+                    core::mem::transmute::<[u8; core::mem::size_of::<$ty>() * __LEN], [$ty; __LEN]>(
+                        [0u8; core::mem::size_of::<$ty>() * __LEN],
+                    )
+                }
             } else if A.len() == 0 {
                 [B[0]; __LEN]
             } else {
