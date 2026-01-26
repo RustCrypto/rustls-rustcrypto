@@ -2,6 +2,7 @@
 use alloc::{boxed::Box, format, sync::Arc};
 use core::marker::PhantomData;
 
+use der::Decode;
 use paste::paste;
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
@@ -26,7 +27,14 @@ macro_rules! impl_ecdsa {
                             $signing_key::from_pkcs8_der(der.secret_pkcs8_der()).map_err(|e| format!("failed to decrypt private key: {e}"))
                         },
                         PrivateKeyDer::Pkcs1(_) => Err(format!("ECDSA does not support PKCS#1 key")),
-                        PrivateKeyDer::Sec1(_) => Err(format!("ECDSA does not support SEC1 key")),
+                        PrivateKeyDer::Sec1(der) => {
+                            sec1::EcPrivateKey::from_der(der.secret_sec1_der())
+                                .map_err(|e| format!("failed to parse SEC1 EC private key: {e}"))
+                                .and_then(|ec_key| {
+                                    $signing_key::from_slice(ec_key.private_key)
+                                        .map_err(|e| format!("failed to create signing key: {e}"))
+                                })
+                        },
                         _ => Err("not supported".into()),
                     };
                     pkey.map(|kp| {
