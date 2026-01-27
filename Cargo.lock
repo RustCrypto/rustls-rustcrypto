@@ -275,9 +275,9 @@ dependencies = [
 
 [[package]]
 name = "ed25519"
-version = "3.0.0-rc.2"
+version = "3.0.0-rc.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "594435fe09e345ee388e4e8422072ff7dfeca8729389fbd997b3f5504c44cd47"
+checksum = "3d058004dae83c9cf58f3d81612d0296bbf0a52dd7d7b6afa30ab7228bb6119f"
 dependencies = [
  "pkcs8",
  "signature",
@@ -580,9 +580,9 @@ dependencies = [
 
 [[package]]
 name = "polyval"
-version = "0.7.0-rc.4"
+version = "0.7.0-rc.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d5104542958eebb462a4d4b5acbf7756da05448b72fb7d222199bd1eda42a46"
+checksum = "1eff2e02b6aa279c03761b66180f0b40c1027f8c6382de5251fa5a5ceb6a801c"
 dependencies = [
  "cpubits",
  "cpufeatures",
@@ -654,9 +654,9 @@ checksum = "70765ff7112b0fb2d272d24d9a2f907fc206211304328fe58b2db15a5649ef28"
 
 [[package]]
 name = "rfc6979"
-version = "0.5.0-rc.3"
+version = "0.5.0-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63b8e2323084c987a72875b2fd682b7307d5cf14d47e3875bb5e89948e8809d4"
+checksum = "4a478f26ee9327bce006ff44c03e9a80dba5cedfba171d37c03ca3669e70d461"
 dependencies = [
  "hmac",
  "subtle",
