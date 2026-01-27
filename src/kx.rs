@@ -4,7 +4,7 @@ use alloc::boxed::Box;
 use crypto::{SharedSecret, SupportedKxGroup};
 use crypto_common::Generate;
 use getrandom::rand_core::UnwrapErr;
-use paste::paste;
+use pastey::paste;
 use rustls::crypto;
 
 #[derive(Debug)]

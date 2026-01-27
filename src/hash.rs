@@ -2,7 +2,7 @@
 use alloc::boxed::Box;
 
 use digest::{Digest, OutputSizeUser};
-use paste::paste;
+use pastey::paste;
 use rustls::crypto::{self, hash};
 use sha2::{Sha256, Sha384};
 

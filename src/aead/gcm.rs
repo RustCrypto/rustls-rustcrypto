@@ -5,7 +5,7 @@ use super::{DecryptBufferAdapter, EncryptBufferAdapter};
 
 use aead::AeadInOut;
 use crypto_common::{KeyInit, KeySizeUser};
-use paste::paste;
+use pastey::paste;
 use rustls::crypto::cipher::{
     self, AeadKey, InboundOpaqueMessage, InboundPlainMessage, MessageDecrypter, MessageEncrypter,
     OutboundOpaqueMessage, OutboundPlainMessage, PrefixedPayload, Tls13AeadAlgorithm,

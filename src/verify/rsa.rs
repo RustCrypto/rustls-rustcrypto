@@ -1,4 +1,4 @@
-use paste::paste;
+use pastey::paste;
 use pki_types::{alg_id, AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
 use rsa::pkcs1::DecodeRsaPublicKey;
 use rsa::{pkcs1v15, pss, RsaPublicKey};
