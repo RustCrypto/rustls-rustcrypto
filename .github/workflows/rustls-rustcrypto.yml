@@ -56,6 +56,7 @@ jobs:
         target:
           - armv7a-none-eabi # Actually requires a custom backend
           - thumbv7em-none-eabi # Actually requires a custom backend
+          - wasm32-unknown-unknown # Actually requires a wasm_js feature
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -65,23 +66,6 @@ jobs:
       - env:
           RUSTFLAGS: --cfg getrandom_backend="unsupported"
         run: cargo build --no-default-features --features tls12,alloc --release --target ${{ matrix.target }}
-
-  wasm_js:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - 1.85.0 # MSRV
-          - stable
-        target:
-          - wasm32-unknown-unknown
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.rust }}
-          targets: ${{ matrix.target }}
-      - run: cargo build --no-default-features --features tls12,alloc,wasm_js --release --target ${{ matrix.target }}
 
   test:
     strategy:
