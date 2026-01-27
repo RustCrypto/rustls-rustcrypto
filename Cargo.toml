@@ -40,9 +40,6 @@ sha2 = { version = "=0.11.0-rc.4", default-features = false }
 signature = { version = "3.0.0-rc.9", default-features = false }
 x25519-dalek = { version = "3.0.0-pre.5", default-features = false }
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "=0.4.0-rc.1", default-features = false, features = ["wasm_js"] }
-
 [features]
 default = ["std", "tls12", "zeroize"]
 logging = ["rustls/logging"]
