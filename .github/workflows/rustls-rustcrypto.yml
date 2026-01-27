@@ -81,7 +81,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
-      - run: cargo build --no-default-features --features tls12,alloc --release --target ${{ matrix.target }}
+      - run: cargo build --no-default-features --features tls12,alloc,wasm_js --release --target ${{ matrix.target }}
 
   test:
     strategy:
