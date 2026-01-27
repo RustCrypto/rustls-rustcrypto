@@ -54,9 +54,9 @@ jobs:
           - 1.85.0 # MSRV
           - stable
         target:
-          - armv7a-none-eabi # Actually requires a custom backend
-          - thumbv7em-none-eabi # Actually requires a custom backend
-          - wasm32-unknown-unknown # Actually requires a wasm_js feature
+          - armv7a-none-eabi
+          - thumbv7em-none-eabi
+          - wasm32-unknown-unknown
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
