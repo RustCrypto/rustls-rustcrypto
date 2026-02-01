@@ -18,12 +18,12 @@ resolver = "1" # Hack to enable the `custom` feature of `getrandom`
 # Ensure all dependencies + feats are mapped to crate features for correct usage
 # default features often have std breaking no_std and potentially other unwanted
 [dependencies]
-aead = { version = "=0.6.0-rc.8", default-features = false }
+aead = { version = "=0.6.0-rc.9", default-features = false }
 aes-gcm = { version = "=0.11.0-rc.2", default-features = false, features = ["aes", "alloc"] }
 chacha20poly1305 = { version = "=0.11.0-rc.2", default-features = false }
-crypto-common = { version = "=0.2.0-rc.13", default-features = false }
+crypto-common = { version = "=0.2.0-rc.14", default-features = false }
 der = { version = "=0.8.0-rc.10", default-features = false }
-digest = { version = "=0.11.0-rc.9", default-features = false }
+digest = { version = "=0.11.0-rc.10", default-features = false }
 ecdsa = { version = "=0.17.0-rc.14", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "3.0.0-pre.5", default-features = false, features = ["pkcs8"] }
 hmac = { version = "=0.13.0-rc.4", default-features = false }
@@ -37,7 +37,7 @@ rsa = { version = "=0.10.0-rc.14", default-features = false, features = ["sha2",
 rustls = { version = "0.23", default-features = false }
 sec1 = { version = "=0.8.0-rc.13", default-features = false }
 sha2 = { version = "=0.11.0-rc.4", default-features = false }
-signature = { version = "3.0.0-rc.9", default-features = false }
+signature = { version = "3.0.0-rc.10", default-features = false }
 x25519-dalek = { version = "3.0.0-pre.5", default-features = false }
 
 [features]
