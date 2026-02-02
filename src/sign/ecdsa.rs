@@ -3,7 +3,7 @@ use alloc::{boxed::Box, format, sync::Arc};
 use core::marker::PhantomData;
 
 use der::Decode;
-use paste::paste;
+use pastey::paste;
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
 use rustls::sign::SigningKey;

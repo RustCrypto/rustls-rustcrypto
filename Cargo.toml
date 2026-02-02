@@ -29,7 +29,7 @@ ed25519-dalek = { version = "3.0.0-pre.5", default-features = false, features = 
 hmac = { version = "=0.13.0-rc.4", default-features = false }
 p256 = { version = "=0.14.0-rc.6", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 p384 = { version = "=0.14.0-rc.6", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
-paste = { version = "1", default-features = false }
+pastey = { version = "0.2", default-features = false }
 pkcs8 = { version = "=0.11.0-rc.10", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1", default-features = false }
 getrandom = { version = "=0.4.0-rc.1", default-features = false, features = ["sys_rng"] }
