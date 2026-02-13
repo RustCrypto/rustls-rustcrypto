@@ -22,8 +22,8 @@ aead = { version = "0.6.0-rc.10", default-features = false }
 aes-gcm = { version = "0.11.0-rc.3", default-features = false, features = ["aes", "alloc"] }
 chacha20poly1305 = { version = "0.11.0-rc.3", default-features = false }
 crypto-common = { version = "0.2", default-features = false }
-der = { version = "0.8.0-rc.10", default-features = false }
-digest = { version = "0.11.0-rc.11", default-features = false }
+der = { version = "0.8", default-features = false }
+digest = { version = "0.11", default-features = false }
 ecdsa = { version = "0.17.0-rc.16", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "3.0.0-pre.6", default-features = false, features = ["pkcs8"] }
 getrandom = { version = "0.4", default-features = false, features = ["sys_rng"] }
@@ -31,7 +31,7 @@ hmac = { version = "0.13.0-rc.5", default-features = false }
 p256 = { version = "0.14.0-rc.7", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 p384 = { version = "0.14.0-rc.7", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1", default-features = false }
-pkcs8 = { version = "0.11.0-rc.10", default-features = false }
+pkcs8 = { version = "0.11.0-rc.11", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1", default-features = false }
 rsa = { version = "0.10.0-rc.15", default-features = false, features = ["sha2", "encoding"] }
 rustls = { version = "0.23", default-features = false }
