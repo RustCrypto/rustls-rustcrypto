@@ -6,7 +6,7 @@ updates:
   allow:
     - dependency-type: "all"
   groups:
-    all-deps:
+    root-deps:
       patterns:
         - "*"
   schedule:
@@ -18,7 +18,7 @@ updates:
   allow:
     - dependency-type: "all"
   groups:
-    all-deps:
+    validation-deps:
       patterns:
         - "*"
   schedule:
