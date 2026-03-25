@@ -7,6 +7,11 @@ use getrandom::rand_core::UnwrapErr;
 use paste::paste;
 use rustls::crypto;
 
+mod hybrid;
+mod mlkem;
+
+pub use hybrid::{SecP256r1MLKEM768, SecP384r1MLKEM1024, X25519MLKEM768};
+
 #[derive(Debug)]
 pub struct X25519;
 
@@ -109,4 +114,56 @@ macro_rules! impl_kx {
 impl_kx! {SecP256R1, rustls::NamedGroup::secp256r1, p256::ecdh::EphemeralSecret, p256::PublicKey}
 impl_kx! {SecP384R1, rustls::NamedGroup::secp384r1, p384::ecdh::EphemeralSecret, p384::PublicKey}
 
-pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[&X25519, &SecP256R1, &SecP384R1];
+pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[
+    &X25519,
+    &SecP256R1,
+    &SecP384R1,
+    &X25519MLKEM768,
+    &SecP256r1MLKEM768,
+    &SecP384r1MLKEM1024,
+];
+
+#[cfg(test)]
+mod test {
+
+    // Make sure every key exchange algorithm can round-trip with itself.
+    #[test]
+    fn kx_roundtrip() -> Result<(), rustls::Error> {
+        for kx in super::ALL_KX_GROUPS {
+            let client_state = kx.start()?;
+            let server_output = kx.start_and_complete(client_state.pub_key())?;
+            let client_output = client_state.complete(&server_output.pub_key)?;
+
+            assert_eq!(server_output.group, kx.name());
+            assert_eq!(
+                server_output.secret.secret_bytes(),
+                client_output.secret_bytes()
+            );
+        }
+        Ok(())
+    }
+
+    // Make sure that the hybrid optimization works for each key
+    // exchange that provides it.
+    #[test]
+    fn kx_hybrid_optimization() -> Result<(), rustls::Error> {
+        for kx in super::ALL_KX_GROUPS {
+            let client_state = kx.start()?;
+            if let Some((grp, client_pubkey)) = client_state.hybrid_component() {
+                let server_kx = super::ALL_KX_GROUPS
+                    .iter()
+                    .find(|g| g.name() == grp)
+                    .unwrap();
+                let server_output = server_kx.start_and_complete(client_pubkey)?;
+                let client_output =
+                    client_state.complete_hybrid_component(&server_output.pub_key)?;
+                assert_eq!(server_output.group, grp);
+                assert_eq!(
+                    server_output.secret.secret_bytes(),
+                    client_output.secret_bytes()
+                );
+            }
+        }
+        Ok(())
+    }
+}
