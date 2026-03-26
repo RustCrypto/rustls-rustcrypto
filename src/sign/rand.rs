@@ -1,7 +1,7 @@
 #[cfg(feature = "alloc")]
 use alloc::{string::ToString, sync::Arc, vec::Vec};
 use core::marker::PhantomData;
-
+use getrandom::rand_core::UnwrapErr;
 use rustls::sign::Signer;
 use rustls::{Error, SignatureScheme};
 use signature::{RandomizedSigner, SignatureEncoding};
@@ -40,11 +40,11 @@ where
     T: RandomizedSigner<S> + Send + Sync + core::fmt::Debug,
 {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
+        let mut rng = UnwrapErr(getrandom::SysRng);
         self.key
-            .try_sign_with_rng(&mut rand_core::OsRng, message)
-            .map_err(SigningError::from)
+            .try_sign_with_rng(&mut rng, message)
+            .map_err(|_| rustls::Error::General("signing failed".into()))
             .map(|sig: S| sig.to_vec())
-            .map_err(Into::into)
     }
 
     fn scheme(&self) -> SignatureScheme {

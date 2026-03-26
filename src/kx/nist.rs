@@ -3,15 +3,17 @@ use alloc::{boxed::Box, string::ToString};
 use core::fmt::Debug;
 use core::marker::PhantomData;
 
-use crypto::{ActiveKeyExchange, SharedSecret, SupportedKxGroup};
+use crypto_common::Generate;
 use elliptic_curve::{
     Curve, CurveArithmetic, PublicKey,
     ecdh::EphemeralSecret,
     point::PointCompression,
-    sec1::{FromEncodedPoint, ToEncodedPoint},
+    sec1::{FromSec1Point, ToSec1Point},
 };
-use rand_core::OsRng;
-use rustls::{Error, NamedGroup, crypto};
+use rustls::{
+    Error, NamedGroup,
+    crypto::{ActiveKeyExchange, SharedSecret, SupportedKxGroup},
+};
 use sec1::point::ModulusSize;
 
 /// Errors that can occur in NIST key exchange
@@ -19,11 +21,11 @@ use sec1::point::ModulusSize;
 pub enum NistKxError {
     /// Failed to generate private key
     #[error("failed to generate private key: {0}")]
-    KeyGenerationFailed(rand_core::OsError),
+    KeyGenerationFailed(getrandom::Error),
 }
 
-impl From<rand_core::OsError> for NistKxError {
-    fn from(e: rand_core::OsError) -> Self {
+impl From<getrandom::Error> for NistKxError {
+    fn from(e: getrandom::Error) -> Self {
         Self::KeyGenerationFailed(e)
     }
 }
@@ -52,7 +54,7 @@ where
 
 impl<C> SupportedKxGroup for NistKxGroup<C>
 where
-    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C> + ToEncodedPoint<C>,
+    <C as CurveArithmetic>::AffinePoint: FromSec1Point<C> + ToSec1Point<C>,
     <C as elliptic_curve::Curve>::FieldBytesSize: ModulusSize,
     C: NistCurve,
 {
@@ -61,7 +63,7 @@ where
     }
 
     fn start(&self) -> Result<Box<dyn ActiveKeyExchange>, Error> {
-        let priv_key = EphemeralSecret::<C>::try_from_rng(&mut OsRng).map_err(NistKxError::from)?;
+        let priv_key = EphemeralSecret::<C>::try_generate().map_err(NistKxError::from)?;
 
         Ok(Box::new(NistKeyExchange::<C> {
             pub_key: priv_key.public_key().to_sec1_bytes(),
@@ -81,7 +83,7 @@ where
 
 impl<C> ActiveKeyExchange for NistKeyExchange<C>
 where
-    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C> + ToEncodedPoint<C>,
+    <C as CurveArithmetic>::AffinePoint: FromSec1Point<C> + ToSec1Point<C>,
     <C as elliptic_curve::Curve>::FieldBytesSize: ModulusSize,
     C: NistCurve,
 {

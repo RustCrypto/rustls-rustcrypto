@@ -79,7 +79,7 @@ fn test_basic_round_trip() {
             let (socket_c2s, socket_s2c) = MemorySocket::new_pair();
 
             let mut random_data: [u8; 64 * 1024] = [0; 64 * 1024];
-            
+
             getrandom::fill(&mut random_data).unwrap();
 
             std::thread::Builder::new()

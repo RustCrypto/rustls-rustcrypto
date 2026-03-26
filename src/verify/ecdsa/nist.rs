@@ -6,7 +6,7 @@ use ::ecdsa::EcdsaCurve;
 use ::ecdsa::VerifyingKey;
 use ::ecdsa::der::{MaxOverhead, MaxSize, Signature};
 use ::elliptic_curve::ops::Add;
-use ::elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint};
+use ::elliptic_curve::sec1::{FromSec1Point, ToSec1Point};
 use ::elliptic_curve::{Curve, CurveArithmetic, FieldBytesSize};
 use ::pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm, alg_id};
 use ::sec1::point::ModulusSize;
@@ -61,7 +61,7 @@ where
 impl<C, H> EcdsaVerifier<C, H>
 where
     C: EcdsaVerifierCurve<H>,
-    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C> + ToEncodedPoint<C>,
+    <C as CurveArithmetic>::AffinePoint: FromSec1Point<C> + ToSec1Point<C>,
     <C as Curve>::FieldBytesSize: Debug + ModulusSize,
     MaxSize<C>: ArraySize,
     <FieldBytesSize<C> as Add>::Output: Add<MaxOverhead> + ArraySize,
@@ -83,7 +83,7 @@ where
 impl<C, H> SignatureVerificationAlgorithm for EcdsaVerifier<C, H>
 where
     C: EcdsaVerifierCurve<H>,
-    <C as CurveArithmetic>::AffinePoint: FromEncodedPoint<C> + ToEncodedPoint<C>,
+    <C as CurveArithmetic>::AffinePoint: FromSec1Point<C> + ToSec1Point<C>,
     <C as Curve>::FieldBytesSize: Debug + ModulusSize,
     MaxSize<C>: ArraySize,
     <FieldBytesSize<C> as Add>::Output: Add<MaxOverhead> + ArraySize,

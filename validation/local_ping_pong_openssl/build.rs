@@ -41,7 +41,7 @@ fn check_gen_certs() {
         Command::new("make")
             .arg("rsa4096")
             .current_dir(out_dir)
-            .spawn()
+            .status()
             .expect("make rsa4096");
     }
 }

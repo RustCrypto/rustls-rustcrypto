@@ -15,9 +15,9 @@ mod test {
     use std::thread;
     use std::time::Duration;
 
-    const CA_CERT: &'static str = "ca.rsa4096.crt";
-    const CERT: &'static str = "rustcryp.to.rsa4096.ca_signed.crt";
-    const RSA_KEY: &'static str = "rustcryp.to.rsa4096.key";
+    const CA_CERT: &str = "ca.rsa4096.crt";
+    const CERT: &str = "rustcryp.to.rsa4096.ca_signed.crt";
+    const RSA_KEY: &str = "rustcryp.to.rsa4096.key";
 
     #[test]
     fn vs_openssl_as_client_autoneg() {
@@ -148,7 +148,6 @@ mod test {
             let mut rustls_client = RustCryptoTlsClient::new(path_certs.join(CA_CERT), server_addr);
             rustls_client.ping();
             assert_eq!(rustls_client.wait_pong(), "PONG\n");
-            return;
         });
 
         // Canary Timeout thread

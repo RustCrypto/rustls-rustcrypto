@@ -59,10 +59,9 @@ impl SecureRandom for Provider {
         feature_eval_expr!(
             [feature = "rand"],
             {
-                use rand_core::TryRngCore;
-                rand_core::OsRng
-                    .try_fill_bytes(bytes)
-                    .map_err(|_| GetRandomFailed)
+                use getrandom::rand_core::TryRng;
+                let mut rng = getrandom::SysRng;
+                rng.try_fill_bytes(bytes).map_err(|_| GetRandomFailed)
             },
             else Err(GetRandomFailed)
         )
