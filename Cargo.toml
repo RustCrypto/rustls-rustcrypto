@@ -27,7 +27,7 @@ digest = { version = "0.11", default-features = false }
 ecdsa = { version = "0.17.0-rc.16", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "3.0.0-pre.6", default-features = false, features = ["pkcs8"] }
 getrandom = { version = "0.4", default-features = false, features = ["sys_rng"] }
-hmac = { version = "0.13.0-rc.6", default-features = false }
+hmac = { version = "0.13", default-features = false }
 p256 = { version = "0.14.0-rc.8", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 p384 = { version = "0.14.0-rc.8", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1", default-features = false }
