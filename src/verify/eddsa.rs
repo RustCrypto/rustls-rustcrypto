@@ -30,3 +30,33 @@ impl SignatureVerificationAlgorithm for Ed25519Verify {
 }
 
 pub const ED25519: &dyn SignatureVerificationAlgorithm = &Ed25519Verify;
+
+#[derive(Debug)]
+struct Ed448Verify;
+
+impl SignatureVerificationAlgorithm for Ed448Verify {
+    fn public_key_alg_id(&self) -> AlgorithmIdentifier {
+        alg_id::ED448
+    }
+
+    fn signature_alg_id(&self) -> AlgorithmIdentifier {
+        alg_id::ED448
+    }
+
+    fn verify_signature(
+        &self,
+        public_key: &[u8],
+        message: &[u8],
+        signature: &[u8],
+    ) -> Result<(), InvalidSignature> {
+        let public_key = public_key.try_into().map_err(|_| InvalidSignature)?;
+        let signature =
+            ed448_goldilocks::Signature::from_slice(signature).map_err(|_| InvalidSignature)?;
+        ed448_goldilocks::VerifyingKey::from_bytes(public_key)
+            .map_err(|_| InvalidSignature)?
+            .verify(message, &signature)
+            .map_err(|_| InvalidSignature)
+    }
+}
+
+pub const ED448: &dyn SignatureVerificationAlgorithm = &Ed448Verify;

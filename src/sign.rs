@@ -2,8 +2,8 @@
 use alloc::{sync::Arc, vec::Vec};
 use core::marker::PhantomData;
 
-use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
-use self::eddsa::Ed25519SigningKey;
+use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384, EcdsaSigningKeyP521};
+use self::eddsa::{Ed25519SigningKey, Ed448SigningKey};
 use self::rsa::RsaSigningKey;
 
 use getrandom::rand_core::UnwrapErr;
@@ -89,7 +89,8 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
 pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
     let p256 = |_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _);
     let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
-    p256(()).or_else(p384)
+    let p521 = |_| EcdsaSigningKeyP521::try_from(der).map(|x| Arc::new(x) as _);
+    p256(()).or_else(p384).or_else(p521)
 }
 
 /// Extract any supported EDDSA key from the given DER input.
@@ -98,8 +99,9 @@ pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, ru
 ///
 /// Returns an error if the key couldn't be decoded.
 pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    // TODO: Add support for Ed448
-    Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _)
+    let ed25519 = |_| Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _);
+    let ed448 = |_| Ed448SigningKey::try_from(der).map(|x| Arc::new(x) as _);
+    ed25519(()).or_else(ed448)
 }
 
 pub mod ecdsa;

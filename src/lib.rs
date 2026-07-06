@@ -80,11 +80,12 @@ impl KeyProvider for Provider {
 }
 
 #[cfg(feature = "tls12")]
-const TLS12_ECDSA_SCHEMES: [SignatureScheme; 4] = [
+const TLS12_ECDSA_SCHEMES: [SignatureScheme; 5] = [
     SignatureScheme::ECDSA_NISTP256_SHA256,
     SignatureScheme::ECDSA_NISTP384_SHA384,
     SignatureScheme::ECDSA_NISTP521_SHA512,
     SignatureScheme::ED25519,
+    SignatureScheme::ED448,
 ];
 
 #[cfg(feature = "tls12")]

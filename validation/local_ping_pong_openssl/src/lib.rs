@@ -118,7 +118,6 @@ mod test {
         vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
     }
     #[test]
-    #[should_panic] // no support
     fn vs_openssl_as_client_group_p521() {
         let mut group_list = OpenSslGroupsList::all_false();
         group_list.P521 = true;
@@ -131,7 +130,6 @@ mod test {
         vs_openssl_as_client(group_list, OpenSslCipherSuites::default());
     }
     #[test]
-    #[should_panic] // no support
     fn vs_openssl_as_client_group_x448() {
         let mut group_list = OpenSslGroupsList::all_false();
         group_list.X448 = true;

@@ -51,3 +51,48 @@ impl SigningKey for Ed25519SigningKey {
         SignatureAlgorithm::ED25519
     }
 }
+
+#[derive(Debug)]
+pub struct Ed448SigningKey {
+    key: Arc<ed448_goldilocks::SigningKey>,
+    scheme: SignatureScheme,
+}
+
+impl TryFrom<&PrivateKeyDer<'_>> for Ed448SigningKey {
+    type Error = rustls::Error;
+
+    fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
+        let pkey = match value {
+            PrivateKeyDer::Pkcs8(der) => {
+                ed448_goldilocks::SigningKey::from_pkcs8_der(der.secret_pkcs8_der())
+                    .map_err(|e| format!("failed to decrypt private key: {e}"))
+            }
+            PrivateKeyDer::Pkcs1(_) => Err("ED448 does not support PKCS#1 key".to_string()),
+            PrivateKeyDer::Sec1(_) => Err("ED448 does not support SEC1 key".to_string()),
+            _ => Err("not supported".into()),
+        };
+        pkey.map(|kp| Self {
+            key: Arc::new(kp),
+            scheme: SignatureScheme::ED448,
+        })
+        .map_err(rustls::Error::General)
+    }
+}
+
+impl SigningKey for Ed448SigningKey {
+    fn choose_scheme(&self, offered: &[SignatureScheme]) -> Option<Box<dyn Signer>> {
+        if offered.contains(&self.scheme) {
+            Some(Box::new(super::GenericSigner {
+                _marker: PhantomData,
+                key: self.key.clone(),
+                scheme: self.scheme,
+            }))
+        } else {
+            None
+        }
+    }
+
+    fn algorithm(&self) -> SignatureAlgorithm {
+        SignatureAlgorithm::ED448
+    }
+}
