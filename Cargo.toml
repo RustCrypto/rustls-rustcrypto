@@ -25,11 +25,11 @@ crypto-common = { version = "0.2", default-features = false }
 der = { version = "0.8", default-features = false }
 digest = { version = "0.11", default-features = false }
 ecdsa = { version = "0.17", default-features = false, features = ["alloc"] }
-ed25519-dalek = { version = "3.0.0-rc.1", default-features = false, features = ["pkcs8"] }
+ed25519-dalek = { version = "3", default-features = false, features = ["pkcs8"] }
 getrandom = { version = "0.4", default-features = false, features = ["sys_rng"] }
 hmac = { version = "0.13", default-features = false }
 p256 = { version = "0.14", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
-p384 = { version = "0.14.0-rc.15", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
+p384 = { version = "0.14", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
 paste = { version = "1", default-features = false }
 pkcs8 = { version = "0.11", default-features = false }
 pki-types = { package = "rustls-pki-types", version = "1", default-features = false }
@@ -38,7 +38,7 @@ rustls = { version = "0.23", default-features = false }
 sec1 = { version = "0.8", default-features = false }
 sha2 = { version = "0.11", default-features = false }
 signature = { version = "3", default-features = false }
-x25519-dalek = { version = "3.0.0-rc.1", default-features = false }
+x25519-dalek = { version = "3", default-features = false }
 
 [features]
 default = ["std", "tls12", "zeroize"]
