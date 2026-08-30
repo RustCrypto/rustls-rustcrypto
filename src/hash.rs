@@ -4,7 +4,7 @@ use alloc::boxed::Box;
 use digest::{Digest, OutputSizeUser};
 use paste::paste;
 use rustls::crypto::{self, hash};
-use sha2::{Sha256, Sha384};
+use sha2::{Sha224, Sha256, Sha384, Sha512};
 
 macro_rules! impl_hash {
     ($name:ident, $ty:ty, $algo:ty) => {
@@ -56,7 +56,23 @@ macro_rules! impl_hash {
     };
 }
 
-// impl_hash! {SHA224, Sha224, hash::HashAlgorithm::SHA224}
+impl_hash! {SHA224, Sha224, hash::HashAlgorithm::SHA224}
 impl_hash! {SHA256, Sha256, hash::HashAlgorithm::SHA256}
 impl_hash! {SHA384, Sha384, hash::HashAlgorithm::SHA384}
-// impl_hash! {SHA512, Sha512, hash::HashAlgorithm::SHA512}
+impl_hash! {SHA512, Sha512, hash::HashAlgorithm::SHA512}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sha224_and_sha512_providers() {
+        assert_eq!(SHA224.output_len(), 28);
+        assert_eq!(SHA224.algorithm(), hash::HashAlgorithm::SHA224);
+        assert_eq!(SHA224.hash(b"abc").as_ref().len(), 28);
+
+        assert_eq!(SHA512.output_len(), 64);
+        assert_eq!(SHA512.algorithm(), hash::HashAlgorithm::SHA512);
+        assert_eq!(SHA512.hash(b"abc").as_ref().len(), 64);
+    }
+}

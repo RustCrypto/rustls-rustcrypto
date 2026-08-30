@@ -5,7 +5,7 @@ use crypto_common::OutputSizeUser;
 use hmac::{KeyInit, Mac};
 use paste::paste;
 use rustls::crypto;
-use sha2::{Sha256, Sha384};
+use sha2::{Sha256, Sha384, Sha512};
 
 macro_rules! impl_hmac {
     (
@@ -53,4 +53,18 @@ macro_rules! impl_hmac {
 
 impl_hmac! {SHA256, Sha256}
 impl_hmac! {SHA384, Sha384}
-// impl_hmac! {SHA512, Sha512}
+impl_hmac! {SHA512, Sha512}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sha512_hmac_provider() {
+        assert_eq!(SHA512.hash_output_len(), 64);
+        let key = SHA512.with_key(b"key");
+        assert_eq!(key.tag_len(), 64);
+        let tag = key.sign_concat(b"a", &[], b"b");
+        assert_eq!(tag.as_ref().len(), 64);
+    }
+}

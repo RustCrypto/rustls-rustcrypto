@@ -261,8 +261,10 @@ static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
 );
 
 mod aead;
-mod hash;
-mod hmac;
+/// Hash algorithm providers (SHA-224/256/384/512).
+pub mod hash;
+/// HMAC providers (SHA-256/384/512).
+pub mod hmac;
 mod kx;
 mod misc;
 pub mod quic;
