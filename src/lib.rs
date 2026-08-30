@@ -205,44 +205,53 @@ const TLS12_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
 #[cfg(not(feature = "tls12"))]
 const TLS12_SUITES: &[SupportedCipherSuite] = &[];
 
+// Named statics so `&Tls13CipherSuite` is truly `'static` on MSRV when
+// `quic: Some(...)` is set (avoids E0716 on rustc 1.85).
+
+static TLS13_AES_128_GCM_SHA256_INTERNAL: &Tls13CipherSuite = &Tls13CipherSuite {
+    common: CipherSuiteCommon {
+        suite: CipherSuite::TLS13_AES_128_GCM_SHA256,
+        hash_provider: hash::SHA256,
+        confidentiality_limit: u64::MAX,
+    },
+    hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
+    aead_alg: &aead::gcm::Tls13Aes128Gcm,
+    quic: Some(quic::AES_128_GCM),
+};
+
 pub const TLS13_AES_128_GCM_SHA256: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_128_GCM_SHA256,
-            hash_provider: hash::SHA256,
-            confidentiality_limit: u64::MAX,
-        },
-        hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
-        aead_alg: &aead::gcm::Tls13Aes128Gcm,
-        quic: None,
-    });
+    SupportedCipherSuite::Tls13(TLS13_AES_128_GCM_SHA256_INTERNAL);
+
+static TLS13_AES_256_GCM_SHA384_INTERNAL: &Tls13CipherSuite = &Tls13CipherSuite {
+    common: CipherSuiteCommon {
+        suite: CipherSuite::TLS13_AES_256_GCM_SHA384,
+        hash_provider: hash::SHA384,
+        confidentiality_limit: u64::MAX,
+    },
+    hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA384),
+    aead_alg: &aead::gcm::Tls13Aes256Gcm,
+    quic: Some(quic::AES_256_GCM),
+};
 
 pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_AES_256_GCM_SHA384,
-            hash_provider: hash::SHA384,
-            confidentiality_limit: u64::MAX,
-        },
-        hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA384),
-        aead_alg: &aead::gcm::Tls13Aes256Gcm,
-        quic: None,
-    });
+    SupportedCipherSuite::Tls13(TLS13_AES_256_GCM_SHA384_INTERNAL);
 
 const TLS13_AES_SUITES: &[SupportedCipherSuite] =
     &[TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384];
 
+static TLS13_CHACHA20_POLY1305_SHA256_INTERNAL: &Tls13CipherSuite = &Tls13CipherSuite {
+    common: CipherSuiteCommon {
+        suite: CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
+        hash_provider: hash::SHA256,
+        confidentiality_limit: u64::MAX,
+    },
+    hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
+    aead_alg: &aead::chacha20::Chacha20Poly1305,
+    quic: Some(quic::CHACHA20_POLY1305),
+};
+
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
-    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
-        common: CipherSuiteCommon {
-            suite: CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
-            hash_provider: hash::SHA256,
-            confidentiality_limit: u64::MAX,
-        },
-        hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
-        aead_alg: &aead::chacha20::Chacha20Poly1305,
-        quic: None,
-    });
+    SupportedCipherSuite::Tls13(TLS13_CHACHA20_POLY1305_SHA256_INTERNAL);
 
 const TLS13_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     SupportedCipherSuite,

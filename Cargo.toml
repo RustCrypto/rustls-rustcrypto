@@ -19,7 +19,9 @@ resolver = "1" # Hack to enable the `custom` feature of `getrandom`
 # default features often have std breaking no_std and potentially other unwanted
 [dependencies]
 aead = { version = "0.6", default-features = false }
+aes = { version = "0.9", default-features = false }
 aes-gcm = { version = "0.11", default-features = false, features = ["aes", "alloc"] }
+chacha20 = { version = "0.10", default-features = false }
 chacha20poly1305 = { version = "0.11", default-features = false }
 crypto-common = { version = "0.2", default-features = false }
 der = { version = "0.8", default-features = false }
