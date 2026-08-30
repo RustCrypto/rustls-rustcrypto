@@ -267,4 +267,6 @@ mod kx;
 mod misc;
 pub mod quic;
 pub mod sign;
+#[cfg(feature = "std")]
+pub mod ticketer;
 mod verify;
