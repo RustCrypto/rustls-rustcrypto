@@ -140,10 +140,70 @@ pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     });
 
 #[cfg(feature = "tls12")]
+pub const TLS_ECDHE_ECDSA_WITH_AES_128_CCM: SupportedCipherSuite =
+    SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
+        common: CipherSuiteCommon {
+            suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_CCM,
+            hash_provider: hash::SHA256,
+            confidentiality_limit: u64::MAX,
+        },
+        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign: &TLS12_ECDSA_SCHEMES,
+        aead_alg: &aead::ccm::Tls12Aes128Ccm,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
+    });
+
+#[cfg(feature = "tls12")]
+pub const TLS_ECDHE_ECDSA_WITH_AES_256_CCM: SupportedCipherSuite =
+    SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
+        common: CipherSuiteCommon {
+            suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_CCM,
+            hash_provider: hash::SHA256,
+            confidentiality_limit: u64::MAX,
+        },
+        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign: &TLS12_ECDSA_SCHEMES,
+        aead_alg: &aead::ccm::Tls12Aes256Ccm,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
+    });
+
+#[cfg(feature = "tls12")]
+pub const TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8: SupportedCipherSuite =
+    SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
+        common: CipherSuiteCommon {
+            suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8,
+            hash_provider: hash::SHA256,
+            confidentiality_limit: u64::MAX,
+        },
+        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign: &TLS12_ECDSA_SCHEMES,
+        aead_alg: &aead::ccm::Tls12Aes128Ccm8,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
+    });
+
+#[cfg(feature = "tls12")]
+pub const TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8: SupportedCipherSuite =
+    SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
+        common: CipherSuiteCommon {
+            suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8,
+            hash_provider: hash::SHA256,
+            confidentiality_limit: u64::MAX,
+        },
+        kx: rustls::crypto::KeyExchangeAlgorithm::ECDHE,
+        sign: &TLS12_ECDSA_SCHEMES,
+        aead_alg: &aead::ccm::Tls12Aes256Ccm8,
+        prf_provider: &rustls::crypto::tls12::PrfUsingHmac(hmac::SHA256),
+    });
+
+#[cfg(feature = "tls12")]
 const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
     TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
     TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
     TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+    TLS_ECDHE_ECDSA_WITH_AES_128_CCM,
+    TLS_ECDHE_ECDSA_WITH_AES_256_CCM,
+    TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8,
+    TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8,
 ];
 
 #[cfg(feature = "tls12")]
@@ -229,8 +289,37 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
         quic: None,
     });
 
-const TLS13_AES_SUITES: &[SupportedCipherSuite] =
-    &[TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384];
+pub const TLS13_AES_128_CCM_SHA256: SupportedCipherSuite =
+    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
+        common: CipherSuiteCommon {
+            suite: CipherSuite::TLS13_AES_128_CCM_SHA256,
+            hash_provider: hash::SHA256,
+            confidentiality_limit: u64::MAX,
+        },
+        hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
+        aead_alg: &aead::ccm::Tls13Aes128Ccm,
+        quic: None,
+    });
+
+pub const TLS13_AES_128_CCM_8_SHA256: SupportedCipherSuite =
+    SupportedCipherSuite::Tls13(&Tls13CipherSuite {
+        common: CipherSuiteCommon {
+            suite: CipherSuite::TLS13_AES_128_CCM_8_SHA256,
+            hash_provider: hash::SHA256,
+            confidentiality_limit: u64::MAX,
+        },
+        hkdf_provider: &rustls::crypto::tls13::HkdfUsingHmac(hmac::SHA256),
+        aead_alg: &aead::ccm::Tls13Aes128Ccm8,
+        // QUIC header protection requires a 16-byte tag; CCM-8 is too short.
+        quic: None,
+    });
+
+const TLS13_AES_SUITES: &[SupportedCipherSuite] = &[
+    TLS13_AES_128_GCM_SHA256,
+    TLS13_AES_256_GCM_SHA384,
+    TLS13_AES_128_CCM_SHA256,
+    TLS13_AES_128_CCM_8_SHA256,
+];
 
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {

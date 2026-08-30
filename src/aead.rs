@@ -1,6 +1,7 @@
 use aead::Buffer;
 use rustls::crypto::cipher::{BorrowedPayload, PrefixedPayload};
 
+pub mod ccm;
 pub mod chacha20;
 pub mod gcm;
 
