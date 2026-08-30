@@ -2,7 +2,7 @@
 use alloc::{sync::Arc, vec::Vec};
 use core::marker::PhantomData;
 
-use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
+use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384, EcdsaSigningKeyP521};
 use self::eddsa::Ed25519SigningKey;
 use self::rsa::RsaSigningKey;
 
@@ -89,7 +89,8 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
 pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
     let p256 = |_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _);
     let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
-    p256(()).or_else(p384)
+    let p521 = |_| EcdsaSigningKeyP521::try_from(der).map(|x| Arc::new(x) as _);
+    p256(()).or_else(p384).or_else(p521)
 }
 
 /// Extract any supported EDDSA key from the given DER input.
