@@ -26,6 +26,7 @@ der = { version = "0.8", default-features = false }
 digest = { version = "0.11", default-features = false }
 ecdsa = { version = "0.17", default-features = false, features = ["alloc"] }
 ed25519-dalek = { version = "3", default-features = false, features = ["pkcs8"] }
+ed448-goldilocks = { version = "0.14.0-pre.15", default-features = false, features = ["pkcs8", "signing"] }
 getrandom = { version = "0.4", default-features = false, features = ["sys_rng"] }
 hmac = { version = "0.13", default-features = false }
 p256 = { version = "0.14", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
@@ -39,6 +40,7 @@ sec1 = { version = "0.8", default-features = false }
 sha2 = { version = "0.11", default-features = false }
 signature = { version = "3", default-features = false }
 x25519-dalek = { version = "3", default-features = false }
+x448 = { version = "0.14.0-pre.12", default-features = false }
 
 [features]
 default = ["std", "tls12", "zeroize"]
@@ -51,5 +53,5 @@ tls12 = ["rustls/tls12"]
 # TODO: go through all of these that what gets exposed re: std error type
 std = ["alloc", "pki-types/std", "rustls/std"]
 # TODO: go through all of these to ensure to_vec etc. impls are exposed
-alloc = ["pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc"]
+alloc = ["pki-types/alloc", "aead/alloc", "ed25519-dalek/alloc", "ed448-goldilocks/alloc"]
 zeroize = ["ed25519-dalek/zeroize", "x25519-dalek/zeroize"]
