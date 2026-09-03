@@ -1,5 +1,5 @@
-use rustls::crypto::WebPkiSupportedAlgorithms;
 use rustls::SignatureScheme;
+use rustls::crypto::WebPkiSupportedAlgorithms;
 
 use self::ecdsa::{ECDSA_P256_SHA256, ECDSA_P256_SHA384, ECDSA_P384_SHA256, ECDSA_P384_SHA384};
 use self::eddsa::ED25519;

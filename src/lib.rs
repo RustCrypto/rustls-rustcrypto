@@ -13,7 +13,6 @@
     clippy::cast_precision_loss,
     clippy::cast_sign_loss,
     clippy::checked_conversions,
-    clippy::from_iter_instead_of_collect,
     clippy::missing_errors_doc,
     clippy::mod_module_files,
     clippy::implicit_saturating_sub,
