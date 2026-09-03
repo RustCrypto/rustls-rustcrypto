@@ -1,4 +1,4 @@
-use pki_types::{alg_id, AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
+use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm, alg_id};
 use signature::Verifier;
 
 #[derive(Debug)]

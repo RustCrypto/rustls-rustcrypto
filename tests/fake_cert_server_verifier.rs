@@ -1,12 +1,12 @@
+use rustls::DigitallySignedStruct;
+use rustls::Error;
+use rustls::SignatureScheme;
 use rustls::client::danger::HandshakeSignatureValid;
 use rustls::client::danger::ServerCertVerified;
 use rustls::client::danger::ServerCertVerifier;
 use rustls::pki_types::CertificateDer;
 use rustls::pki_types::ServerName;
 use rustls::pki_types::UnixTime;
-use rustls::DigitallySignedStruct;
-use rustls::Error;
-use rustls::SignatureScheme;
 
 #[derive(Debug)]
 pub struct FakeServerCertVerifier;

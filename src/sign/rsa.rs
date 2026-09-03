@@ -3,8 +3,8 @@ use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
+use rsa::PrivateKey;
 use rsa::pkcs1::DecodeRsaPrivateKey;
-use rsa::RsaPrivateKey;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{SignatureAlgorithm, SignatureScheme};
 use sha2::{Sha256, Sha384, Sha512};
@@ -19,16 +19,16 @@ const ALL_RSA_SCHEMES: &[SignatureScheme] = &[
 ];
 
 #[derive(Debug)]
-pub struct RsaSigningKey(RsaPrivateKey);
+pub struct RsaSigningKey(PrivateKey);
 
 impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
     type Error = rustls::Error;
 
     fn try_from(value: &PrivateKeyDer<'_>) -> Result<Self, Self::Error> {
         let pkey = match value {
-            PrivateKeyDer::Pkcs8(der) => RsaPrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
+            PrivateKeyDer::Pkcs8(der) => PrivateKey::from_pkcs8_der(der.secret_pkcs8_der())
                 .map_err(|e| format!("failed to decrypt private key: {e}")),
-            PrivateKeyDer::Pkcs1(der) => RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
+            PrivateKeyDer::Pkcs1(der) => PrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
                 .map_err(|e| format!("failed to decrypt private key: {e}")),
             PrivateKeyDer::Sec1(_) => Err("RSA does not support SEC1 key".to_string()),
             _ => Err("not supported".into()),

@@ -7,7 +7,7 @@ use aead::{AeadCore, AeadInOut};
 use chacha20poly1305::{KeyInit, KeySizeUser};
 use crypto_common::typenum::Unsigned;
 use rustls::crypto::cipher::{self, AeadKey, Iv};
-use rustls::{quic, Error, Tls13CipherSuite};
+use rustls::{Error, Tls13CipherSuite, quic};
 
 #[allow(dead_code)] // TODO
 pub struct HeaderProtectionKey(AeadKey);
