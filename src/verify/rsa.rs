@@ -1,7 +1,7 @@
 use paste::paste;
-use pki_types::{alg_id, AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
+use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm, alg_id};
 use rsa::pkcs1::DecodeRsaPublicKey;
-use rsa::{pkcs1v15, pss, RsaPublicKey};
+use rsa::{RsaPublicKey, pkcs1v15, pss};
 use sha2::{Sha256, Sha384, Sha512};
 use signature::Verifier;
 

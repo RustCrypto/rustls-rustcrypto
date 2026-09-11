@@ -13,7 +13,7 @@ use rustls::crypto::cipher::{
 use rustls::{ConnectionTrafficSecrets, ContentType, ProtocolVersion};
 
 #[cfg(feature = "tls12")]
-use rustls::crypto::cipher::{KeyBlockShape, Tls12AeadAlgorithm, NONCE_LEN};
+use rustls::crypto::cipher::{KeyBlockShape, NONCE_LEN, Tls12AeadAlgorithm};
 
 pub struct Chacha20Poly1305;
 

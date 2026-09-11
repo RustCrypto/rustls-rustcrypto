@@ -3,8 +3,8 @@ use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 
 use pkcs8::DecodePrivateKey;
 use pki_types::PrivateKeyDer;
-use rsa::pkcs1::DecodeRsaPrivateKey;
 use rsa::RsaPrivateKey;
+use rsa::pkcs1::DecodeRsaPrivateKey;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{SignatureAlgorithm, SignatureScheme};
 use sha2::{Sha256, Sha384, Sha512};

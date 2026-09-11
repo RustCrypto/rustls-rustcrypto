@@ -3,9 +3,9 @@ use rustls::Error;
 
 use rustls::SignatureScheme;
 
+use rustls::DigitallySignedStruct;
 use rustls::pki_types::CertificateDer;
 use rustls::pki_types::UnixTime;
-use rustls::DigitallySignedStruct;
 
 use rustls::client::danger::HandshakeSignatureValid;
 use rustls::server::danger::ClientCertVerified;
