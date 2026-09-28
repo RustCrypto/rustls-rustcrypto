@@ -3,7 +3,8 @@ use alloc::boxed::Box;
 
 use super::{DecryptBufferAdapter, EncryptBufferAdapter};
 
-use chacha20poly1305::{AeadInPlace, KeyInit, KeySizeUser};
+use aead::{AeadInOut, KeySizeUser};
+use chacha20poly1305::KeyInit;
 use rustls::crypto::cipher::{
     self, AeadKey, InboundOpaqueMessage, InboundPlainMessage, Iv, MessageDecrypter,
     MessageEncrypter, OutboundOpaqueMessage, OutboundPlainMessage, PrefixedPayload,

@@ -3,8 +3,8 @@
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-use aead::AeadCore;
-use chacha20poly1305::{AeadInPlace, KeyInit, KeySizeUser};
+use aead::{AeadCore, AeadInOut};
+use chacha20poly1305::{KeyInit, KeySizeUser};
 use crypto_common::typenum::Unsigned;
 use rustls::crypto::cipher::{self, AeadKey, Iv};
 use rustls::{quic, Error, Tls13CipherSuite};
@@ -76,7 +76,7 @@ impl quic::PacketKey for PacketKey {
 
         let tag = self
             .crypto
-            .encrypt_in_place_detached(&nonce.into(), aad, payload)
+            .encrypt_inout_detached(&nonce.into(), aad, payload.into())
             .map_err(|_| rustls::Error::EncryptError)?;
         Ok(quic::Tag::from(tag.as_ref()))
     }
@@ -98,8 +98,7 @@ impl quic::PacketKey for PacketKey {
         let payload_len = payload_.len();
         let nonce = chacha20poly1305::Nonce::from(cipher::Nonce::new(&self.iv, packet_number).0);
 
-        self.crypto
-            .decrypt_in_place(&nonce, aad, &mut payload_)
+        AeadInOut::decrypt_in_place(&self.crypto, &nonce, aad, &mut payload_)
             .map_err(|_| rustls::Error::DecryptError)?;
 
         // Unfortunately the lifetime bound on decrypt_in_place sucks

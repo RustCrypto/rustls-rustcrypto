@@ -10,6 +10,8 @@ use self::eddsa::Ed25519SigningKey;
 #[cfg(feature = "rsa")]
 use self::rsa::RsaSigningKey;
 
+#[cfg(any(feature = "p256", feature = "p384", feature = "rsa"))]
+use getrandom::rand_core::UnwrapErr;
 use pki_types::PrivateKeyDer;
 use rustls::sign::{Signer, SigningKey};
 use rustls::{Error, SignatureScheme};
@@ -37,8 +39,9 @@ where
     T: RandomizedSigner<S> + Send + Sync + core::fmt::Debug,
 {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error> {
+        let mut rng = UnwrapErr(getrandom::SysRng);
         self.key
-            .try_sign_with_rng(&mut rand_core::OsRng, message)
+            .try_sign_with_rng(&mut rng, message)
             .map_err(|_| rustls::Error::General("signing failed".into()))
             .map(|sig: S| sig.to_vec())
     }
@@ -106,11 +109,17 @@ pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, ru
     let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
 
     #[cfg(all(feature = "p256", feature = "p384"))]
-    { p256(()).or_else(p384) }
+    {
+        p256(()).or_else(p384)
+    }
     #[cfg(all(feature = "p256", not(feature = "p384")))]
-    { p256(()) }
+    {
+        p256(())
+    }
     #[cfg(all(not(feature = "p256"), feature = "p384"))]
-    { p384(()) }
+    {
+        p384(())
+    }
 }
 
 /// Extract any supported EDDSA key from the given DER input.

@@ -20,17 +20,17 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.75.0
+          toolchain: 1.85.0
           components: clippy
       - run: cargo clippy --all --all-features -- -D warnings
 
   doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
@@ -39,7 +39,7 @@ jobs:
   rustfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
@@ -51,29 +51,31 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.75.0 # MSRV
+          - 1.85.0 # MSRV
           - stable
         target:
           - armv7a-none-eabi
           - thumbv7em-none-eabi
           - wasm32-unknown-unknown
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
-      - run: cargo build --no-default-features --features tls12,alloc --release --target ${{ matrix.target }}
+      - env:
+          RUSTFLAGS: --cfg getrandom_backend="unsupported"
+        run: cargo build --no-default-features --features tls12,alloc --release --target ${{ matrix.target }}
 
   test:
     strategy:
       matrix:
         toolchain:
-          - 1.75.0 # MSRV
+          - 1.85.0 # MSRV
           - stable
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: RustCrypto/actions/cargo-cache@master
       - uses: dtolnay/rust-toolchain@master
         with:
@@ -87,12 +89,12 @@ jobs:
       matrix:
         include:
           - target: powerpc-unknown-linux-gnu
-            rust: 1.75.0 # MSRV
+            rust: 1.85.0 # MSRV
           - target: powerpc-unknown-linux-gnu
             rust: stable
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: ${{ matrix.deps }}
       - uses: dtolnay/rust-toolchain@master
         with:

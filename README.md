@@ -46,7 +46,7 @@ dual licensed as above, without any additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://buildstats.info/crate/rustls-rustcrypto
+[crate-image]: https://img.shields.io/crates/v/rustls-rustcrypto
 [crate-link]: https://crates.io/crates/rustls-rustcrypto
 [docs-image]: https://docs.rs/rustls-rustcrypto/badge.svg
 [docs-link]: https://docs.rs/rustls-rustcrypto/

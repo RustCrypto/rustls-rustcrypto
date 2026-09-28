@@ -30,7 +30,7 @@ impl TryFrom<&PrivateKeyDer<'_>> for RsaSigningKey {
                 .map_err(|e| format!("failed to decrypt private key: {e}")),
             PrivateKeyDer::Pkcs1(der) => RsaPrivateKey::from_pkcs1_der(der.secret_pkcs1_der())
                 .map_err(|e| format!("failed to decrypt private key: {e}")),
-            PrivateKeyDer::Sec1(_) => Err("RSA does not support SEC-1 key".to_string()),
+            PrivateKeyDer::Sec1(_) => Err("RSA does not support SEC1 key".to_string()),
             _ => Err("not supported".into()),
         };
 

@@ -3,7 +3,7 @@ use alloc::boxed::Box;
 
 use super::{DecryptBufferAdapter, EncryptBufferAdapter};
 
-use aead::AeadInPlace;
+use aead::AeadInOut;
 use crypto_common::{KeyInit, KeySizeUser};
 use paste::paste;
 use rustls::crypto::cipher::{
@@ -166,7 +166,7 @@ macro_rules! impl_gcm_tls12 {
                     payload.extend_from_chunks(&m.payload);
 
                     self.0
-                        .encrypt_in_place_detached(&nonce.into(), &aad, &mut payload.as_mut()[$nonce..])
+                        .encrypt_inout_detached(&nonce.into(), &aad, (&mut payload.as_mut()[$nonce..]).into())
                         .map(|tag| payload.extend(tag.as_ref() as &[u8]))
                         .map_err(|_| rustls::Error::EncryptError)
                         .map(|_| OutboundOpaqueMessage::new(m.typ, m.version, payload))
@@ -205,9 +205,10 @@ macro_rules! impl_gcm_tls12 {
                         let tag_pos = payload.len() - TagSize::to_usize();
                         let (msg, tag) = payload.split_at_mut(tag_pos);
 
-                        let tag = aes_gcm::Tag::<TagSize>::from_slice(tag);
+                        let tag = aes_gcm::Tag::<TagSize>::try_from(&*tag)
+                            .map_err(|_| rustls::Error::DecryptError)?;
                         self.0
-                            .decrypt_in_place_detached(&nonce, &aad, msg, tag)
+                            .decrypt_inout_detached(&nonce, &aad, msg.into(), &tag)
                             .map_err(|_| rustls::Error::DecryptError)?;
                         tag_pos
                     };

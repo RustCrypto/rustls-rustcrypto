@@ -1,10 +1,9 @@
 use paste::paste;
-use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
+use pki_types::{alg_id, AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
 use rsa::pkcs1::DecodeRsaPublicKey;
 use rsa::{pkcs1v15, pss, RsaPublicKey};
 use sha2::{Sha256, Sha384, Sha512};
 use signature::Verifier;
-use webpki::alg_id;
 
 macro_rules! impl_generic_rsa_verifer {
     (

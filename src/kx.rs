@@ -3,6 +3,9 @@ use alloc::boxed::Box;
 
 use crypto::{SharedSecret, SupportedKxGroup};
 #[cfg(any(feature = "p256", feature = "p384"))]
+use crypto_common::Generate;
+use getrandom::rand_core::UnwrapErr;
+#[cfg(any(feature = "p256", feature = "p384"))]
 use paste::paste;
 use rustls::crypto;
 
@@ -15,7 +18,8 @@ impl crypto::SupportedKxGroup for X25519 {
     }
 
     fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::Error> {
-        let priv_key = x25519_dalek::EphemeralSecret::random_from_rng(rand_core::OsRng);
+        let mut rng = UnwrapErr(getrandom::SysRng);
+        let priv_key = x25519_dalek::EphemeralSecret::random_from_rng(&mut rng);
         let pub_key = (&priv_key).into();
         Ok(Box::new(X25519KeyExchange { priv_key, pub_key }))
     }
@@ -62,7 +66,8 @@ macro_rules! impl_kx {
                 }
 
                 fn start(&self) -> Result<Box<dyn crypto::ActiveKeyExchange>, rustls::Error> {
-                    let priv_key = $secret::random(&mut rand_core::OsRng);
+                    let mut rng = UnwrapErr(getrandom::SysRng);
+                    let priv_key = <$secret>::try_generate_from_rng(&mut rng).map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
                     let pub_key: $public_key = (&priv_key).into();
                     Ok(Box::new([<$name KeyExchange>] {
                         priv_key,
