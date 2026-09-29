@@ -2,8 +2,10 @@
 use alloc::boxed::Box;
 
 use crypto::{SharedSecret, SupportedKxGroup};
+#[cfg(any(feature = "p256", feature = "p384"))]
 use crypto_common::Generate;
 use getrandom::rand_core::UnwrapErr;
+#[cfg(any(feature = "p256", feature = "p384"))]
 use paste::paste;
 use rustls::crypto;
 
@@ -49,6 +51,7 @@ impl crypto::ActiveKeyExchange for X25519KeyExchange {
     }
 }
 
+#[cfg(any(feature = "p256", feature = "p384"))]
 macro_rules! impl_kx {
     ($name:ident, $kx_name:ty, $secret:ty, $public_key:ty) => {
         paste! {
@@ -106,7 +109,15 @@ macro_rules! impl_kx {
     };
 }
 
+#[cfg(feature = "p256")]
 impl_kx! {SecP256R1, rustls::NamedGroup::secp256r1, p256::ecdh::EphemeralSecret, p256::PublicKey}
+#[cfg(feature = "p384")]
 impl_kx! {SecP384R1, rustls::NamedGroup::secp384r1, p384::ecdh::EphemeralSecret, p384::PublicKey}
 
-pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[&X25519, &SecP256R1, &SecP384R1];
+pub const ALL_KX_GROUPS: &[&dyn SupportedKxGroup] = &[
+    &X25519,
+    #[cfg(feature = "p256")]
+    &SecP256R1,
+    #[cfg(feature = "p384")]
+    &SecP384R1,
+];

@@ -1,6 +1,7 @@
 use aead::Buffer;
 use rustls::crypto::cipher::{BorrowedPayload, PrefixedPayload};
 
+#[cfg(feature = "chacha20poly1305")]
 pub mod chacha20;
 pub mod gcm;
 

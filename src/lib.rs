@@ -125,7 +125,7 @@ pub const TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
         aead_alg: &aead::gcm::Tls12Aes256Gcm,
     });
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "chacha20poly1305"))]
 pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -143,6 +143,7 @@ pub const TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
 const TLS_ECDHE_ECDSA_SUITES: &[SupportedCipherSuite] = &[
     TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
     TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+    #[cfg(feature = "chacha20poly1305")]
     TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
 ];
 
@@ -174,7 +175,7 @@ pub const TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: SupportedCipherSuite =
         aead_alg: &aead::gcm::Tls12Aes256Gcm,
     });
 
-#[cfg(feature = "tls12")]
+#[cfg(all(feature = "tls12", feature = "chacha20poly1305"))]
 pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls12(&rustls::Tls12CipherSuite {
         common: CipherSuiteCommon {
@@ -192,6 +193,7 @@ pub const TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
 const TLS_ECDHE_RSA_SUITES: &[SupportedCipherSuite] = &[
     TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
     TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+    #[cfg(feature = "chacha20poly1305")]
     TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
 ];
 
@@ -232,6 +234,7 @@ pub const TLS13_AES_256_GCM_SHA384: SupportedCipherSuite =
 const TLS13_AES_SUITES: &[SupportedCipherSuite] =
     &[TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384];
 
+#[cfg(feature = "chacha20poly1305")]
 pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
     SupportedCipherSuite::Tls13(&Tls13CipherSuite {
         common: CipherSuiteCommon {
@@ -244,11 +247,15 @@ pub const TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
         quic: None,
     });
 
+#[cfg(feature = "chacha20poly1305")]
 const TLS13_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     SupportedCipherSuite,
     TLS13_AES_SUITES,
     &[TLS13_CHACHA20_POLY1305_SHA256]
 );
+
+#[cfg(not(feature = "chacha20poly1305"))]
+const TLS13_SUITES: &[SupportedCipherSuite] = TLS13_AES_SUITES;
 
 static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
     SupportedCipherSuite,
@@ -265,6 +272,7 @@ mod hash;
 mod hmac;
 mod kx;
 mod misc;
+#[cfg(feature = "chacha20poly1305")]
 pub mod quic;
 pub mod sign;
 mod verify;
