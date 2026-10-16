@@ -263,9 +263,9 @@ static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = misc::const_concat_slices!(
 mod aead;
 mod hash;
 mod hmac;
+mod kx;
 #[cfg(test)]
 mod limit_tests;
-mod kx;
 mod misc;
 pub mod quic;
 pub mod sign;
