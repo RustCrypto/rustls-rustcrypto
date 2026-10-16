@@ -53,7 +53,7 @@ macro_rules! impl_gcm_tls13 {
                     key: AeadKey,
                     iv: cipher::Iv,
                 ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
-                    Ok(ConnectionTrafficSecrets::Aes256Gcm { key, iv })
+                    Ok(ConnectionTrafficSecrets::$name { key, iv })
                 }
             }
 
@@ -142,11 +142,17 @@ macro_rules! impl_gcm_tls12 {
                     &self,
                     key: AeadKey,
                     iv: &[u8],
-                    _explicit: &[u8],
+                    explicit: &[u8],
                 ) -> Result<ConnectionTrafficSecrets, cipher::UnsupportedOperationError> {
-                    Ok(ConnectionTrafficSecrets::Aes128Gcm {
+                    if iv.len() != 4 || explicit.len() != 8 {
+                        return Err(cipher::UnsupportedOperationError);
+                    }
+                    let mut full_iv = [0u8; 12];
+                    full_iv[..4].copy_from_slice(iv);
+                    full_iv[4..].copy_from_slice(explicit);
+                    Ok(ConnectionTrafficSecrets::$name {
                         key,
-                        iv: Iv::new(iv[..].try_into().unwrap()),
+                        iv: Iv::new(full_iv),
                     })
                 }
             }
@@ -234,3 +240,124 @@ impl_gcm_tls12! {Aes128Gcm, aes_gcm::Aes128Gcm, TLS12_GCM_EXPLICIT_NONCE_LEN, TL
 
 #[cfg(feature = "tls12")]
 impl_gcm_tls12! {Aes256Gcm, aes_gcm::Aes256Gcm, TLS12_GCM_EXPLICIT_NONCE_LEN, TLS12_GCM_OVERHEAD}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::panic)]
+
+    use super::*;
+    use crate::{
+        TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384,
+        TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+    };
+    use rustls::{CipherSuite, ConnectionTrafficSecrets, SupportedCipherSuite};
+
+    const KEY_256: [u8; 32] = [0x42; 32];
+
+    fn tls13_alg(suite: &'static SupportedCipherSuite) -> &'static dyn Tls13AeadAlgorithm {
+        match suite {
+            SupportedCipherSuite::Tls13(inner) => inner.aead_alg,
+            SupportedCipherSuite::Tls12(_) => unreachable!(),
+        }
+    }
+
+    fn tls12_alg(suite: &'static SupportedCipherSuite) -> &'static dyn Tls12AeadAlgorithm {
+        match suite {
+            SupportedCipherSuite::Tls12(inner) => inner.aead_alg,
+            SupportedCipherSuite::Tls13(_) => unreachable!(),
+        }
+    }
+
+    fn assert_tls13_secret(suite: &'static SupportedCipherSuite, suite_id: CipherSuite) {
+        let iv = Iv::new([0u8; 12]);
+        let secret = tls13_alg(suite)
+            .extract_keys(AeadKey::from(KEY_256), iv)
+            .unwrap();
+        match (suite_id, secret) {
+            (
+                CipherSuite::TLS13_AES_128_GCM_SHA256,
+                ConnectionTrafficSecrets::Aes128Gcm { iv, .. },
+            ) => assert_eq!(iv.as_ref(), &[0u8; 12]),
+            (
+                CipherSuite::TLS13_AES_256_GCM_SHA384,
+                ConnectionTrafficSecrets::Aes256Gcm { iv, .. },
+            ) => assert_eq!(iv.as_ref(), &[0u8; 12]),
+            (suite_id, _) => panic!("{suite_id:?} yielded the wrong secret shape"),
+        }
+    }
+
+    #[test]
+    fn tls13_extract_keys_reports_the_negotiated_algorithm() {
+        assert_tls13_secret(&TLS13_AES_128_GCM_SHA256, CipherSuite::TLS13_AES_128_GCM_SHA256);
+        assert_tls13_secret(&TLS13_AES_256_GCM_SHA384, CipherSuite::TLS13_AES_256_GCM_SHA384);
+    }
+
+    #[cfg(feature = "tls12")]
+    fn assert_tls12_secret(
+        suite: &'static SupportedCipherSuite,
+        suite_id: CipherSuite,
+        fixed_iv: [u8; 4],
+        explicit: [u8; 8],
+    ) {
+        let secret = tls12_alg(suite)
+            .extract_keys(AeadKey::from(KEY_256), &fixed_iv, &explicit)
+            .unwrap();
+        let mut expected_iv = [0u8; 12];
+        expected_iv[..4].copy_from_slice(&fixed_iv);
+        expected_iv[4..].copy_from_slice(&explicit);
+        match (suite_id, secret) {
+            (
+                CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                ConnectionTrafficSecrets::Aes128Gcm { iv, .. },
+            ) => assert_eq!(iv.as_ref(), &expected_iv),
+            (
+                CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                ConnectionTrafficSecrets::Aes256Gcm { iv, .. },
+            ) => assert_eq!(iv.as_ref(), &expected_iv),
+            (suite_id, _) => panic!("{suite_id:?} yielded the wrong secret shape"),
+        }
+    }
+
+    #[cfg(feature = "tls12")]
+    #[test]
+    fn tls12_extract_keys_assembles_the_iv_from_fixed_and_explicit_parts() {
+        assert_tls12_secret(
+            &TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            [1, 2, 3, 4],
+            [5, 6, 7, 8, 9, 10, 11, 12],
+        );
+        assert_tls12_secret(
+            &TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            [9, 8, 7, 6],
+            [5, 4, 3, 2, 1, 0, 255, 128],
+        );
+    }
+
+    #[cfg(feature = "tls12")]
+    #[test]
+    fn tls12_extract_keys_rejects_malformed_key_block_slices() {
+        let alg = tls12_alg(&TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256);
+        let explicit = [0u8; 8];
+
+        assert!(alg
+            .extract_keys(AeadKey::from(KEY_256), &[1, 2, 3], &explicit)
+            .is_err());
+        assert!(alg
+            .extract_keys(AeadKey::from(KEY_256), &[1, 2, 3, 4, 5], &explicit)
+            .is_err());
+
+        let fixed_iv = [1u8, 2, 3, 4];
+        assert!(alg
+            .extract_keys(AeadKey::from(KEY_256), &fixed_iv, &[1, 2, 3, 4, 5, 6, 7])
+            .is_err());
+        assert!(alg
+            .extract_keys(
+                AeadKey::from(KEY_256),
+                &fixed_iv,
+                &[1, 2, 3, 4, 5, 6, 7, 8, 9]
+            )
+            .is_err());
+    }
+}
