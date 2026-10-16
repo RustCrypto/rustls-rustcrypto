@@ -247,8 +247,8 @@ mod tests {
 
     use super::*;
     use crate::{
-        TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384,
-        TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+        TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+        TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
     };
     use rustls::{CipherSuite, ConnectionTrafficSecrets, SupportedCipherSuite};
 
@@ -288,8 +288,14 @@ mod tests {
 
     #[test]
     fn tls13_extract_keys_reports_the_negotiated_algorithm() {
-        assert_tls13_secret(&TLS13_AES_128_GCM_SHA256, CipherSuite::TLS13_AES_128_GCM_SHA256);
-        assert_tls13_secret(&TLS13_AES_256_GCM_SHA384, CipherSuite::TLS13_AES_256_GCM_SHA384);
+        assert_tls13_secret(
+            &TLS13_AES_128_GCM_SHA256,
+            CipherSuite::TLS13_AES_128_GCM_SHA256,
+        );
+        assert_tls13_secret(
+            &TLS13_AES_256_GCM_SHA384,
+            CipherSuite::TLS13_AES_256_GCM_SHA384,
+        );
     }
 
     #[cfg(feature = "tls12")]
