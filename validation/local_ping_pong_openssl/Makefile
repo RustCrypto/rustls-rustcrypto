@@ -12,4 +12,7 @@ fix:
 test:
 	cargo test
 
-.PHONY: check clean fix test
+cargo-update:
+	rustup run 1.87.0 cargo update
+
+.PHONY: check clean fix test cargo-update

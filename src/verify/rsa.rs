@@ -1,7 +1,7 @@
 use paste::paste;
-use pki_types::{alg_id, AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
+use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm, alg_id};
 use rsa::pkcs1::DecodeRsaPublicKey;
-use rsa::{pkcs1v15, pss, RsaPublicKey};
+use rsa::{PublicKey, pkcs1v15, pss};
 use sha2::{Sha256, Sha384, Sha512};
 use signature::Verifier;
 
@@ -33,7 +33,7 @@ macro_rules! impl_generic_rsa_verifer {
                     message: &[u8],
                     signature: &[u8],
                 ) -> Result<(), InvalidSignature> {
-                        let public_key = RsaPublicKey::from_pkcs1_der(public_key).map_err(|_| InvalidSignature)?;
+                        let public_key = PublicKey::from_pkcs1_der(public_key).map_err(|_| InvalidSignature)?;
                         let signature = <$signature>::try_from(signature).map_err(|_| InvalidSignature)?;
                         <$verifying_key>::new(public_key)
                             .verify(message, &signature)
