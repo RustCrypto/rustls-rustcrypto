@@ -1,10 +1,10 @@
 [package]
 name = "rustls-rustcrypto"
 description = """
-Pure Rust cryptography provider for the Rustls TLS library using algorithm implementations from the
-RustCrypto organization
+Pure Rust cryptography provider for the Rustls TLS library using algorithm
+implementations from the RustCrypto organization
 """
-version = "0.0.2-alpha"
+version = "0.1.0-pre.0"
 authors = ["RustCrypto Developers"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
