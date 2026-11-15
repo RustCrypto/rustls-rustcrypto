@@ -33,11 +33,15 @@ impl crypto::ActiveKeyExchange for X25519KeyExchange {
         let peer_array: [u8; 32] = peer
             .try_into()
             .map_err(|_| rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare))?;
-        Ok(self
-            .priv_key
-            .diffie_hellman(&peer_array.into())
-            .as_ref()
-            .into())
+        let shared = self.priv_key.diffie_hellman(&peer_array.into());
+        // RFC 8446 §4.2.8.2: a peer key of low order makes this result the
+        // identity — a secret the peer knows. `x25519-dalek` only *reports* that
+        // through `was_contributory`, and `complete` is documented as the place an
+        // invalid share has to be rejected.
+        if !shared.was_contributory() {
+            return Err(rustls::Error::from(rustls::PeerMisbehaved::InvalidKeyShare));
+        }
+        Ok(shared.as_ref().into())
     }
 
     fn pub_key(&self) -> &[u8] {
